@@ -34,7 +34,6 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 
     titleLabel = new QLabel(this);
     titleLabel->setStyleSheet("QLabel { color: white; }");
-    origTitle = titleLabel->text();
 
     popup = new QLabel(this);
     popup->setFixedSize(500, 500);
@@ -211,9 +210,11 @@ void TopBar::minimizeWindow() {
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
 
+        origTitle = titleLabel.text();
+
         if (origTitle.size() > 13) {
             QString newTitle = origTitle.left(13) + "-";
-            titleLabel->setText(newTitle);
+            titleLabel.setText(newTitle);
         }
 
         this->resize(25, this->height());

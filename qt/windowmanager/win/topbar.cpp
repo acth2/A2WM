@@ -196,7 +196,6 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 void TopBar::minimizeWindow() {
     if (trackedWindow && !isMinimized) {
         originalGeometry = trackedWindow->geometry();
-        
         originalTopBarWidth = this->width();
 
         trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), 0, 0);
@@ -207,15 +206,20 @@ void TopBar::minimizeWindow() {
         resizeButton->hide();
 
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
+
+        int initialOffset = 75;
+        if (minimizedX == 0) {
+            minimizedX += initialOffset;
+        }
+
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
 
         this->resize(25, this->height());
-
         this->setGeometry(minimizedX, screenGeometry.height() - 38, 25, this->height());
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
-        
+
         isMinimized = true;
     }
 }
@@ -447,33 +451,24 @@ void TopBar::maximizeWindow() {
      updatePosition();
 }
 
-void TopBar::minimizeWindow() {
-    if (trackedWindow && !isMinimized) {
-        originalGeometry = trackedWindow->geometry();
-        originalTopBarWidth = this->width();
+void TopBar::moveMinimizedWindow(bool moveRight) {
+    QScreen *screen = QApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
 
-        trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), 0, 0);
+    MinimizedPosArray::getInstance().freePosition(this->x());
 
-        maximizeButton->hide();
-        closeButton->hide();
-        minusButton->hide();
-        resizeButton->hide();
+    int newPosition = moveRight
+                        ? MinimizedPosArray::getInstance().getSmallestAvailable() + 38
+                        : MinimizedPosArray::getInstance().getSmallestAvailable() - 38;
 
-        int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
-
-        int initialOffset = 75;
-        if (minimizedX == 0) {
-            minimizedX += initialOffset;
-        }
-
-        QScreen *screen = QApplication::primaryScreen();
-        QRect screenGeometry = screen->geometry();
-
-        this->resize(25, this->height());
-        this->setGeometry(minimizedX, screenGeometry.height() - 38, 25, this->height());
-
-        MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
-
-        isMinimized = true;
+    if (newPosition < 0) {
+        newPosition = 0;
+    } else if (newPosition + 50 > screenGeometry.width()) {
+        newPosition = screenGeometry.width() - 50;
     }
+
+    int minimizedWidth = 50;
+
+    this->setGeometry(newPosition, screenGeometry.height() - 38, minimizedWidth, 25);
+    MinimizedPosArray::getInstance().markPositionAsTaken(newPosition);
 }

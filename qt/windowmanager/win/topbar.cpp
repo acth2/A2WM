@@ -204,17 +204,19 @@ void TopBar::minimizeWindow() {
         resizeButton->hide();
 
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
-
+        
+        int minimizedWidth = 50;
+        
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
-        this->setGeometry(minimizedX, screenGeometry.height() - 38, 50, 25);
+
+        this->setGeometry(minimizedX, screenGeometry.height() - 38, minimizedWidth, 25);
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
 
         isMinimized = true;
     }
 }
-
 
 void TopBar::focusInEvent(QFocusEvent *event) {
     QWidget::focusInEvent(event);
@@ -439,7 +441,6 @@ void TopBar::maximizeWindow() {
 
      updatePosition();
 }
-
 void TopBar::moveMinimizedWindow(bool moveRight) {
     QScreen *screen = QApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
@@ -452,10 +453,12 @@ void TopBar::moveMinimizedWindow(bool moveRight) {
 
     if (newPosition < 0) {
         newPosition = 0;
-    } else if (newPosition + 100 > screenGeometry.width()) {
-        newPosition = screenGeometry.width() - 100;
+    } else if (newPosition + 50 > screenGeometry.width()) {
+        newPosition = screenGeometry.width() - 50;
     }
 
-    this->setGeometry(newPosition, screenGeometry.height() - 38, 100, 25);
+    int minimizedWidth = 50;
+
+    this->setGeometry(newPosition, screenGeometry.height() - 38, minimizedWidth, 25);
     MinimizedPosArray::getInstance().markPositionAsTaken(newPosition);
 }

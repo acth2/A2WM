@@ -196,6 +196,7 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 void TopBar::minimizeWindow() {
     if (trackedWindow && !isMinimized) {
         originalGeometry = trackedWindow->geometry();
+        
         originalTopBarWidth = this->width();
 
         trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), 0, 0);
@@ -206,20 +207,15 @@ void TopBar::minimizeWindow() {
         resizeButton->hide();
 
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
-
-        int initialOffset = 75;
-        if (minimizedX == 0) {
-            minimizedX += initialOffset;
-        }
-
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
 
         this->resize(25, this->height());
+
         this->setGeometry(minimizedX, screenGeometry.height() - 38, 25, this->height());
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
-
+        
         isMinimized = true;
     }
 }

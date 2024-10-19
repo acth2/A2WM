@@ -211,8 +211,8 @@ void TopBar::minimizeWindow() {
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
 
-        if (origTitle.size() > 13) {
-            QString newTitle = origTitle.left(13) + "-";
+        if (origTitle->size() > 13) {
+            QString newTitle = origTitle->left(13) + "-";
             titleLabel->setText(newTitle);
         }
 

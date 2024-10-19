@@ -319,11 +319,12 @@ void TopBar::mousePressEvent(QMouseEvent *event) {
         trackedWindow->setGeometry(originalGeometry);
         trackedWindow->show();
 
+        this->resize(originalTopBarWidth, this->height());
+
         maximizeButton->show();
         closeButton->show();
         minusButton->show();
         resizeButton->show();
-        titleLabel->show();
 
         MinimizedPosArray::getInstance().freePosition(this->x());
 

@@ -336,6 +336,7 @@ void TopBar::mousePressEvent(QMouseEvent *event) {
         closeButton->show();
         minusButton->show();
         resizeButton->show();
+        this->setTitle(origTitle);
 
         MinimizedPosArray::getInstance().freePosition(this->x() - 75);
 

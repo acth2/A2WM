@@ -78,7 +78,7 @@ private:
     std::vector<int> minimizedSlots;
     int originalTopBarWidth;
 
-    QString origTitle;
+    QString *origTitle;
 };
 
 #endif // TOPBAR_H

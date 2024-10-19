@@ -317,7 +317,7 @@ void TopBar::mousePressEvent(QMouseEvent *event) {
     if (isMinimized) {
         QPoint globalPos = QCursor::pos();
         trackedWindow->setGeometry(originalGeometry);
-        trackedWindow->setPosition(globalPos.x(), globalPos.y() + 46);
+        trackedWindow->setPosition(globalPos.x(), globalPos.y() + 42);
         trackedWindow->show();
 
         this->resize(originalTopBarWidth, this->height());

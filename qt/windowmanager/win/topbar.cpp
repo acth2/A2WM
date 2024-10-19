@@ -212,7 +212,7 @@ void TopBar::minimizeWindow() {
 
         this->resize(25, this->height());
 
-        this->setGeometry(minimizedX, screenGeometry.height() - 38, 25, this->height());
+        this->setGeometry(minimizedX + 75, screenGeometry.height() - 38, 25, this->height());
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
         

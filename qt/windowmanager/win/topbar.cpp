@@ -200,7 +200,6 @@ void TopBar::minimizeWindow() {
         originalTopBarWidth = this->width();
 
         trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), 0, 0);
-        trackedWindow->hide();
 
         maximizeButton->hide();
         closeButton->hide();

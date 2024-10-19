@@ -11,7 +11,7 @@ int MinimizedPosArray::getSmallestAvailable() {
 
     for (int pos : minimizedSlots) {
         if (pos != -1) {
-            return pos;
+            return pos + 75;
         }
     }
     throw std::runtime_error("No available positions.");

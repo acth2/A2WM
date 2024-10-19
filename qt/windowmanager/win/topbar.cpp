@@ -34,7 +34,7 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 
     titleLabel = new QLabel(this);
     titleLabel->setStyleSheet("QLabel { color: white; }");
-    origTitle = titleLabel;
+    origTitle = titleLabel.text();
 
     popup = new QLabel(this);
     popup->setFixedSize(500, 500);

@@ -207,7 +207,7 @@ void TopBar::minimizeWindow() {
 
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
-        this->setGeometry(minimizedX, screenGeometry.height() - 38, 100, 25);
+        this->setGeometry(minimizedX, screenGeometry.height() - 38, 50, 25);
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
 

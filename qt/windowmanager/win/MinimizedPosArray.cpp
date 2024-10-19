@@ -1,8 +1,8 @@
 #include "MinimizedPosArray.h"
 
 MinimizedPosArray::MinimizedPosArray() {
-    for (int i = 0; i < 10; ++i) {
-        minimizedSlots.push_back(i * 150);
+    for (int i = 0; i < 50; ++i) {
+        minimizedSlots.push_back(i * 38);
     }
 }
 
@@ -32,7 +32,7 @@ void MinimizedPosArray::freePosition(int pos) {
     std::lock_guard<std::mutex> lock(mtx);
 
     for (int i = 0; i < minimizedSlots.size(); ++i) {
-        if (minimizedSlots[i] == -1 && i * 150 == pos) {
+        if (minimizedSlots[i] == -1 && i * 38 == pos) {
             minimizedSlots[i] = pos;
             return;
         }

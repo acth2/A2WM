@@ -205,7 +205,7 @@ void TopBar::minimizeWindow() {
 
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
         
-        int minimizedWidth = 50;
+        int minimizedWidth = 20;
         
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();

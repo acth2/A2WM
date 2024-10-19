@@ -1,5 +1,5 @@
 #include "topbar.h"
-#include "MinimizedPosInt.h"
+#include "MinimizedPosArray.h"
 #include "../windowmanager.h"
 #include <QApplication>
 #include <QMouseEvent>
@@ -196,7 +196,6 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 void TopBar::minimizeWindow() {
     if (trackedWindow && !isMinimized) {
         originalGeometry = trackedWindow->geometry();
-        
         trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), 0, 0);
 
         maximizeButton->hide();
@@ -204,29 +203,18 @@ void TopBar::minimizeWindow() {
         minusButton->hide();
         resizeButton->hide();
 
-        const int slotWidth = 150;
-        int availableSlot = -1;
+        int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
 
-        for (int i = 0; i < 10; ++i) {
-            int position = i * slotWidth;
-            if (std::find(minimizedSlots.begin(), minimizedSlots.end(), position) == minimizedSlots.end()) {
-                availableSlot = position;
-                break;
-            }
-        }
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
+        this->setGeometry(minimizedX, screenGeometry.height() - 38, 100, 25);
 
-        if (availableSlot != -1) {
-            this->setGeometry(availableSlot, screenGeometry.height() - 38, 100, 25);
-            minimizedSlots.push_back(availableSlot);
-        } else {
-            this->setGeometry(0, screenGeometry.height() - 38, 100, 25);
-        }
+        MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
 
         isMinimized = true;
     }
 }
+
 
 void TopBar::focusInEvent(QFocusEvent *event) {
     QWidget::focusInEvent(event);
@@ -337,12 +325,7 @@ void TopBar::mousePressEvent(QMouseEvent *event) {
         closeButton->show();
         minusButton->show();
         resizeButton->show();
-
-        int usedSlot = this->x();
-        auto it = std::find(minimizedSlots.begin(), minimizedSlots.end(), usedSlot);
-        if (it != minimizedSlots.end()) {
-            minimizedSlots.erase(it);
-        }
+        MinimizedPosArray::getInstance().freePosition(this->x());
 
         isMinimized = false;
         updatePosition();

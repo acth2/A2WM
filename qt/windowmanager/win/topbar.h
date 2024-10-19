@@ -76,6 +76,7 @@ private:
 
     QRect originalGeometry;
     std::vector<int> minimizedSlots;
+    int originalTopBarWidth;
 };
 
 #endif // TOPBAR_H

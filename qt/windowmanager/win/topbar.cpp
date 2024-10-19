@@ -460,6 +460,7 @@ void TopBar::minimizeWindow() {
         resizeButton->hide();
 
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
+
         int initialOffset = 75;
         if (minimizedX == 0) {
             minimizedX += initialOffset;

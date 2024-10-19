@@ -310,9 +310,9 @@ void TopBar::stopResizing() {
 }
 
 int TopBar::minimizedXPosition() {
-    int currentValue = MinimizedPosInt::getInstance().getValue();
+    int currentValue = MinimizedPosArray::getInstance().getValue();
     int newPosition = currentValue + 50;
-    MinimizedPosInt::getInstance().setValue(newPosition);
+    MinimizedPosArray::getInstance().setValue(newPosition);
 
     return newPosition + 50;
 }
@@ -450,7 +450,7 @@ void TopBar::maximizeWindow() {
 void TopBar::moveMinimizedWindow(bool moveRight) {
     QScreen *screen = QApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
-    int currentValue = MinimizedPosInt::getInstance().getValue();
+    int currentValue = MinimizedPosArray::getInstance().getValue();
     int adjustment = moveRight ? 50 : -50;
 
     int newPosition = currentValue + adjustment;
@@ -460,6 +460,6 @@ void TopBar::moveMinimizedWindow(bool moveRight) {
         newPosition = screenGeometry.width() - 100;
     }
 
-    MinimizedPosInt::getInstance().setValue(newPosition);
+    MinimizedPosArray::getInstance().setValue(newPosition);
     this->setGeometry(newPosition, screenGeometry.height() - 38, 100, 25);
 }

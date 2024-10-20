@@ -87,6 +87,8 @@ private:
 
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
+
+    void initXCBConnection();
 };
 
 #endif // WINDOWMANAGER_H

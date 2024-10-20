@@ -239,8 +239,9 @@ void WindowManager::processX11Events() {
             }
             free(event);
 
-            if (event->type == ConfigureNotify) {
-                XConfigureEvent xce = event->xconfigure;
+            uint8_t eventType = event->response_type & ~0x80;
+            if (eventType == XCB_CONFIGURE_NOTIFY) {
+                xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
 
                 if (trackedWindows.contains(xce.window)) {
                     QWindow *window = trackedWindows.value(xce.window);
@@ -264,8 +265,10 @@ void WindowManager::processX11Events() {
 
                         Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
                         Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+                        
+                        xcb_window_t windowX = static_cast<xcb_window_t>(x11Window->winId());
 
-                        xcb_get_property_cookie_t propCookie = xcb_get_property(connection, False, window, netWmState, XCB_ATOM_ATOM, 0, (~0L));
+                        xcb_get_property_cookie_t propCookie = xcb_get_property(connection, False, windowX, netWmState, XCB_ATOM_ATOM, 0, (~0L));
                         xcb_get_property_reply_t *propReply = xcb_get_property_reply(connection, propCookie, nullptr);
                         if (propReply) {
                             xcb_atom_t *atoms = (xcb_atom_t *)xcb_get_property_value(propReply);

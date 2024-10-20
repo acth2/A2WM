@@ -18,6 +18,9 @@
 #include "konami_code_handler.h"
 #include "userinteractright.h"
 #include <X11/Xlib.h>
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+#include <xcb/xcb_icccm.h>
 
 class TopBar;
 
@@ -89,6 +92,9 @@ private:
     QMap<WId, QWidget*> trackedContainers;
 
     void initXCBConnection();
+    xcb_atom_t netWmStateFullscreen;
+    xcb_atom_t netWmStateMaximizedVert;
+    xcb_atom_t netWmStateMaximizedHorz;
 };
 
 #endif // WINDOWMANAGER_H

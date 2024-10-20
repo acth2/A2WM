@@ -90,6 +90,25 @@ void WindowManager::initXCBConnection() {
     const xcb_setup_t *setup = xcb_get_setup(connection);
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
     screen = iter.data;
+    
+    initXCBAtoms();
+}
+
+void WindowManager::initXCBAtoms() {
+    netWmStateFullscreen = getAtom("_NET_WM_STATE_FULLSCREEN");
+    netWmStateMaximizedVert = getAtom("_NET_WM_STATE_MAXIMIZED_VERT");
+    netWmStateMaximizedHorz = getAtom("_NET_WM_STATE_MAXIMIZED_HORZ");
+}
+
+xcb_atom_t WindowManager::getAtom(const char *atomName) {
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom(connection, 0, strlen(atomName), atomName);
+    xcb_intern_atom_reply_t *atomReply = xcb_intern_atom_reply(connection, atomCookie, nullptr);
+    if (atomReply) {
+        xcb_atom_t atom = atomReply->atom;
+        free(atomReply);
+        return atom;
+    }
+    return XCB_ATOM_NONE;
 }
 
 void WindowManager::listExistingWindows() {
@@ -143,9 +162,9 @@ void WindowManager::listExistingWindows() {
 }
 
 void WindowManager::setSupportingWMCheck() {
-    xDisplay = XOpenDisplay(nullptr);
-    if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
+    connection = xcb_connect(nullptr, nullptr);
+    if (xcb_connection_has_error(connection)) {
+        appendLog("ERR: Failed to connect to X server via XCB.");
         return;
     }
 
@@ -153,48 +172,60 @@ void WindowManager::setSupportingWMCheck() {
     
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
-    XChangeProperty(xDisplay, DefaultRootWindow(xDisplay), netSupportingWMCheck, XA_WINDOW, 32, PropModeReplace, (unsigned char *)&supportingWindow, 1);
+    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     
     XMapWindow(xDisplay, supportingWindow);
     XFlush(xDisplay);
-    XCloseDisplay(xDisplay);
+    xcb_disconnect(connection);
 }
 
 void WindowManager::checkForNewWindows() {
-    xDisplay = XOpenDisplay(nullptr);
-    if (xDisplay) {
+    connection = xcb_connect(nullptr, nullptr);
+    if (!xcb_connection_has_error(connection)) {
         listExistingWindows();
         processX11Events(); 
         cleanUpClosedWindows();
         
-        Window activeWindow;
-        int revert;
-        XGetInputFocus(xDisplay, &activeWindow, &revert);
+        xcb_get_input_focus_cookie_t focusCookie = xcb_get_input_focus(connection);
+        xcb_get_input_focus_reply_t *focusReply = xcb_get_input_focus_reply(connection, focusCookie, nullptr);
+        if (focusReply) {
+            activeWindow = focusReply->focus;
+            appendLog(QString("INFO: Active window ID: %1").arg(activeWindow));
+            free(focusReply);
+        } else {
+            appendLog("ERR: Failed to get input focus via XCB.");
+        }
 
         if (!trackedWindows.contains(activeWindow)) {
             appendLog("INFO: Focusing back to Qt window");
             this->activateWindow();
         }
-        XCloseDisplay(xDisplay);
+        xcb_disconnect(connection);
     } else {
-        appendLog("ERR: Failed to open X Display ..");
+        appendLog("ERR: Failed to connect to X server via XCB.");
     }
 }
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
-    xDisplay = XOpenDisplay(nullptr);
-    if (xDisplay) {
-        XSelectInput(xDisplay, xorgWindowId, StructureNotifyMask);
+    connection = xcb_connect(nullptr, nullptr);
+    if (!xcb_connection_has_error(connection)) {
+        uint32_t values[] = { XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+        xcb_change_window_attributes(connection, xorgWindowId, XCB_CW_EVENT_MASK, values);
     } else {
-        appendLog("ERR: Failed to open X Display ..");
+        appendLog("ERR: Failed to connect to X server via XCB.");
     }
 }
 
 void WindowManager::processX11Events() {
-    XEvent event;
-    if (xDisplay) {
-        while (XPending(xDisplay)) {
-            XNextEvent(xDisplay, &event);
+        xcb_generic_event_t *event;
+        while ((event = xcb_poll_for_event(connection))) {
+            uint8_t eventType = event->response_type & ~0x80;
+
+            if (eventType == XCB_CONFIGURE_NOTIFY) {
+                xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
+                appendLog(QString("INFO: Window resized: (%1x%2)").arg(configureEvent->width).arg(configureEvent->height));
+            }
+            free(event);
 
             if (event.type == ConfigureNotify) {
                 XConfigureEvent xce = event.xconfigure;
@@ -222,23 +253,39 @@ void WindowManager::processX11Events() {
                         Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
                         Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
 
-                        Atom actualType;
-                        int actualFormat;
-                        unsigned long nItems, bytesAfter;
-                        unsigned char *prop = nullptr;
-
-                        int status = XGetWindowProperty(xDisplay, propEvent->window, netWmState, 0, (~0L), False, XA_ATOM, 
-                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
-
-                        if (status == Success && prop) {
-                            Atom *atoms = (Atom *)prop;
+                        xcb_get_property_cookie_t propCookie = xcb_get_property(connection, False, window, netWmState, XCB_ATOM_ATOM, 0, (~0L));
+                        xcb_get_property_reply_t *propReply = xcb_get_property_reply(connection, propCookie, nullptr);
+                        if (propReply) {
+                            xcb_atom_t *atoms = (xcb_atom_t *)xcb_get_property_value(propReply);
                             bool isFullscreen = false;
+                            bool isMaximizedVert = false;
+                            bool isMaximizedHorz = false;
 
-                            for (unsigned long i = 0; i < nItems; ++i) {
-                                if (atoms[i] == fullscreenAtom) {
-                                    isFullscreen = true;
-                                    break;
+                            if (propReply && atoms) {
+                                int atomCount = xcb_get_property_value_length(propReply) / sizeof(xcb_atom_t);
+
+                                for (int i = 0; i < atomCount; ++i) {
+                                    if (atoms[i] == netWmStateFullscreen) {
+                                        isFullscreen = true;
+                                    }
+                                    if (atoms[i] == netWmStateMaximizedVert) {
+                                        isMaximizedVert = true;
+                                    }
+                                    if (atoms[i] == netWmStateMaximizedHorz) {
+                                        isMaximizedHorz = true;
+                                    }
+                                }   
+                                    
+                                if (isFullscreen) {
+                                    appendLog("Window is in fullscreen mode");
                                 }
+                                if (isMaximizedVert) {
+                                    appendLog("Window is maximized vertically");
+                                }
+                                if (isMaximizedHorz) {
+                                    appendLog("Window is maximized horizontally");
+                                }
+                                free(propReply);
                             }
 
                             XFree(prop);
@@ -252,35 +299,6 @@ void WindowManager::processX11Events() {
                                 appendLog("INFO: Window exited fullscreen, restoring container size.");
                                 container->setGeometry(window->geometry());
                             }
-                        }
-                    }
-                }
-
-                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False)) {
-                    if (trackedWindows.contains(propEvent->window)) {
-                        QWindow *window = trackedWindows.value(propEvent->window);
-                        QWidget *container = trackedContainers.value(propEvent->window);
-
-                        Atom opacityAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False);
-                        unsigned long opacityValue = 0xffffffff;
-
-                        Atom actualType;
-                        int actualFormat;
-                        unsigned long nItems, bytesAfter;
-                        unsigned char *prop = nullptr;
-
-                        int status = XGetWindowProperty(xDisplay, propEvent->window, opacityAtom, 0, (~0L), False, XA_CARDINAL,
-                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
-
-                        if (status == Success && prop) {
-                            opacityValue = *(unsigned long *)prop;
-                            XFree(prop);
-
-                            qreal opacity = static_cast<qreal>(opacityValue) / 0xffffffff;
-
-                            appendLog(QString("INFO: Window opacity changed: %1").arg(opacity));
-
-                            container->setWindowOpacity(opacity);
                         }
                     }
                 }
@@ -455,7 +473,14 @@ void WindowManager::cleanUpClosedWindows() {
     QList<WId> windowsToRemove;
     for (auto xorgWindowId : trackedWindows.keys()) {
         XWindowAttributes attributes;
-        int status = XGetWindowAttributes(xDisplay, xorgWindowId, &attributes);
+        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry(connection, xorgWindowId);
+        xcb_get_geometry_reply_t *geomReply = xcb_get_geometry_reply(connection, geomCookie, nullptr);
+        if (geomReply) {
+            appendLog(QString("INFO: Window width: %1, height: %2").arg(geomReply->width).arg(geomReply->height));
+            free(geomReply);
+        } else {
+            appendLog("ERR: Failed to get window geometry via XCB.");
+        }
 
         if (status == 0 || attributes.map_state == IsUnmapped) {
             windowsToRemove.append(xorgWindowId);

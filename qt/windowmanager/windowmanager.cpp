@@ -303,9 +303,6 @@ void WindowManager::processX11Events() {
                     }
                 }
             }
-    } else {
-        appendLog("ERR: Failed to open X Display ..");
-    }
 }
 
 

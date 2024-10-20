@@ -310,6 +310,7 @@ void WindowManager::processX11Events() {
                     }
                 }
             }
+        }
 }
 
 

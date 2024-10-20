@@ -103,6 +103,8 @@ private:
     xcb_ewmh_connection_t ewmh;
     xcb_intern_atom_cookie_t *ewmh_cookie = xcb_ewmh_init_atoms(connection, &ewmh);
     xcb_ewmh_init_atoms_replies(&ewmh, ewmh_cookie, nullptr);
+
+    void activateWindow();
 };
 
 #endif // WINDOWMANAGER_H

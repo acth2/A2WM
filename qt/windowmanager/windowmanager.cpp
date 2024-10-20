@@ -80,6 +80,10 @@ void WindowManager::updateDesktopIcons() {
     appendLog("Desktop Icons timer updated!");
 }
 
+void WindowManager::activateWindow() {
+    this->raise();
+    this->setFocus();
+}
 
 void WindowManager::initXCBConnection() {
     connection = xcb_connect(nullptr, nullptr);

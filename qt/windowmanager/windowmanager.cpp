@@ -21,9 +21,15 @@
 #include <QStringList>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+#include <xcb/xcb_icccm.h>
 
 #undef KeyPress
 namespace fs = std::filesystem;
+
+xcb_connection_t *connection;
+xcb_screen_t *screen;
 
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
@@ -73,64 +79,67 @@ void WindowManager::updateDesktopIcons() {
     appendLog("Desktop Icons timer updated!");
 }
 
-Display *xDisplay;
+
+void WindowManager::initXCBConnection() {
+    connection = xcb_connect(nullptr, nullptr);
+    if (xcb_connection_has_error(connection)) {
+        appendLog("ERR: Failed to connect to X server via XCB.");
+        return;
+    }
+
+    const xcb_setup_t *setup = xcb_get_setup(connection);
+    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
+    screen = iter.data;
+}
+
 void WindowManager::listExistingWindows() {
-    if (xDisplay) {
-        Atom netClientList = XInternAtom(xDisplay, "_NET_CLIENT_LIST", False);
-        Window root = DefaultRootWindow(xDisplay);
+    if (!connection) {
+        appendLog("ERR: XCB connection not initialized.");
+        return;
+    }
 
-        Atom actualType;
-        int actualFormat;
-        unsigned long numItems, bytesAfter;
-        unsigned char *data = nullptr;
+    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
+    xcb_ewmh_get_windows_reply_t reply;
+    if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
+        appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
+        return;
+    }
 
-        if (XGetWindowProperty(xDisplay, root, netClientList, 0, (~0L), False, XA_WINDOW,
-                               &actualType, &actualFormat, &numItems, &bytesAfter, &data) == Success) {
-            Window *windowList = (Window *)data;
+    for (unsigned int i = 0; i < reply.windows_len; ++i) {
+        xcb_window_t window = reply.windows[i];
 
-            for (unsigned long i = 0; i < numItems; ++i) {
-                Window child = windowList[i];
+        xcb_get_property_cookie_t nameCookie = xcb_ewmh_get_wm_name_unchecked(&ewmh, window);
+        xcb_ewmh_get_utf8_strings_reply_t nameReply;
+        if (xcb_ewmh_get_wm_name_reply(&ewmh, nameCookie, &nameReply, nullptr)) {
+            QString windowName = QString::fromUtf8(nameReply.strings, nameReply.strings_len);
 
-                char *windowName = nullptr;
-                if (XFetchName(xDisplay, child, &windowName) && windowName) {
-                    QString name(windowName);
-
-                    if (name == "A2WM") {
-                        appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(child));
-                        XFree(windowName);
-                        continue;
-                    }
-
-                    if (name == "QTerminal" || name == "Shell No. 1") {
-                        appendLog("INFO: Detected QTerminal window: " + QString::number(child));
-                        createAndTrackWindow(child, "QTerminal");
-                        XFree(windowName);
-                        continue;
-                    }
-
-                    if (name == "A2WMEdit" || name == "Fadyedit") {
-                        appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(child));
-                        createAndTrackWindow(child, "A2WMEdit");
-                        XFree(windowName);
-                        continue;
-                    }
-
-                    appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
-                    if (!trackedWindows.contains(child)) {
-                        createAndTrackWindow(child, name);
-                    }
-
-                    XFree(windowName);
-                }
+            if (windowName == "A2WM") {
+                appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(window));
+                continue;
             }
 
-            XFree(data);
-        } else {
-            appendLog("ERR: Failed to get _NET_CLIENT_LIST property.");
+            if (windowName == "QTerminal" || windowName == "Shell No. 1") {
+                appendLog("INFO: Detected QTerminal window: " + QString::number(window));
+                createAndTrackWindow(window, "QTerminal");
+                continue;
+            }
+
+            if (windowName == "A2WMEdit" || windowName == "Fadyedit") {
+                appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(window));
+                createAndTrackWindow(window, "A2WMEdit");
+                continue;
+            }
+
+            appendLog("INFO: Detected graphical XCB window: " + QString::number(window));
+            if (!trackedWindows.contains(window)) {
+                createAndTrackWindow(window, windowName);
+            }
+
+            xcb_ewmh_get_utf8_strings_reply_wipe(&nameReply);
         }
-    } else {
-        appendLog("ERR: X Display not initialized.");
     }
+
+    xcb_ewmh_get_windows_reply_wipe(&reply);
 }
 
 void WindowManager::setSupportingWMCheck() {

@@ -212,7 +212,7 @@ void TopBar::minimizeWindow() {
 
         origTitle = titleLabel->text();
 
-        if (origTitle.size() > 13) {
+        if (origTitle.size() > 9) {
             QString newTitle = origTitle.left(13) + "-";
             titleLabel->setText(newTitle);
         }

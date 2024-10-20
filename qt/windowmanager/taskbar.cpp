@@ -67,84 +67,11 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     adjustSizeToScreen();
     installEventFilter();
-
-    onLoopTimer = new QTimer(this);
-    connect(onLoopTimer, &QTimer::timeout, this, &TaskBar::onLoop);
-    onLoopTimer->start(1500);
 }
 
 void TaskBar::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     adjustSizeToScreen();
-}
-
-Display *x2Display;
-void TaskBar::onLoop() {
-    if (x2Display) {
-        Atom netWmWindowType = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE", False);
-        Atom netWmWindowTypeNormal = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-        Atom netWmWindowTypeDesktop = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        Atom netWmWindowTypeDock = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        Atom netWmWindowTypeToolbar = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-        Atom netWmWindowTypeMenu = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_MENU", False);
-        Atom netWmWindowTypeUtility = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_UTILITY", False);
-        Atom netWmWindowTypeSplash = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_SPLASH", False);
-        Atom netWmWindowTypeDialog = XInternAtom(x2Display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        
-        Window windowRoot = DefaultRootWindow(x2Display);
-        Window parent, *children;
-        unsigned int nChildren;
-
-        if (XQueryTree(x2Display, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
-            for (unsigned int i = 0; i < nChildren; i++) {
-                Window child = children[i];
-
-                char *windowName = nullptr;
-                if (XFetchName(x2Display, child, &windowName) && windowName) {
-                    QString name(windowName);
-                    XFree(windowName);
-                }
-
-                Atom type;
-                int format;
-                unsigned long nItems, bytesAfter;
-                unsigned char *data = nullptr;
-
-                if (XGetWindowProperty(x2Display, child, netWmWindowType, 0, 1, False, XA_ATOM,
-                                   &type, &format, &nItems, &bytesAfter, &data) == Success) {
-                    if (data) {
-                        Atom *atoms = (Atom *)data;
-                        if (atoms[0] != netWmWindowTypeDock &&
-                            atoms[0] != netWmWindowTypeToolbar &&
-                            atoms[0] != netWmWindowTypeMenu &&
-                            atoms[0] != netWmWindowTypeUtility &&
-                            atoms[0] != netWmWindowTypeSplash &&
-                            atoms[0] != netWmWindowTypeDialog) {
-                            XFree(data);
-                            continue;
-                        }
-                    }
-                }
-
-                XWindowAttributes attributes;
-                if (XGetWindowAttributes(x2Display, child, &attributes) == 0 || attributes.map_state != IsViewable) {
-                    continue;
-                }
-
-                QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
-
-                if (windowGeometry.width() == 0 || windowGeometry.height() == 0) {
-                    continue;
-                }
-
-                    char *windowName2 = nullptr;
-                    if (XFetchName(x2Display, child, &windowName2) && windowName2) {
-                        QString name2(windowName2);
-                    }
-                        XFree(children);
-                }
-        }
-    }
 }
 
 void TaskBar::mousePressEvent(QMouseEvent *event) {

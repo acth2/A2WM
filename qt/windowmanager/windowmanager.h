@@ -21,6 +21,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <xcb/xcb_icccm.h>
+#include <xcb/xcb_ewmh.h>
 
 class TopBar;
 
@@ -98,6 +99,10 @@ private:
     xcb_atom_t netWmStateFullscreen;
     xcb_atom_t netWmStateMaximizedVert;
     xcb_atom_t netWmStateMaximizedHorz;
+
+    xcb_ewmh_connection_t ewmh;
+    xcb_intern_atom_cookie_t *ewmh_cookie = xcb_ewmh_init_atoms(connection, &ewmh);
+    xcb_ewmh_init_atoms_replies(&ewmh, ewmh_cookie, nullptr);
 };
 
 #endif // WINDOWMANAGER_H

@@ -92,6 +92,9 @@ private:
     QMap<WId, QWidget*> trackedContainers;
 
     void initXCBConnection();
+    void initXCBAtoms();
+
+    xcb_atom_t getAtom(const char *atomName);
     xcb_atom_t netWmStateFullscreen;
     xcb_atom_t netWmStateMaximizedVert;
     xcb_atom_t netWmStateMaximizedHorz;

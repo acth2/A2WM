@@ -2,4 +2,4 @@
 <h1>AcTh2 Window Manager</h1>
 <p>The github repository is containing the code of the window manager A2WM</p>
 <p>Working and tested on an Linux From Scratch system (https://github.com/acth2/CydraProject)</p>
-<p>![Capture d’écran 2024-10-20 024834](https://github.com/user-attachments/assets/2983bc12-fc0b-4b6d-8eab-ed37d988250f)</p>
+<p align="center"><img src="https://raw.githubusercontent.com/acth2/A2WM/main/.demonstration/d.png" alt="project-image"></p>

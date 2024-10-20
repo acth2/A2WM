@@ -89,7 +89,7 @@ void WindowManager::initXCBConnection() {
 
     const xcb_setup_t *setup = xcb_get_setup(connection);
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
-    screen = iter.data;
+    screen() = iter.data;
     
     initXCBAtoms();
 }

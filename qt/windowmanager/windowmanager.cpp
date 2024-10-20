@@ -24,6 +24,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <xcb/xcb_icccm.h>
+#include <xcb/xcb_ewmh.h>
 
 #undef KeyPress
 namespace fs = std::filesystem;

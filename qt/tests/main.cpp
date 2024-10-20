@@ -9,14 +9,14 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QWidget window;
-    window.setWindowTitle("COSP-C");
+    window.setWindowTitle("Hey !");
     QVBoxLayout *layout = new QVBoxLayout();
 
-    QLabel *label = new QLabel("COSP-C CydraOSPrograms CODE");
+    QLabel *label = new QLabel("Does it works ?");
     layout->addWidget(label);
 
 
-    QPushButton *button1 = new QPushButton("COSP-C");
+    QPushButton *button1 = new QPushButton("Maybe ...");
     label->setAlignment(Qt::AlignCenter);
 
     layout->addStretch();

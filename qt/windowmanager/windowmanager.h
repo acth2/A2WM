@@ -92,17 +92,15 @@ private:
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
 
-    void initXCBConnection();
-    void initXCBAtoms();
-
-    xcb_atom_t getAtom(const char *atomName);
+    xcb_connection_t *connection;
+    xcb_ewmh_connection_t ewmh;
     xcb_atom_t netWmStateFullscreen;
     xcb_atom_t netWmStateMaximizedVert;
     xcb_atom_t netWmStateMaximizedHorz;
 
-    xcb_ewmh_connection_t ewmh;
-    xcb_intern_atom_cookie_t *ewmh_cookie = xcb_ewmh_init_atoms(connection, &ewmh);
-    xcb_ewmh_init_atoms_replies(&ewmh, ewmh_cookie, nullptr);
+    void initXCBConnection();
+    void initXCBAtoms();
+    xcb_atom_t getAtom(const char *atomName);
 
     int status = 0;
 

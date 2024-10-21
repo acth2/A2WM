@@ -122,7 +122,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen()->root);
+    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root); 
     xcb_ewmh_get_windows_reply_t reply;
     if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
         appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
@@ -183,7 +183,7 @@ void WindowManager::setSupportingWMCheck() {
     Window supportingWindow = XCreateSimpleWindow(xDisplay, DefaultRootWindow(xDisplay), 0, 0, 1, 1, 0, 0, 0);
     
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
-    Atom windowId = XInternAtom(, "WM_WINDOW", False);
+    Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
     xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen()->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     
     XMapWindow(xDisplay, supportingWindow);
@@ -238,8 +238,9 @@ void WindowManager::processX11Events() {
                 appendLog(QString("INFO: Window resized: (%1x%2)").arg(configureEvent->width).arg(configureEvent->height));
             }
             free(event);
-
-            uint8_t eventType = event->response_type & ~0x80;
+            
+            xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+            uint8_t eventType = event->response_type & ~0x80; 
             if (eventType == XCB_CONFIGURE_NOTIFY) {
                 xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
 

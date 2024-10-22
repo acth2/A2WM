@@ -94,30 +94,22 @@ void WindowManager::listExistingWindows() {
                 char *windowName = nullptr;
                 if (XFetchName(xDisplay, child, &windowName) && windowName) {
                     QString name(windowName);
+                    bool shouldTrack = true;
 
                     if (name == "A2WM") {
                         appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(child));
-                        XFree(windowName);
-                        continue;
-                    }
-
-                    if (name == "QTerminal" || name == "Shell No. 1") {
+                        shouldTrack = false;
+                    } else if (name == "QTerminal" || name == "Shell No. 1") {
                         appendLog("INFO: Detected QTerminal window: " + QString::number(child));
-                        createAndTrackWindow(child, "QTerminal");
-                        XFree(windowName);
-                        continue;
-                    }
-
-                    if (name == "A2WMEdit" || name == "Fadyedit") {
+                    } else if (name == "A2WMEdit" || name == "Fadyedit") {
                         appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(child));
-                        createAndTrackWindow(child, "A2WMEdit");
-                        XFree(windowName);
-                        continue;
                     }
 
-                    appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
-                    if (!trackedWindows.contains(child)) {
-                        createAndTrackWindow(child, name);
+                    if (shouldTrack) {
+                        appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
+                        if (!trackedWindows.contains(child)) {
+                            createAndTrackWindow(child, name);
+                        }
                     }
 
                     XFree(windowName);

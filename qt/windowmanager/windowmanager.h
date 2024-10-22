@@ -29,7 +29,6 @@ class WindowManager : public QWidget {
 public:
     explicit WindowManager(QWidget *parent = nullptr);
     void appendLog(const QString &message);
-    static int main(int argc, char *argv[]);
     QMap<WId, TopBar*> windowTopBars;
     void closeWindow(WId xorgWindowId);
     void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
@@ -88,8 +87,6 @@ private:
 
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
-
-    virtual ~WindowManager();
 };
 
 #endif // WINDOWMANAGER_H

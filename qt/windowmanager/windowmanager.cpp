@@ -197,6 +197,7 @@ void WindowManager::checkForNewWindows() {
     processX11Events();
     cleanUpClosedWindows();
 
+    xcb_window_t activeWindow = 0;
     auto focusCookie = xcb_get_input_focus(connection);
     auto *focusReply = xcb_get_input_focus_reply(connection, focusCookie, nullptr);
     if (focusReply) {

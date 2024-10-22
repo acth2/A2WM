@@ -21,16 +21,9 @@
 #include <QStringList>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include <xcb/xcb.h>
-#include <xcb/xproto.h>
-#include <xcb/xcb_icccm.h>
-#include <xcb/xcb_ewmh.h>
 
 #undef KeyPress
 namespace fs = std::filesystem;
-
-xcb_connection_t *connection;
-xcb_screen_t *screen;
 
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
@@ -38,37 +31,41 @@ WindowManager::WindowManager(QWidget *parent)
       userInteractRightWidget(nullptr),
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
-    
+
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_TranslucentBackground);
+
     setSupportingWMCheck();
 
-    if (QScreen *screen = QApplication::primaryScreen())
-        setGeometry(screen->geometry());
+    QScreen *screen = QApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->geometry();
+        setGeometry(screenGeometry);
+    }
 
     logLabel = new QLabel(this);
     logLabel->setStyleSheet("QLabel { color : white; background-color : rgba(0, 0, 0, 150); }");
     logLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
     logLabel->setVisible(false);
 
-    auto *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
-        
+
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 
     userInteractRightWidget = nullptr;
-
+        
     windowCheckTimer = new QTimer(this);
     connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
     windowCheckTimer->start(50);
-
-    auto *desktopUpdateTimer = new QTimer(this);
+    
+    QTimer *desktopUpdateTimer = new QTimer(this);
     connect(desktopUpdateTimer, &QTimer::timeout, this, &WindowManager::updateDesktopIcons);
-    desktopUpdateTimer->start(1000);
-
+    desktopUpdateTimer->start(1000); 
+    
     showFullScreen();
 }
 
@@ -76,173 +73,215 @@ void WindowManager::updateDesktopIcons() {
     appendLog("Desktop Icons timer updated!");
 }
 
-void WindowManager::activateWindow() {
-    raise();
-    setFocus();
-}
-
-void WindowManager::initXCBConnection() {
-    connection = xcb_connect(nullptr, nullptr);
-    if (xcb_connection_has_error(connection)) {
-        appendLog("ERR: Failed to connect to X server via XCB.");
-        return;
-    }
-
-    const auto *setup = xcb_get_setup(connection);
-    auto iter = xcb_setup_roots_iterator(setup);
-    xcb_screen_t *screen;
-    screen = iter.data;
-
-    initXCBAtoms();
-}
-
-void WindowManager::initXCBAtoms() {
-    netWmStateFullscreen = getAtom("_NET_WM_STATE_FULLSCREEN");
-    netWmStateMaximizedVert = getAtom("_NET_WM_STATE_MAXIMIZED_VERT");
-    netWmStateMaximizedHorz = getAtom("_NET_WM_STATE_MAXIMIZED_HORZ");
-}
-
-xcb_atom_t WindowManager::getAtom(const char *atomName) {
-    auto atomCookie = xcb_intern_atom(connection, 0, strlen(atomName), atomName);
-    auto *atomReply = xcb_intern_atom_reply(connection, atomCookie, nullptr);
-    if (!atomReply) return XCB_ATOM_NONE;
-
-    xcb_atom_t atom = atomReply->atom;
-    free(atomReply);
-    return atom;
-}
-
-void WindowManager::listExistingWindows() {
-    if (!connection) {
-        appendLog("ERR: XCB connection not initialized.");
-        return;
-    }
-
-    xcb_screen_t *screen = iter.data;
-    auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
-    xcb_ewmh_get_windows_reply_t reply;
-    if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
-        appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
-        return;
-    }
-
-    for (unsigned int i = 0; i < reply.windows_len; ++i) {
-        xcb_window_t window = reply.windows[i];
-
-        auto nameCookie = xcb_ewmh_get_wm_name_unchecked(&ewmh, window);
-        xcb_ewmh_get_utf8_strings_reply_t nameReply;
-        if (!xcb_ewmh_get_wm_name_reply(&ewmh, nameCookie, &nameReply, nullptr)) continue;
-
-        QString windowName = QString::fromUtf8(nameReply.strings, nameReply.strings_len);
-
-        if (windowName == "A2WM") {
-            appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(window));
-            continue;
-        }
-
-        if (windowName == "QTerminal" || windowName == "Shell No. 1") {
-            appendLog("INFO: Detected QTerminal window: " + QString::number(window));
-            createAndTrackWindow(window, "QTerminal");
-            continue;
-        }
-
-        if (windowName == "A2WMEdit" || windowName == "Fadyedit") {
-            appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(window));
-            createAndTrackWindow(window, "A2WMEdit");
-            continue;
-        }
-
-        appendLog("INFO: Detected graphical XCB window: " + QString::number(window));
-        if (!trackedWindows.contains(window)) 
-            createAndTrackWindow(window, windowName);
-
-        xcb_ewmh_get_utf8_strings_reply_wipe(&nameReply);
-    }
-
-    xcb_ewmh_get_windows_reply_wipe(&reply);
-}
-
 Display *xDisplay;
-void WindowManager::setSupportingWMCheck() {
-    connection = xcb_connect(nullptr, nullptr);
-    if (xcb_connection_has_error(connection)) {
-        appendLog("ERR: Failed to connect to X server via XCB.");
-        return;
-    }
+void WindowManager::listExistingWindows() {
+    if (xDisplay) {
+        Atom netClientList = XInternAtom(xDisplay, "_NET_CLIENT_LIST", False);
+        Window root = DefaultRootWindow(xDisplay);
 
+        Atom actualType;
+        int actualFormat;
+        unsigned long numItems, bytesAfter;
+        unsigned char *data = nullptr;
+
+        if (XGetWindowProperty(xDisplay, root, netClientList, 0, (~0L), False, XA_WINDOW,
+                               &actualType, &actualFormat, &numItems, &bytesAfter, &data) == Success) {
+            Window *windowList = (Window *)data;
+
+            for (unsigned long i = 0; i < numItems; ++i) {
+                Window child = windowList[i];
+
+                char *windowName = nullptr;
+                if (XFetchName(xDisplay, child, &windowName) && windowName) {
+                    QString name(windowName);
+
+                    if (name == "A2WM") {
+                        appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(child));
+                        XFree(windowName);
+                        continue;
+                    }
+
+                    if (name == "QTerminal" || name == "Shell No. 1") {
+                        appendLog("INFO: Detected QTerminal window: " + QString::number(child));
+                        createAndTrackWindow(child, "QTerminal");
+                        XFree(windowName);
+                        continue;
+                    }
+
+                    if (name == "A2WMEdit" || name == "Fadyedit") {
+                        appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(child));
+                        createAndTrackWindow(child, "A2WMEdit");
+                        XFree(windowName);
+                        continue;
+                    }
+
+                    appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
+                    if (!trackedWindows.contains(child)) {
+                        createAndTrackWindow(child, name);
+                    }
+
+                    XFree(windowName);
+                }
+            }
+
+            XFree(data);
+        } else {
+            appendLog("ERR: Failed to get _NET_CLIENT_LIST property.");
+        }
+    } else {
+        appendLog("ERR: X Display not initialized.");
+    }
+}
+
+void WindowManager::setSupportingWMCheck() {
     xDisplay = XOpenDisplay(nullptr);
     if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display.");
+        appendLog("ERR: Failed to open X Display ..");
         return;
     }
 
     Window supportingWindow = XCreateSimpleWindow(xDisplay, DefaultRootWindow(xDisplay), 0, 0, 1, 1, 0, 0, 0);
-
+    
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
-    
-    xcb_screen_t *screen = iter.data;
-    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
+    XChangeProperty(xDisplay, DefaultRootWindow(xDisplay), netSupportingWMCheck, XA_WINDOW, 32, PropModeReplace, (unsigned char *)&supportingWindow, 1);
     
     XMapWindow(xDisplay, supportingWindow);
     XFlush(xDisplay);
-    xcb_disconnect(connection);
+    XCloseDisplay(xDisplay);
 }
 
 void WindowManager::checkForNewWindows() {
-    connection = xcb_connect(nullptr, nullptr);
-    if (xcb_connection_has_error(connection)) {
-        appendLog("ERR: Failed to connect to X server via XCB.");
-        return;
-    }
+    xDisplay = XOpenDisplay(nullptr);
+    if (xDisplay) {
+        listExistingWindows();
+        processX11Events(); 
+        cleanUpClosedWindows();
+        
+        Window activeWindow;
+        int revert;
+        XGetInputFocus(xDisplay, &activeWindow, &revert);
 
-    listExistingWindows();
-    processX11Events();
-    cleanUpClosedWindows();
-
-    xcb_window_t activeWindow = 0;
-    auto focusCookie = xcb_get_input_focus(connection);
-    auto *focusReply = xcb_get_input_focus_reply(connection, focusCookie, nullptr);
-    if (focusReply) {
-        xcb_window_t activeWindow = focusReply->focus;
-        appendLog(QString("INFO: Active window ID: %1").arg(activeWindow));
-        free(focusReply);
+        if (!trackedWindows.contains(activeWindow)) {
+            appendLog("INFO: Focusing back to Qt window");
+            this->activateWindow();
+        }
+        XCloseDisplay(xDisplay);
     } else {
-        appendLog("ERR: Failed to get input focus via XCB.");
+        appendLog("ERR: Failed to open X Display ..");
     }
-
-    if (!trackedWindows.contains(activeWindow)) {
-        appendLog("INFO: Focusing back to Qt window");
-        activateWindow();
-    }
-
-    xcb_disconnect(connection);
 }
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
-    connection = xcb_connect(nullptr, nullptr);
-    if (xcb_connection_has_error(connection)) {
-        appendLog("ERR: Failed to connect to X server via XCB.");
-        return;
+    xDisplay = XOpenDisplay(nullptr);
+    if (xDisplay) {
+        XSelectInput(xDisplay, xorgWindowId, StructureNotifyMask);
+    } else {
+        appendLog("ERR: Failed to open X Display ..");
     }
-
-    uint32_t values[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY};
-    xcb_change_window_attributes(connection, xorgWindowId, XCB_CW_EVENT_MASK, values);
 }
 
 void WindowManager::processX11Events() {
-    xcb_generic_event_t *event;
-    while ((event = xcb_poll_for_event(connection))) {
-        uint8_t eventType = event->response_type & ~0x80;
+    XEvent event;
+    if (xDisplay) {
+        while (XPending(xDisplay)) {
+            XNextEvent(xDisplay, &event);
 
-        if (eventType == XCB_CONFIGURE_NOTIFY) {
-            auto *configureEvent = reinterpret_cast<xcb_configure_notify_event_t *>(event);
-            appendLog(QString("INFO: Window resized: (%1x%2)").arg(configureEvent->width).arg(configureEvent->height));
+            if (event.type == ConfigureNotify) {
+                XConfigureEvent xce = event.xconfigure;
+
+                if (trackedWindows.contains(xce.window)) {
+                    QWindow *window = trackedWindows.value(xce.window);
+                    QRect windowGeometry = window->geometry();
+
+                    appendLog(QString("INFO: Window resized/moved: (%1, %2), Size: (%3x%4)")
+                        .arg(xce.x).arg(xce.y)
+                        .arg(xce.width).arg(xce.height));
+
+                    updateTaskbarPosition(window);
+                }
+            }
+
+            if (event.type == PropertyNotify) {
+                XPropertyEvent *propEvent = (XPropertyEvent *)&event;
+
+                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_STATE", False)) {
+                    if (trackedWindows.contains(propEvent->window)) {
+                        QWindow *window = trackedWindows.value(propEvent->window);
+                        QWidget *container = trackedContainers.value(propEvent->window);
+
+                        Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
+                        Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+
+                        Atom actualType;
+                        int actualFormat;
+                        unsigned long nItems, bytesAfter;
+                        unsigned char *prop = nullptr;
+
+                        int status = XGetWindowProperty(xDisplay, propEvent->window, netWmState, 0, (~0L), False, XA_ATOM, 
+                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
+
+                        if (status == Success && prop) {
+                            Atom *atoms = (Atom *)prop;
+                            bool isFullscreen = false;
+
+                            for (unsigned long i = 0; i < nItems; ++i) {
+                                if (atoms[i] == fullscreenAtom) {
+                                    isFullscreen = true;
+                                    break;
+                                }
+                            }
+
+                            XFree(prop);
+
+                            if (isFullscreen) {
+                                appendLog("INFO: Window is fullscreen, adjusting container size.");
+                                QScreen *screen = QApplication::primaryScreen();
+                                QRect screenGeometry = screen->geometry();
+                                container->setGeometry(screenGeometry);
+                            } else {
+                                appendLog("INFO: Window exited fullscreen, restoring container size.");
+                                container->setGeometry(window->geometry());
+                            }
+                        }
+                    }
+                }
+
+                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False)) {
+                    if (trackedWindows.contains(propEvent->window)) {
+                        QWindow *window = trackedWindows.value(propEvent->window);
+                        QWidget *container = trackedContainers.value(propEvent->window);
+
+                        Atom opacityAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False);
+                        unsigned long opacityValue = 0xffffffff;
+
+                        Atom actualType;
+                        int actualFormat;
+                        unsigned long nItems, bytesAfter;
+                        unsigned char *prop = nullptr;
+
+                        int status = XGetWindowProperty(xDisplay, propEvent->window, opacityAtom, 0, (~0L), False, XA_CARDINAL,
+                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
+
+                        if (status == Success && prop) {
+                            opacityValue = *(unsigned long *)prop;
+                            XFree(prop);
+
+                            qreal opacity = static_cast<qreal>(opacityValue) / 0xffffffff;
+
+                            appendLog(QString("INFO: Window opacity changed: %1").arg(opacity));
+
+                            container->setWindowOpacity(opacity);
+                        }
+                    }
+                }
+            }
         }
-
-        free(event);
+    } else {
+        appendLog("ERR: Failed to open X Display ..");
     }
 }
+
 
 void WindowManager::toggleConsole() {
     isConsoleVisible = !isConsoleVisible;
@@ -407,14 +446,7 @@ void WindowManager::cleanUpClosedWindows() {
     QList<WId> windowsToRemove;
     for (auto xorgWindowId : trackedWindows.keys()) {
         XWindowAttributes attributes;
-        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry(connection, xorgWindowId);
-        xcb_get_geometry_reply_t *geomReply = xcb_get_geometry_reply(connection, geomCookie, nullptr);
-        if (geomReply) {
-            appendLog(QString("INFO: Window width: %1, height: %2").arg(geomReply->width).arg(geomReply->height));
-            free(geomReply);
-        } else {
-            appendLog("ERR: Failed to get window geometry via XCB.");
-        }
+        int status = XGetWindowAttributes(xDisplay, xorgWindowId, &attributes);
 
         if (status == 0 || attributes.map_state == IsUnmapped) {
             windowsToRemove.append(xorgWindowId);

@@ -74,6 +74,7 @@ void WindowManager::updateDesktopIcons() {
 }
 
 Display *xDisplay;
+
 void WindowManager::listExistingWindows() {
     if (xDisplay) {
         Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
@@ -99,16 +100,47 @@ void WindowManager::listExistingWindows() {
                 unsigned long nItems, bytesAfter;
                 unsigned char *data = nullptr;
                 char *windowName = nullptr;
-
                 if (XFetchName(xDisplay, child, &windowName) && windowName) {
                     QString name(windowName);
 
+                    if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, 100, False, XA_ATOM,
+                                           &type, &format, &nItems, &bytesAfter, &data) == Success) {
+                        
+                        if (data && nItems > 0) {
+                            Atom *atoms = (Atom *)data;
+                            appendLog("DEBUG: Found _NET_WM_WINDOW_TYPE for window: " + QString::number(child));
+                            bool isValidType = false;
 
-                if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, 1, False, XA_ATOM,
-                                   &type, &format, &nItems, &bytesAfter, &data) == Success) {
-                    
+                            for (unsigned long j = 0; j < nItems; ++j) {
+                                if (atoms[j] == netWmWindowTypeNormal ||
+                                    atoms[j] == netWmWindowTypeDesktop ||
+                                    atoms[j] == netWmWindowTypeDock ||
+                                    atoms[j] == netWmWindowTypeToolbar ||
+                                    atoms[j] == netWmWindowTypeMenu ||
+                                    atoms[j] == netWmWindowTypeUtility ||
+                                    atoms[j] == netWmWindowTypeSplash ||
+                                    atoms[j] == netWmWindowTypeDialog) {
+                                    isValidType = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isValidType) {
+                                appendLog("INFO: Skipping non-desktop-dock-toolbar-menu-utility-splash-dialog window: " + QString::number(child));
+                                XFree(data);
+                                continue;
+                            }
+                            XFree(data);
+                        } else {
+                            appendLog("DEBUG: _NET_WM_WINDOW_TYPE property is not set for window: " + QString::number(child));
+                        }
+                    } else {
+                        appendLog("DEBUG: Failed to get _NET_WM_WINDOW_TYPE for window: " + QString::number(child));
+                    }
+
                     if (name == "A2WM") {
-                        appendLog("INFO: An A2WM Window is detected (can be the wallpaper / the taskbar) a topbar is not applyed to it. ID: " + QString::number(child));
+                        appendLog("INFO: An A2WM Window is detected (can be the wallpaper / the taskbar); a topbar is not applied to it. ID: " + QString::number(child));
+                        XFree(windowName);
                         continue;
                     }
                     
@@ -125,22 +157,8 @@ void WindowManager::listExistingWindows() {
                         XFree(windowName);
                         continue;
                     }
+                    
                     XFree(windowName);
-                }
-
-                if (data) {
-                      Atom *atoms = (Atom *)data;
-                           if (atoms[0] != netWmWindowTypeDock &&
-                               atoms[0] != netWmWindowTypeToolbar &&
-                               atoms[0] != netWmWindowTypeMenu &&
-                               atoms[0] != netWmWindowTypeUtility &&
-                               atoms[0] != netWmWindowTypeSplash &&
-                               atoms[0] != netWmWindowTypeDialog) {
-                               appendLog("INFO: Skipping non-desktop-dock-toolbar-menu-utility-splash-dialog window: " + QString::number(child));
-                               XFree(data);
-                               continue;
-                           }
-                      }
                 }
 
                 XWindowAttributes attributes;
@@ -150,22 +168,22 @@ void WindowManager::listExistingWindows() {
                 }
 
                 QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
-
                 if (windowGeometry.width() == 0 || windowGeometry.height() == 0) {
                     appendLog("INFO: Skipping non-graphical window (0x0 size): " + QString::number(child));
                     continue;
                 }
 
                 appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
-                    char *windowName2 = nullptr;
-                    if (XFetchName(xDisplay, child, &windowName2) && windowName2) {
-                        QString name2(windowName2);
-                        if (!trackedWindows.contains(child)) {
-                            createAndTrackWindow(child, name2);
-                        }
+                char *windowName2 = nullptr;
+                if (XFetchName(xDisplay, child, &windowName2) && windowName2) {
+                    QString name2(windowName2);
+                    if (!trackedWindows.contains(child)) {
+                        createAndTrackWindow(child, name2);
                     }
-                        XFree(children);
+                    XFree(windowName2);
                 }
+            }
+            XFree(children);
         }
     } else {
         appendLog("ERR: Failed to open X Display ..");

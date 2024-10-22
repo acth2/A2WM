@@ -38,24 +38,20 @@ WindowManager::WindowManager(QWidget *parent)
       userInteractRightWidget(nullptr),
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
-
+    
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_TranslucentBackground);
-
     setSupportingWMCheck();
 
-    QScreen *screen = QApplication::primaryScreen();
-    if (screen) {
-        QRect screenGeometry = screen->geometry();
-        setGeometry(screenGeometry);
-    }
+    if (QScreen *screen = QApplication::primaryScreen())
+        setGeometry(screen->geometry());
 
     logLabel = new QLabel(this);
     logLabel->setStyleSheet("QLabel { color : white; background-color : rgba(0, 0, 0, 150); }");
     logLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
     logLabel->setVisible(false);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
@@ -64,15 +60,15 @@ WindowManager::WindowManager(QWidget *parent)
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 
     userInteractRightWidget = nullptr;
-        
+
     windowCheckTimer = new QTimer(this);
     connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
     windowCheckTimer->start(50);
-    
-    QTimer *desktopUpdateTimer = new QTimer(this);
+
+    auto *desktopUpdateTimer = new QTimer(this);
     connect(desktopUpdateTimer, &QTimer::timeout, this, &WindowManager::updateDesktopIcons);
-    desktopUpdateTimer->start(1000); 
-    
+    desktopUpdateTimer->start(1000);
+
     showFullScreen();
 }
 
@@ -81,8 +77,8 @@ void WindowManager::updateDesktopIcons() {
 }
 
 void WindowManager::activateWindow() {
-    this->raise();
-    this->setFocus();
+    raise();
+    setFocus();
 }
 
 void WindowManager::initXCBConnection() {
@@ -92,10 +88,10 @@ void WindowManager::initXCBConnection() {
         return;
     }
 
-    const xcb_setup_t *setup = xcb_get_setup(connection);
-    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
+    const auto *setup = xcb_get_setup(connection);
+    auto iter = xcb_setup_roots_iterator(setup);
     screen = iter.data;
-    
+
     initXCBAtoms();
 }
 
@@ -106,14 +102,13 @@ void WindowManager::initXCBAtoms() {
 }
 
 xcb_atom_t WindowManager::getAtom(const char *atomName) {
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom(connection, 0, strlen(atomName), atomName);
-    xcb_intern_atom_reply_t *atomReply = xcb_intern_atom_reply(connection, atomCookie, nullptr);
-    if (atomReply) {
-        xcb_atom_t atom = atomReply->atom;
-        free(atomReply);
-        return atom;
-    }
-    return XCB_ATOM_NONE;
+    auto atomCookie = xcb_intern_atom(connection, 0, strlen(atomName), atomName);
+    auto *atomReply = xcb_intern_atom_reply(connection, atomCookie, nullptr);
+    if (!atomReply) return XCB_ATOM_NONE;
+
+    xcb_atom_t atom = atomReply->atom;
+    free(atomReply);
+    return atom;
 }
 
 void WindowManager::listExistingWindows() {
@@ -122,7 +117,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root); 
+    auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
     xcb_ewmh_get_windows_reply_t reply;
     if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
         appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
@@ -132,35 +127,34 @@ void WindowManager::listExistingWindows() {
     for (unsigned int i = 0; i < reply.windows_len; ++i) {
         xcb_window_t window = reply.windows[i];
 
-        xcb_get_property_cookie_t nameCookie = xcb_ewmh_get_wm_name_unchecked(&ewmh, window);
+        auto nameCookie = xcb_ewmh_get_wm_name_unchecked(&ewmh, window);
         xcb_ewmh_get_utf8_strings_reply_t nameReply;
-        if (xcb_ewmh_get_wm_name_reply(&ewmh, nameCookie, &nameReply, nullptr)) {
-            QString windowName = QString::fromUtf8(nameReply.strings, nameReply.strings_len);
+        if (!xcb_ewmh_get_wm_name_reply(&ewmh, nameCookie, &nameReply, nullptr)) continue;
 
-            if (windowName == "A2WM") {
-                appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(window));
-                continue;
-            }
+        QString windowName = QString::fromUtf8(nameReply.strings, nameReply.strings_len);
 
-            if (windowName == "QTerminal" || windowName == "Shell No. 1") {
-                appendLog("INFO: Detected QTerminal window: " + QString::number(window));
-                createAndTrackWindow(window, "QTerminal");
-                continue;
-            }
-
-            if (windowName == "A2WMEdit" || windowName == "Fadyedit") {
-                appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(window));
-                createAndTrackWindow(window, "A2WMEdit");
-                continue;
-            }
-
-            appendLog("INFO: Detected graphical XCB window: " + QString::number(window));
-            if (!trackedWindows.contains(window)) {
-                createAndTrackWindow(window, windowName);
-            }
-
-            xcb_ewmh_get_utf8_strings_reply_wipe(&nameReply);
+        if (windowName == "A2WM") {
+            appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(window));
+            continue;
         }
+
+        if (windowName == "QTerminal" || windowName == "Shell No. 1") {
+            appendLog("INFO: Detected QTerminal window: " + QString::number(window));
+            createAndTrackWindow(window, "QTerminal");
+            continue;
+        }
+
+        if (windowName == "A2WMEdit" || windowName == "Fadyedit") {
+            appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(window));
+            createAndTrackWindow(window, "A2WMEdit");
+            continue;
+        }
+
+        appendLog("INFO: Detected graphical XCB window: " + QString::number(window));
+        if (!trackedWindows.contains(window)) 
+            createAndTrackWindow(window, windowName);
+
+        xcb_ewmh_get_utf8_strings_reply_wipe(&nameReply);
     }
 
     xcb_ewmh_get_windows_reply_wipe(&reply);
@@ -176,14 +170,15 @@ void WindowManager::setSupportingWMCheck() {
 
     xDisplay = XOpenDisplay(nullptr);
     if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
+        appendLog("ERR: Failed to open X Display.");
         return;
     }
 
     Window supportingWindow = XCreateSimpleWindow(xDisplay, DefaultRootWindow(xDisplay), 0, 0, 1, 1, 0, 0, 0);
-    
+
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
+
     xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     
     XMapWindow(xDisplay, supportingWindow);
@@ -193,136 +188,57 @@ void WindowManager::setSupportingWMCheck() {
 
 void WindowManager::checkForNewWindows() {
     connection = xcb_connect(nullptr, nullptr);
-    if (!xcb_connection_has_error(connection)) {
-        xcb_window_t activeWindow;
-        listExistingWindows();
-        processX11Events(); 
-        cleanUpClosedWindows();
-        
-        xcb_get_input_focus_cookie_t focusCookie = xcb_get_input_focus(connection);
-        xcb_get_input_focus_reply_t *focusReply = xcb_get_input_focus_reply(connection, focusCookie, nullptr);
-        if (focusReply) {
-            activeWindow = focusReply->focus;
-            appendLog(QString("INFO: Active window ID: %1").arg(activeWindow));
-            free(focusReply);
-        } else {
-            appendLog("ERR: Failed to get input focus via XCB.");
-        }
-
-        if (!trackedWindows.contains(activeWindow)) {
-            appendLog("INFO: Focusing back to Qt window");
-            this->activateWindow();
-        }
-        xcb_disconnect(connection);
-    } else {
+    if (xcb_connection_has_error(connection)) {
         appendLog("ERR: Failed to connect to X server via XCB.");
+        return;
     }
+
+    listExistingWindows();
+    processX11Events();
+    cleanUpClosedWindows();
+
+    auto focusCookie = xcb_get_input_focus(connection);
+    auto *focusReply = xcb_get_input_focus_reply(connection, focusCookie, nullptr);
+    if (focusReply) {
+        xcb_window_t activeWindow = focusReply->focus;
+        appendLog(QString("INFO: Active window ID: %1").arg(activeWindow));
+        free(focusReply);
+    } else {
+        appendLog("ERR: Failed to get input focus via XCB.");
+    }
+
+    if (!trackedWindows.contains(activeWindow)) {
+        appendLog("INFO: Focusing back to Qt window");
+        activateWindow();
+    }
+
+    xcb_disconnect(connection);
 }
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
     connection = xcb_connect(nullptr, nullptr);
-    if (!xcb_connection_has_error(connection)) {
-        uint32_t values[] = { XCB_EVENT_MASK_STRUCTURE_NOTIFY };
-        xcb_change_window_attributes(connection, xorgWindowId, XCB_CW_EVENT_MASK, values);
-    } else {
+    if (xcb_connection_has_error(connection)) {
         appendLog("ERR: Failed to connect to X server via XCB.");
+        return;
     }
+
+    uint32_t values[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY};
+    xcb_change_window_attributes(connection, xorgWindowId, XCB_CW_EVENT_MASK, values);
 }
 
 void WindowManager::processX11Events() {
-        xcb_generic_event_t *event;
-        while ((event = xcb_poll_for_event(connection))) {
-            uint8_t eventType = event->response_type & ~0x80;
+    xcb_generic_event_t *event;
+    while ((event = xcb_poll_for_event(connection))) {
+        uint8_t eventType = event->response_type & ~0x80;
 
-            if (eventType == XCB_CONFIGURE_NOTIFY) {
-                xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
-                appendLog(QString("INFO: Window resized: (%1x%2)").arg(configureEvent->width).arg(configureEvent->height));
-            }
-            free(event);
-            
-            xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-            uint8_t eventType = event->response_type & ~0x80; 
-            if (eventType == XCB_CONFIGURE_NOTIFY) {
-                xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
-
-                if (trackedWindows.contains(xce->window)) {
-                    QWindow *window = trackedWindows.value(xce->window);
-                    QRect windowGeometry = window->geometry();
-
-                    appendLog(QString("INFO: Window resized/moved: (%1, %2), Size: (%3x%4)")
-                        .arg(xce->x).arg(xce->y)
-                        .arg(xce->width).arg(xce->height));
-
-                    updateTaskbarPosition(window);
-                }
-            }
-
-            if (event->type == PropertyNotify) {
-                XPropertyEvent *propEvent = (XPropertyEvent *)&event;
-
-                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_STATE", False)) {
-                    if (trackedWindows.contains(propEvent->window)) {
-                        QWindow *window = trackedWindows.value(propEvent->window);
-                        QWidget *container = trackedContainers.value(propEvent->window);
-
-                        Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
-                        Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
-                        
-                        xcb_window_t windowX = static_cast<xcb_window_t>(x11Window->winId());
-
-                        xcb_get_property_cookie_t propCookie = xcb_get_property(connection, False, windowX, netWmState, XCB_ATOM_ATOM, 0, (~0L));
-                        xcb_get_property_reply_t *propReply = xcb_get_property_reply(connection, propCookie, nullptr);
-                        if (propReply) {
-                            xcb_atom_t *atoms = (xcb_atom_t *)xcb_get_property_value(propReply);
-                            bool isFullscreen = false;
-                            bool isMaximizedVert = false;
-                            bool isMaximizedHorz = false;
-
-                            if (propReply && atoms) {
-                                int atomCount = xcb_get_property_value_length(propReply) / sizeof(xcb_atom_t);
-
-                                for (int i = 0; i < atomCount; ++i) {
-                                    if (atoms[i] == netWmStateFullscreen) {
-                                        isFullscreen = true;
-                                    }
-                                    if (atoms[i] == netWmStateMaximizedVert) {
-                                        isMaximizedVert = true;
-                                    }
-                                    if (atoms[i] == netWmStateMaximizedHorz) {
-                                        isMaximizedHorz = true;
-                                    }
-                                }   
-                                    
-                                if (isFullscreen) {
-                                    appendLog("Window is in fullscreen mode");
-                                }
-                                if (isMaximizedVert) {
-                                    appendLog("Window is maximized vertically");
-                                }
-                                if (isMaximizedHorz) {
-                                    appendLog("Window is maximized horizontally");
-                                }
-                                free(propReply);
-                            }
-
-                            XFree(prop);
-
-                            if (isFullscreen) {
-                                appendLog("INFO: Window is fullscreen, adjusting container size.");
-                                QScreen *screen = QApplication::primaryScreen();
-                                QRect screenGeometry = screen->geometry();
-                                container->setGeometry(screenGeometry);
-                            } else {
-                                appendLog("INFO: Window exited fullscreen, restoring container size.");
-                                container->setGeometry(window->geometry());
-                            }
-                        }
-                    }
-                }
-            }
+        if (eventType == XCB_CONFIGURE_NOTIFY) {
+            auto *configureEvent = reinterpret_cast<xcb_configure_notify_event_t *>(event);
+            appendLog(QString("INFO: Window resized: (%1x%2)").arg(configureEvent->width).arg(configureEvent->height));
         }
-}
 
+        free(event);
+    }
+}
 
 void WindowManager::toggleConsole() {
     isConsoleVisible = !isConsoleVisible;

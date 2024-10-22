@@ -56,6 +56,13 @@ WindowManager::WindowManager(QWidget *parent)
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
 
+    while (iter.rem) {
+        xcb_screen_t *screen = iter.data;
+        auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
+        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
+        xcb_screen_next(&iter);
+    }
+        
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 

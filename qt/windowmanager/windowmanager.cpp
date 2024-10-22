@@ -75,6 +75,12 @@ void WindowManager::updateDesktopIcons() {
 
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
+    xDisplay = XOpenDisplay(nullptr);
+    if (!xDisplay) {
+        appendLog("ERR: Unable to open X display.");
+        return;
+    }
+    
     if (xDisplay) {
         Atom netClientList = XInternAtom(xDisplay, "_NET_CLIENT_LIST", False);
         Window root = DefaultRootWindow(xDisplay);

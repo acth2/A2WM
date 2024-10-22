@@ -8,7 +8,7 @@ CONFIG += no_pro
 CONFIG += c++17
 QT += core gui widgets
 
-LIBS += -lX11 -lxcb -lxcb-ewmh -lxcb-icccm -lxcb-util -lxcb-keysyms
+LIBS += -lX11
 SOURCES += main.cpp \
            windowmanager.cpp \
            konami_code_handler.cpp \

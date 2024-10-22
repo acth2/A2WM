@@ -94,6 +94,7 @@ void WindowManager::listExistingWindows() {
                 char *windowName = nullptr;
                 if (XFetchName(xDisplay, child, &windowName) && windowName) {
                     QString name(windowName);
+                    appendLog("DEBUG: Detected window name: " + name);
                     bool shouldTrack = true;
 
                     if (name == "A2WM") {
@@ -113,6 +114,8 @@ void WindowManager::listExistingWindows() {
                     }
 
                     XFree(windowName);
+                } else {
+                    appendLog("WARN: Failed to fetch window name for ID: " + QString::number(child));
                 }
             }
 

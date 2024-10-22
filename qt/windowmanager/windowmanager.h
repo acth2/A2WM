@@ -18,10 +18,6 @@
 #include "konami_code_handler.h"
 #include "userinteractright.h"
 #include <X11/Xlib.h>
-#include <xcb/xcb.h>
-#include <xcb/xproto.h>
-#include <xcb/xcb_icccm.h>
-#include <xcb/xcb_ewmh.h>
 
 class TopBar;
 
@@ -91,23 +87,6 @@ private:
 
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
-
-    xcb_connection_t *connection;
-    xcb_ewmh_connection_t ewmh;
-    xcb_atom_t netWmStateFullscreen;
-    xcb_atom_t netWmStateMaximizedVert;
-    xcb_atom_t netWmStateMaximizedHorz;
-
-    void initXCBConnection();
-    void initXCBAtoms();
-    xcb_atom_t getAtom(const char *atomName);
-
-    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
-
-
-    int status = 0;
-
-    void activateWindow();
 };
 
 #endif // WINDOWMANAGER_H

@@ -94,7 +94,7 @@ void WindowManager::initXCBConnection() {
 
     const xcb_setup_t *setup = xcb_get_setup(connection);
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
-    screen() = iter.data;
+    screen = iter.data;
     
     initXCBAtoms();
 }
@@ -122,7 +122,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen()->root); 
+    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root); 
     xcb_ewmh_get_windows_reply_t reply;
     if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
         appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
@@ -184,7 +184,7 @@ void WindowManager::setSupportingWMCheck() {
     
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
-    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen()->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
+    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     
     XMapWindow(xDisplay, supportingWindow);
     XFlush(xDisplay);
@@ -194,6 +194,7 @@ void WindowManager::setSupportingWMCheck() {
 void WindowManager::checkForNewWindows() {
     connection = xcb_connect(nullptr, nullptr);
     if (!xcb_connection_has_error(connection)) {
+        xcb_window_t activeWindow;
         listExistingWindows();
         processX11Events(); 
         cleanUpClosedWindows();

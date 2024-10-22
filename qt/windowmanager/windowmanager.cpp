@@ -55,13 +55,6 @@ WindowManager::WindowManager(QWidget *parent)
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
-
-    while (iter.rem) {
-        xcb_screen_t *screen = iter.data;
-        auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
-        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
-        xcb_screen_next(&iter);
-    }
         
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
@@ -97,7 +90,12 @@ void WindowManager::initXCBConnection() {
 
     const auto *setup = xcb_get_setup(connection);
     auto iter = xcb_setup_roots_iterator(setup);
-    xcb_screen_t *screen;
+    while (iter.rem) {
+        xcb_screen_t *screen = iter.data;
+        auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
+        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
+        xcb_screen_next(&iter);
+    }
     screen = iter.data;
 
     initXCBAtoms();
@@ -187,7 +185,14 @@ void WindowManager::setSupportingWMCheck() {
 
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
-
+    
+    while (iter.rem) {
+        xcb_screen_t *screen = iter.data;
+        auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
+        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
+        xcb_screen_next(&iter);
+    }
+    
     xcb_screen_t *screen = iter.data;
     xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     

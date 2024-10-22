@@ -90,6 +90,7 @@ void WindowManager::initXCBConnection() {
 
     const auto *setup = xcb_get_setup(connection);
     auto iter = xcb_setup_roots_iterator(setup);
+    xcb_screen_t *screen;
     screen = iter.data;
 
     initXCBAtoms();

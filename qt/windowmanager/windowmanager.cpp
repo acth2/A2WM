@@ -90,7 +90,7 @@ void WindowManager::initXCBConnection() {
 
     const auto *setup = xcb_get_setup(connection);
     auto iter = xcb_setup_roots_iterator(setup);
-    QScreen *screen = this->screen();
+    xcb_screen_t *screen;
     screen = iter.data;
 
     initXCBAtoms();
@@ -118,7 +118,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    QScreen *screen = this->screen();
+    xcb_screen_t *screen = iter.data;
     auto cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root);
     xcb_ewmh_get_windows_reply_t reply;
     if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
@@ -181,7 +181,7 @@ void WindowManager::setSupportingWMCheck() {
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
 
-    QScreen *screen = this->screen();
+    xcb_screen_t *screen = iter.data;
     xcb_change_property(connection, XCB_PROP_MODE_REPLACE, screen->root, netSupportingWMCheck, XCB_ATOM_WINDOW, 32, 1, &supportingWindow);
     
     XMapWindow(xDisplay, supportingWindow);

@@ -79,43 +79,52 @@ void WindowManager::listExistingWindows() {
         Atom netClientList = XInternAtom(xDisplay, "_NET_CLIENT_LIST", False);
         Window root = DefaultRootWindow(xDisplay);
 
-        Atom actualType;
-        int actualFormat;
-        unsigned long numItems, bytesAfter;
+        unsigned long numItems;
         unsigned char *data = nullptr;
 
         if (XGetWindowProperty(xDisplay, root, netClientList, 0, (~0L), False, XA_WINDOW,
-                               &actualType, &actualFormat, &numItems, &bytesAfter, &data) == Success) {
+                               nullptr, nullptr, &numItems, nullptr, &data) == Success) {
             Window *windowList = (Window *)data;
 
             for (unsigned long i = 0; i < numItems; ++i) {
                 Window child = windowList[i];
+                Bool isGraphical = false;
 
-                char *windowName = nullptr;
-                if (XFetchName(xDisplay, child, &windowName) && windowName) {
-                    QString name(windowName);
-                    appendLog("DEBUG: Detected window name: " + name);
-                    bool shouldTrack = true;
+                XWindowAttributes attrs;
+                XGetWindowAttributes(xDisplay, child, &attrs);
+                if (attrs.map_state == IsViewable) {
+                    isGraphical = true;
+                }
 
-                    if (name == "A2WM") {
-                        appendLog("INFO: A2WM window detected, skipping ID: " + QString::number(child));
-                        shouldTrack = false;
-                    } else if (name == "QTerminal" || name == "Shell No. 1") {
-                        appendLog("INFO: Detected QTerminal window: " + QString::number(child));
-                    } else if (name == "A2WMEdit" || name == "Fadyedit") {
-                        appendLog("INFO: Detected A2WMEdit / FadyEdit window: " + QString::number(child));
+                Atom netWmType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
+                Atom actualType;
+                int actualFormat;
+                unsigned long numTypeItems, bytesAfter;
+                unsigned char *typeData = nullptr;
+
+                if (XGetWindowProperty(xDisplay, child, netWmType, 0, (~0L), False, XA_ATOM,
+                                       &actualType, &actualFormat, &numTypeItems, &bytesAfter, &typeData) == Success) {
+                    Atom *windowTypes = (Atom *)typeData;
+                    for (unsigned long j = 0; j < numTypeItems; ++j) {
+                        if (windowTypes[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False) ||
+                            windowTypes[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DIALOG", False)) {
+                            isGraphical = true;
+                            break;
+                        }
                     }
+                    XFree(typeData);
+                }
 
-                    if (shouldTrack) {
-                        appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
+                if (isGraphical) {
+                    char *windowName = nullptr;
+                    if (XFetchName(xDisplay, child, &windowName) && windowName) {
+                        QString name(windowName);
+                        appendLog("INFO: Detected graphical X11 window: " + QString::number(child) + " Name: " + name);
                         if (!trackedWindows.contains(child)) {
                             createAndTrackWindow(child, name);
                         }
+                        XFree(windowName);
                     }
-
-                    XFree(windowName);
-                } else {
-                    appendLog("WARN: Failed to fetch window name for ID: " + QString::number(child));
                 }
             }
 

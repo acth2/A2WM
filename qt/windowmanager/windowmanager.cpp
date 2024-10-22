@@ -122,7 +122,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen->root); 
+    xcb_get_property_cookie_t cookie = xcb_ewmh_get_client_list_unchecked(&ewmh, screen()->root); 
     xcb_ewmh_get_windows_reply_t reply;
     if (!xcb_ewmh_get_client_list_reply(&ewmh, cookie, &reply, nullptr)) {
         appendLog("ERR: Failed to get _NET_CLIENT_LIST.");
@@ -244,13 +244,13 @@ void WindowManager::processX11Events() {
             if (eventType == XCB_CONFIGURE_NOTIFY) {
                 xcb_configure_notify_event_t *configureEvent = (xcb_configure_notify_event_t *)event;
 
-                if (trackedWindows.contains(xce.window)) {
-                    QWindow *window = trackedWindows.value(xce.window);
+                if (trackedWindows.contains(xce->window)) {
+                    QWindow *window = trackedWindows.value(xce->window);
                     QRect windowGeometry = window->geometry();
 
                     appendLog(QString("INFO: Window resized/moved: (%1, %2), Size: (%3x%4)")
-                        .arg(xce.x).arg(xce.y)
-                        .arg(xce.width).arg(xce.height));
+                        .arg(xce->x).arg(xce->y)
+                        .arg(xce->width).arg(xce->height));
 
                     updateTaskbarPosition(window);
                 }

@@ -102,6 +102,9 @@ private:
     void initXCBAtoms();
     xcb_atom_t getAtom(const char *atomName);
 
+    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
+
+
     int status = 0;
 
     void activateWindow();

@@ -87,7 +87,11 @@ void WindowManager::listExistingWindows() {
         for (unsigned int i = 0; i < nchildren; ++i) {
             char* windowName = nullptr;
             if (XFetchName(xDisplay, children[i], &windowName)) {
-                if (windowName && windowName != "A2WM") {
+                if (windowName) {
+                    if (windowName == "A2WM") {
+                        appendLog("A2WM Window, skipping tracking.");
+                        return;
+                    }
                     createAndTrackWindow(static_cast<WId>(children[i]), windowName);
                     XFree(windowName);
                 }

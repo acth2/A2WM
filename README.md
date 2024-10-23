@@ -15,3 +15,10 @@
 <p>❌ Desktop Icons</p>
 <p>❌ Windows container live adapter</p>
 <p>❌ Themes manager</p>
+
+<h2>Dependencies:</h2>
+
+<p>Qt+5</p>
+<p>QTerminal (can still install the window manager)</p>
+<p>A2WMEdit (can still install the window manager)</p>
+<p>Xorg / X11 (not wayland sry)</p>

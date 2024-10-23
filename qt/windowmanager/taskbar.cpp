@@ -101,9 +101,16 @@ void TaskBar::showPopup() {
         popup->move(0, height() * 5.7);
         popup->show();
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
+        QWidget *iconCircle = new QWidget(popup);
+        iconCircle->setFixedSize(100, 100);
+        
+        iconCircle->setStyleSheet("background-color: #ffcc00; border-radius: 50px;");
+        iconCircle->move((popup->width() - circle->width()) / 2, -circle->height() / 2);
+        iconCircle->show();
+
         isPopupVisible = true;
     }
-}
 
 void TaskBar::closePopup() {
     popup->hide();
@@ -121,7 +128,7 @@ void TaskBar::showPowerMenu() {
         overlay->show();
 
         QDialog *powerDialog = new QDialog();
-        powerDialog->setWindowTitle("Power Options");
+        powerDialog->setWindowTitle("AASH");
         powerDialog->setModal(true);
         powerDialog->setAttribute(Qt::WA_DeleteOnClose);
         if (isDarkMode) {

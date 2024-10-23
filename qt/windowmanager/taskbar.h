@@ -31,7 +31,6 @@ protected:
 
 private:
     QLabel *popup;
-    QLabel *userLogo;
     QPushButton *startButton;
     QPushButton *powerButton;
     void adjustSizeToScreen();

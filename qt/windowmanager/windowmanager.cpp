@@ -24,7 +24,6 @@
 
 #undef KeyPress
 namespace fs = std::filesystem;
-typedef unsigned long WId;
 
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),

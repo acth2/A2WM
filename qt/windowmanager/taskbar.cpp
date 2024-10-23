@@ -106,7 +106,7 @@ void TaskBar::showPopup() {
         iconCircle->setFixedSize(100, 100);
         
         iconCircle->setStyleSheet("background-color: #ffcc00; border-radius: 50px;");
-        iconCircle->move((popup->width() - circle->width()) / 2, -circle->height() / 2);
+        iconCircle->move((popup->width() - iconCircle->width()) / 2, -iconCircle->height() / 2);
         iconCircle->show();
 
         isPopupVisible = true;

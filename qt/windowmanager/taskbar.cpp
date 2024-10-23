@@ -43,14 +43,17 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     popup = new QLabel(nullptr);
+    userLogo = new QLabel(nullptr);
     popup->setFixedSize(500, 500);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
     }
+    userLogo->setStyleSheet("QLabel { background-color : red; color : blue; }");
     
     popup->hide();
+    userLogo->hide();
 
     powerButton = new QPushButton(popup);
     powerButton->setIcon(QIcon("/usr/cydra/icons/power.png"));
@@ -104,7 +107,6 @@ void TaskBar::showPopup() {
         popup->show();
 
         userLogo->move(popup->x() / 2, popup->y());
-        userLogo->setStyleSheet("QLabel { background-color : red; color : blue; }");
         userLogo->show();
 
         isPopupVisible = true;
@@ -114,6 +116,7 @@ void TaskBar::showPopup() {
 
 void TaskBar::closePopup() {
     popup->hide();
+    userLogo->hide();
     isPopupVisible = false;
 }
 

@@ -15,6 +15,7 @@
 <p>❌ Desktop Icons</p>
 <p>❌ Windows container live adapter</p>
 <p>❌ Themes manager</p>
+<p>❌ Full customisation</p>
 
 <h2>Dependencies:</h2>
 

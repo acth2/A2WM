@@ -125,9 +125,6 @@ void WindowManager::listExistingWindows() {
                         XFree(windowName);
                         continue;
                     }
-                    
-                    appendLog("INFO: External window that passed the A2WM and QTermianl name test detected. Trying to add an Topbar to it.. ID: " + QString::number(child));
-                    createAndTrackWindow(child, windowName);
                     XFree(windowName);
                 }
 

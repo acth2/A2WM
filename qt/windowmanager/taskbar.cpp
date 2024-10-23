@@ -111,6 +111,7 @@ void TaskBar::showPopup() {
 
         isPopupVisible = true;
     }
+}
 
 void TaskBar::closePopup() {
     popup->hide();

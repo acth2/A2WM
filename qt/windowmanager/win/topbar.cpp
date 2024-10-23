@@ -146,7 +146,7 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
     if (!isDarkMode){
         resizeButton->setStyleSheet(
             "QPushButton {"
-            "   background-color: black;"
+            "   background-color: white;"
             "   border-radius: 15px;"
             "   font-size: 18px;"
             "}"

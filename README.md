@@ -14,3 +14,4 @@
 <p>❌ Settings application</p>
 <p>❌ Desktop Icons</p>
 <p>❌ Windows container live adapter</p>
+<p>❌ Themes manager</p>

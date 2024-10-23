@@ -91,8 +91,6 @@ void WindowManager::listExistingWindows() {
                 if (windowName) {
                     createAndTrackWindow(static_cast<WId>(children[i]), windowName);
                     XFree(windowName);
-                } else {
-                    createAndTrackWindow(static_cast<WId>(children[i]));
                 }
             }
         }

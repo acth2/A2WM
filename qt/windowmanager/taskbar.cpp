@@ -43,6 +43,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     popup = new QLabel(nullptr);
+    userLogo->setWindowTitle("A2WM");
+    userLogo->resize(128, 128);
     popup->setFixedSize(500, 500);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
@@ -51,6 +53,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     }
     
     popup->hide();
+    userLogo->hide();
 
     powerButton = new QPushButton(popup);
     powerButton->setIcon(QIcon("/usr/cydra/icons/power.png"));
@@ -100,6 +103,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         popup->show();
+        userLogo->show();
 
         isPopupVisible = true;
     }
@@ -108,6 +112,7 @@ void TaskBar::showPopup() {
 
 void TaskBar::closePopup() {
     popup->hide();
+    userLogo->hide();
     isPopupVisible = false;
 }
 

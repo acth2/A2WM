@@ -1,6 +1,12 @@
-Éxecutez la commande 'qmake' pour construire le Makefile
-
-Puis éxécutez la commande make pour compilé A2WM
-
 Installation:
-make install
+
+to compile:
+qmake && make
+
+to install:
+sudo make install
+
+Uninstallation:
+
+sudo rm -rf /usr/a2wm <-- All of yours settings
+sudo rm -f /usr/bin/a2wm <-- The WindowManager

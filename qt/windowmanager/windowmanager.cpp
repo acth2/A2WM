@@ -77,10 +77,14 @@ Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (xDisplay) {
         Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
+        Atom netWmWindowTypeNormal = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+        Atom netWmWindowTypeDesktop = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
         Atom netWmWindowTypeDock = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DOCK", False);
         Atom netWmWindowTypeToolbar = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
+        Atom netWmWindowTypeMenu = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False);
         Atom netWmWindowTypeUtility = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_UTILITY", False);
         Atom netWmWindowTypeSplash = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_SPLASH", False);
+        Atom netWmWindowTypeDialog = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DIALOG", False);
         
         Window windowRoot = DefaultRootWindow(xDisplay);
         Window parent, *children;
@@ -128,8 +132,10 @@ void WindowManager::listExistingWindows() {
                       Atom *atoms = (Atom *)data;
                            if (atoms[0] != netWmWindowTypeDock &&
                                atoms[0] != netWmWindowTypeToolbar &&
+                               atoms[0] != netWmWindowTypeMenu &&
                                atoms[0] != netWmWindowTypeUtility &&
-                               atoms[0] != netWmWindowTypeSplash) {
+                               atoms[0] != netWmWindowTypeSplash &&
+                               atoms[0] != netWmWindowTypeDialog) {
                                appendLog("INFO: Skipping non-desktop-dock-toolbar-menu-utility-splash-dialog window: " + QString::number(child));
                                XFree(data);
                                continue;

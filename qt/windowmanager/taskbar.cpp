@@ -104,6 +104,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         popup->show();
+        popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->show();
 
         isPopupVisible = true;

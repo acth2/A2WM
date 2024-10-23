@@ -103,8 +103,9 @@ void TaskBar::showPopup() {
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
         popup->show();
 
-        userIcon->move(popup->x() / 2, popup->y());
-        userIcon->setStyleSheet("QLabel { background-color : red; color : blue; }");
+        userLogo->move(popup->x() / 2, popup->y());
+        userLogo->setStyleSheet("QLabel { background-color : red; color : blue; }");
+        userLogo->show();
 
         isPopupVisible = true;
     }

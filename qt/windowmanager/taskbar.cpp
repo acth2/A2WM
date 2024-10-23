@@ -103,22 +103,8 @@ void TaskBar::showPopup() {
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
         popup->show();
 
-        QWidget *iconCircle = new QWidget(this);
-        iconCircle->setFixedSize(100, 100);
-
-        iconCircle->setStyleSheet("background-color: #ffcc00; border-radius: 50px;");
-
-        iconCircle->move((popup->width() - iconCircle->width()) / 2, popup->y() - iconCircle->height() / 2);
-
-        QLabel *iconLabel = new QLabel(iconCircle);
-        iconLabel->setFixedSize(50, 50);
-        iconLabel->setAlignment(Qt::AlignCenter);
-
-        QPixmap iconPixmap("/path/to/your/icon.png");
-        iconLabel->setPixmap(iconPixmap.scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-
-        iconLabel->move((iconCircle->width() - iconLabel->width()) / 2, (iconCircle->height() - iconLabel->height()) / 2);
-        iconCircle->show();
+        userIcon->move(popup->x() / 2, popup->y());
+        userIcon->setStyleSheet("QLabel { background-color : red; color : blue; }");
 
         isPopupVisible = true;
     }

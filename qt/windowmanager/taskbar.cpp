@@ -43,6 +43,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     popup = new QLabel(nullptr);
+    userLogo = new QWidget(nullptr);
     userLogo->setWindowTitle("A2WM");
     userLogo->resize(128, 128);
     popup->setFixedSize(500, 500);

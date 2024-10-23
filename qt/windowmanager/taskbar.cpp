@@ -99,14 +99,24 @@ void TaskBar::showPopup() {
         closePopup();
     } else {
         popup->move(0, height() * 5.7);
+        
+        popup->setAttribute(Qt::WA_TranslucentBackground, true);
+        popup->setAttribute(Qt::WA_NoSystemBackground, true);
+        popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+        
         popup->show();
-        popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
         QWidget *iconCircle = new QWidget(popup);
         iconCircle->setFixedSize(100, 100);
         
         iconCircle->setStyleSheet("background-color: #ffcc00; border-radius: 50px;");
+        
         iconCircle->move((popup->width() - iconCircle->width()) / 2, -iconCircle->height() / 2);
+
+        iconCircle->setAttribute(Qt::WA_TranslucentBackground, true);
+        iconCircle->setAttribute(Qt::WA_NoSystemBackground, true);
+        iconCircle->setWindowFlags(Qt::FramelessWindowHint | Qt::WA_ShowWithoutActivating);
+        
         iconCircle->show();
 
         isPopupVisible = true;

@@ -110,10 +110,14 @@ void TaskBar::showPopup() {
 
         iconCircle->move((popup->width() - iconCircle->width()) / 2, popup->y() - iconCircle->height() / 2);
 
-        iconCircle->setAttribute(Qt::WA_TranslucentBackground, true);
-        iconCircle->setAttribute(Qt::WA_NoSystemBackground, true);
-        iconCircle->setWindowFlags(Qt::FramelessWindowHint);
+        QLabel *iconLabel = new QLabel(iconCircle);
+        iconLabel->setFixedSize(50, 50);
+        iconLabel->setAlignment(Qt::AlignCenter);
 
+        QPixmap iconPixmap("/path/to/your/icon.png");
+        iconLabel->setPixmap(iconPixmap.scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+        iconLabel->move((iconCircle->width() - iconLabel->width()) / 2, (iconCircle->height() - iconLabel->height()) / 2);
         iconCircle->show();
 
         isPopupVisible = true;

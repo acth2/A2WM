@@ -24,6 +24,7 @@
 
 #undef KeyPress
 namespace fs = std::filesystem;
+typedef unsigned long WId;
 
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
@@ -80,66 +81,22 @@ void WindowManager::listExistingWindows() {
         appendLog("ERR: Unable to open X display.");
         return;
     }
-    
-    if (xDisplay) {
-        Atom netClientList = XInternAtom(xDisplay, "_NET_CLIENT_LIST", False);
-        Window root = DefaultRootWindow(xDisplay);
-
-        unsigned long numItems;
-        unsigned char *data = nullptr;
-
-        if (XGetWindowProperty(xDisplay, root, netClientList, 0, (~0L), False, XA_WINDOW,
-                               nullptr, nullptr, &numItems, nullptr, &data) == Success) {
-            Window *windowList = (Window *)data;
-
-            for (unsigned long i = 0; i < numItems; ++i) {
-                Window child = windowList[i];
-                Bool isGraphical = false;
-
-                XWindowAttributes attrs;
-                XGetWindowAttributes(xDisplay, child, &attrs);
-                if (attrs.map_state == IsViewable) {
-                    isGraphical = true;
-                }
-
-                Atom netWmType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
-                Atom actualType;
-                int actualFormat;
-                unsigned long numTypeItems, bytesAfter;
-                unsigned char *typeData = nullptr;
-
-                if (XGetWindowProperty(xDisplay, child, netWmType, 0, (~0L), False, XA_ATOM,
-                                       &actualType, &actualFormat, &numTypeItems, &bytesAfter, &typeData) == Success) {
-                    Atom *windowTypes = (Atom *)typeData;
-                    for (unsigned long j = 0; j < numTypeItems; ++j) {
-                        if (windowTypes[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False) ||
-                            windowTypes[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DIALOG", False)) {
-                            isGraphical = true;
-                            break;
-                        }
-                    }
-                    XFree(typeData);
-                }
-
-                if (isGraphical) {
-                    char *windowName = nullptr;
-                    if (XFetchName(xDisplay, child, &windowName) && windowName) {
-                        QString name(windowName);
-                        appendLog("INFO: Detected graphical X11 window: " + QString::number(child) + " Name: " + name);
-                        if (!trackedWindows.contains(child)) {
-                            createAndTrackWindow(child, name);
-                        }
-                        XFree(windowName);
-                    }
+    Window root = DefaultRootWindow(xDisplay);
+    Window parent, *children;
+    unsigned int nchildren;
+    if (XQueryTree(xDisplay, root, &root, &parent, &children, &nchildren)) {
+        for (unsigned int i = 0; i < nchildren; ++i) {
+            char* windowName = nullptr;
+            if (XFetchName(xDisplay, children[i], &windowName)) {
+                if (windowName) {
+                    createAndTrackWindow(static_cast<WId>(children[i]), windowName);
+                    XFree(windowName);
                 }
             }
-
-            XFree(data);
-        } else {
-            appendLog("ERR: Failed to get _NET_CLIENT_LIST property.");
         }
-    } else {
-        appendLog("ERR: X Display not initialized.");
+        if (children) {
+            XFree(children);
+        }
     }
 }
 

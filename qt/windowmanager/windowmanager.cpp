@@ -130,11 +130,14 @@ void WindowManager::listExistingWindows() {
 
                 if (data) {
                       Atom *atoms = (Atom *)data;
-                           if (atoms[0] != netWmWindowTypeDock &&
-                               atoms[0] != netWmWindowTypeToolbar &&
-                               atoms[0] != netWmWindowTypeMenu &&
-                               atoms[0] != netWmWindowTypeUtility &&
-                               atoms[0] != netWmWindowTypeSplash &&
+                           if (atoms[0] != netWmWindowTypeDock     &&
+                               atoms[0] != netWmWindowTypeToolbar  &&
+                               atoms[0] != netWmWindowTypeMenu     &&
+                               atoms[0] != netWmWindowTypeUtility  &&
+                               atoms[0] != netWmWindowTypeSplash   &&
+                               atoms[0] != netWmWindowType         &&
+                               atoms[0] != netWmWindowTypeNormal   &&
+                               atoms[0] != netWmWindowTypeSplash   &&
                                atoms[0] != netWmWindowTypeDialog) {
                                appendLog("INFO: Skipping non-desktop-dock-toolbar-menu-utility-splash-dialog window: " + QString::number(child));
                                XFree(data);

@@ -104,7 +104,7 @@ void TaskBar::showPopup() {
         closePopup();
     } else {
         popup->move(0, height() * 5.7);
-        userLogo->move(popup->x() / 2, popup->y() * 0.5);
+        userLogo->move(popup->x() / 2, popup->y() * 0.75);
         popup->show();
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);

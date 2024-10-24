@@ -44,7 +44,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     popup = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
-    userLogo->setIconSize(QSize(128, 128));
+    userLogo->setIconSize(QSize(126, 126));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
     userLogo->setStyleSheet(
         "border: none;"
@@ -263,8 +263,10 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
-            closePopup();
-            return true;
+            if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
+                closePopup();
+                return true;
+            }
         }
     }
     return QWidget::eventFilter(object, event);

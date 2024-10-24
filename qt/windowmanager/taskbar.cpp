@@ -104,7 +104,7 @@ void TaskBar::showPopup() {
         closePopup();
     } else {
         popup->move(0, height() * 5.7);
-        userLogo->move(popup->x() * 2, popup->y() * 0.75);
+        userLogo->move(250, popup->y() * 0.75);
         popup->show();
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
@@ -257,7 +257,7 @@ void TaskBar::installEventFilter() {
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos()) || userLogo->isVisible() || !userLogo->geometry().contains(mouseEvent->globalPos())) {
+        if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
             closePopup();
             return true;
         }

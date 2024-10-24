@@ -53,7 +53,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
     }
-    userLogo->setStyleSheet("background-color: #fcba03");
     
     popup->hide();
     userLogo->hide();

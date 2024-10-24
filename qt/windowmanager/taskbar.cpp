@@ -46,6 +46,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     userLogo = new QPushButton(nullptr);
     userLogo->setIconSize(QSize(128, 128));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
+    userLogo->setStyleSheet("border: none;");
     popup->setFixedSize(500, 500);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");

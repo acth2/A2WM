@@ -46,7 +46,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     userLogo = new QWidget(nullptr);
     userLogo->setWindowTitle("A2WM");
     userLogo->resize(128, 128);
-    userLogo->setIcon("/usr/cydra/settings/usrLogo.png");
+    userLogo->setIcon("/usr/cydra/icons/usrLogo.png");
     popup->setFixedSize(500, 500);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");

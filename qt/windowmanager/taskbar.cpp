@@ -14,7 +14,6 @@
 #include <QTimer>
 #include <QFontDatabase>
 #include <QDir>
-#include <QDebug>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -154,20 +153,14 @@ QString TaskBar::getFormattedDirectories() {
 
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
-
+    
     if (!fontFamilies.isEmpty()) {
         QFont font(fontFamilies.at(0));
         font.setPointSize(12);
         popupExtension->setFont(font);
-    } else {
-        qDebug() << "Font not loaded. Please check the path.";
     }
 
     popupExtension->setText(formattedDirectories);
-    popupExtension->setStyleSheet("color: black;");
-    popupExtension->adjustSize();
-    popupExtension->show();
-
     return formattedDirectories;
 }
 

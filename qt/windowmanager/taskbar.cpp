@@ -139,6 +139,7 @@ void TaskBar::adjustSizeToScreen() {
         move(0, screenGeometry.height() - height());
     }
 }
+
 QString TaskBar::getFormattedDirectories() {
     QString homeDir = QDir::homePath() + "/a2wm/startMenu";
     QDir dir(homeDir);
@@ -146,6 +147,14 @@ QString TaskBar::getFormattedDirectories() {
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            if (popupExtension->layout()) {
+            QLayoutItem *item;
+            while ((item = popupExtension->layout()->takeAt(0)) != nullptr) {
+                delete item->widget();
+                delete item;
+            }
+            delete popupExtension->layout();
+        }
         QVBoxLayout *layout = new QVBoxLayout(popupExtension);
 
         for (const QString &dirName : directories) {
@@ -153,6 +162,7 @@ QString TaskBar::getFormattedDirectories() {
             formattedDirectories.append(displayName);
 
             ClickableLabel *label = new ClickableLabel(displayName, popupExtension);
+            label->setAlignment(Qt::AlignCenter);
             connect(label, &ClickableLabel::clicked, this, &TaskBar::onLabelClicked);
             layout->addWidget(label);
         }

@@ -188,6 +188,9 @@ QString TaskBar::getFormattedDirectories() {
 
 void TaskBar::onLabelClicked(const QString &directoryPath) {
     QString desktopFilePath = directoryPath + "/" + directoryPath.split("/").last() + ".desktop";
+
+    qDebug() << "Trying to open:" << desktopFilePath;
+
     QFile desktopFile(desktopFilePath);
     if (desktopFile.exists() && desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&desktopFile);
@@ -197,15 +200,20 @@ void TaskBar::onLabelClicked(const QString &directoryPath) {
             QString line = stream.readLine();
             if (line.startsWith("Name=")) {
                 name = line.mid(5);
+                qDebug() << "Found Name:" << name;
             } else if (line.startsWith("Icon=")) {
                 icon = line.mid(5);
+                qDebug() << "Found Icon:" << icon;
             }
         }
-        
+
         popupCenter->setText(name);
+
         if (!icon.isEmpty()) {
             popupCenter->setStyleSheet(QString("QLabel { background-image: url(%1); background-repeat: no-repeat; }").arg(icon));
             popupCenter->setFixedSize(100, 100);
+        } else {
+            qDebug() << "No icon found in .desktop file.";
         }
 
         desktopFile.close();

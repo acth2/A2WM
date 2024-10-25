@@ -48,8 +48,6 @@ private:
     bool isDarkMode;
     bool isWindowVisible = true;
 
-    void onDirectoryClicked(QString &directoryName);
-
 };
 
 #endif // TASKBAR_H

@@ -51,8 +51,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popupExtension = new QLabel(nullptr);
     username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
-    username->setWindowFlag(Qt::FramelessWindowHint);
-    username->setAttribute(Qt::WA_NoSystemBackground);
     username->setText(usernameString);
     userLogo->setIconSize(QSize(126, 126));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
@@ -69,9 +67,11 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
+        username->setStyleSheet("background-color: #333333");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
         popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
+        username->setStyleSheet("background-color: #fff"); 
     }
     
     popup->hide();

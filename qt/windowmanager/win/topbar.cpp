@@ -173,6 +173,21 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
         );
     }
 
+    closeButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    closeButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
+    maximizeButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    maximizeButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
+    minusButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    minusButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
+    resizeButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    resizeButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
         
     connect(closeButton, &QPushButton::clicked, this, &TopBar::closeTrackedWindow);
     connect(maximizeButton, &QPushButton::clicked, this, &TopBar::toggleMaximizeRestore);

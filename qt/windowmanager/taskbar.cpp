@@ -50,6 +50,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     font.setPixelSize(25);
 
     popup = new QLabel(nullptr);
+    popupCenter = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
     username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
@@ -64,19 +65,23 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     );
     userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
+    popupCenter->setFixedSize(380, 375);
     popupExtension->setFixedSize(125, 425);
     username->setFont(font);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
+        popupCenter->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         username->setStyleSheet("background-color: #333333");
     } else {
-        popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
-        popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
-        username->setStyleSheet("background-color: #fff"); 
+        popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
+        popupCenter->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
+        popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
+        username->setStyleSheet("background-color: #fff");
     }
     
     popup->hide();
+    popupCenter->hide();
     popupExtension->hide();
     userLogo->hide();
     username->hide();
@@ -138,6 +143,7 @@ void TaskBar::showPopup() {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
+        popupCenter->move(37, popup->y() + 75);
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());
@@ -148,6 +154,7 @@ void TaskBar::showPopup() {
         userLogo->raise();
         username->raise();
         userLogo->show();
+        popupCenter->show();
         username->show();
         popupExtension->show();
 
@@ -159,6 +166,7 @@ void TaskBar::closePopup() {
     popup->hide();
     userLogo->hide();
     popupExtension->hide();
+    popupCenter->hide();
     username->hide();
     isPopupVisible = false;
 }

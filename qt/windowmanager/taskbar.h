@@ -17,6 +17,7 @@ class TaskBar : public QWidget {
 
 public:
     explicit TaskBar(QWidget *parent = nullptr);
+    void mousePressEvent(QMouseEvent *event) override;
     void showPopup();
     void closePopup();
     bool isPopupVisible = false;
@@ -27,7 +28,6 @@ signals:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
 

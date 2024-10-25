@@ -51,6 +51,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popupExtension = new QLabel(nullptr);
     username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
+    username->setWindowFlag(Qt::FramelessWindowHint);
+    username->setAttribute(Qt::WA_NoSystemBackground);
     username->setText(usernameString);
     userLogo->setIconSize(QSize(126, 126));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
@@ -133,7 +135,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height());
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height());
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());

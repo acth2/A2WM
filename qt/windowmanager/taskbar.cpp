@@ -147,7 +147,9 @@ QString TaskBar::getFormattedDirectories() {
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-            if (popupExtension->layout()) {
+
+        popupExtension->clear();
+        if (popupExtension->layout()) {
             QLayoutItem *item;
             while ((item = popupExtension->layout()->takeAt(0)) != nullptr) {
                 delete item->widget();
@@ -155,6 +157,7 @@ QString TaskBar::getFormattedDirectories() {
             }
             delete popupExtension->layout();
         }
+
         QVBoxLayout *layout = new QVBoxLayout(popupExtension);
 
         for (const QString &dirName : directories) {

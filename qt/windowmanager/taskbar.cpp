@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QTimer>
 #include <QFontDatabase>
+#include <QDir>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 

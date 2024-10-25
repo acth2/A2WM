@@ -50,7 +50,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     font.setPixelSize(25);
 
     popup = new QLabel(nullptr);
-    popupCenter = new QLabel("A2WM", nullptr);
+    popupCenter = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
     username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
@@ -66,6 +66,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
     popupCenter->setFixedSize(380, 375);
+    popupCenter->setWindowTitle("A2WM");
     popupExtension->setFixedSize(125, 425);
     username->setFont(font);
     if (isDarkMode) {

@@ -143,7 +143,7 @@ void TaskBar::showPopup() {
         userLogo->raise();
         username->raise();
         userLogo->show();
-        username6->show();
+        username->show();
         popupExtension->show();
 
         isPopupVisible = true;

@@ -24,16 +24,10 @@ public:
 
 signals:
     void windowMinimized();
-    void clicked();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override {
-        if (event->button() == Qt::LeftButton) {
-            emit clicked();
-        }
-        QLabel::mousePressEvent(event);
-    }
+    void mousePressEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
 

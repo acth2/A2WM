@@ -161,12 +161,12 @@ QString TaskBar::getFormattedDirectories() {
 
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
-            ClickableLabel *label = new ClickableLabel(displayName, popupExtension);
-            label->setAlignment(Qt::AlignCenter);
+            ClickableLabel *label = new ClickableLabel(displayName, homeDir + "/" + dirName, popupExtension);
             connect(label, &ClickableLabel::clicked, this, &TaskBar::onLabelClicked);
+            label->setAlignment(Qt::AlignCenter);
             layout->addWidget(label);
         }
-
+        
         popupExtension->setLayout(layout);
     }
 
@@ -186,8 +186,32 @@ QString TaskBar::getFormattedDirectories() {
     return formattedDirectories.join("\n");
 }
 
-void TaskBar::onLabelClicked(const QString &labelText) {
-    closePopup(); // just for test
+void TaskBar::onLabelClicked(const QString &directoryPath) {
+    QString desktopFilePath = directoryPath + "/" + directoryPath.split("/").last() + ".desktop";
+    QFile desktopFile(desktopFilePath);
+    if (desktopFile.exists() && desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream stream(&desktopFile);
+        QString name, icon;
+
+        while (!stream.atEnd()) {
+            QString line = stream.readLine();
+            if (line.startsWith("Name=")) {
+                name = line.mid(5);
+            } else if (line.startsWith("Icon=")) {
+                icon = line.mid(5);
+            }
+        }
+        
+        popupCenter->setText(name);
+        if (!icon.isEmpty()) {
+            popupCenter->setStyleSheet(QString("QLabel { background-image: url(%1); background-repeat: no-repeat; }").arg(icon));
+            popupCenter->setFixedSize(100, 100);
+        }
+
+        desktopFile.close();
+    } else {
+        qDebug() << "Desktop file does not exist or cannot be opened:" << desktopFilePath;
+    }
 }
 
 void TaskBar::showPopup() {

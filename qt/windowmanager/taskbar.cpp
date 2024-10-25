@@ -85,6 +85,10 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_TransparentForMouseEvents, false);
     startButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
+    powerButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    powerButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     adjustSizeToScreen();
     installEventFilter();

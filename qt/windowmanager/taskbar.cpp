@@ -147,7 +147,6 @@ QString TaskBar::getFormattedDirectories() {
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
         popupExtension->setText("");
         if (popupExtension->layout()) {
             QLayoutItem *item;
@@ -161,8 +160,12 @@ QString TaskBar::getFormattedDirectories() {
         QVBoxLayout *layout = new QVBoxLayout(popupExtension);
 
         for (const QString &dirName : directories) {
+            QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
             ClickableLabel *label = new ClickableLabel(displayName, popupExtension);
             label->setAlignment(Qt::AlignCenter);
+            label->setStyleSheet("background-color: #ffffff; padding: 10px; margin: 5px;");
+            label->setMinimumHeight(40);
+
             connect(label, &ClickableLabel::clicked, this, &TaskBar::onLabelClicked);
             layout->addWidget(label);
         }

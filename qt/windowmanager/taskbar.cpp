@@ -70,12 +70,12 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     username->setFont(font);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
-        popupCenter->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
+        popupCenter->setStyleSheet("background-color: #181414; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         username->setStyleSheet("background-color: #333333");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
-        popupCenter->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
+        popupCenter->setStyleSheet("background-color: #989494; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
         username->setStyleSheet("background-color: #fff");
     }

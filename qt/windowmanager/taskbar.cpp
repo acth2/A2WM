@@ -16,6 +16,7 @@
 #include <X11/Xatom.h>
 
 TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
+    setAttribute(Qt::WA_AlwaysShowToolTips, true);
     if (QFile::exists("/usr/cydra/settings/darkmode")) {
         isDarkMode = true;
     } else {
@@ -79,6 +80,10 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     connect(powerButton, &QPushButton::clicked, this, &TaskBar::showPowerMenu);
     connect(startButton, &QPushButton::clicked, this, &TaskBar::showPopup);
+
+    startButton->setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    startButton->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     adjustSizeToScreen();

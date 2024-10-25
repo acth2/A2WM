@@ -31,6 +31,7 @@ protected:
 
 private:
     QLabel *popup;
+    QLabel *popupExtension;
     QPushButton *userLogo;
     QPushButton *startButton;
     QPushButton *powerButton;

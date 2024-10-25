@@ -71,7 +71,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     username->setFont(font);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
-        popupCenter->setStyleSheet("background-color: #121212; border: 1px solid #000000;");
+        popupCenter->setStyleSheet("background-color: #1F1F1F; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         username->setStyleSheet("background-color: #333333");
     } else {

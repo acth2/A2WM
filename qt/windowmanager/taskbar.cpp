@@ -137,10 +137,31 @@ void TaskBar::adjustSizeToScreen() {
     }
 }
 
+QString TaskBar::getFormattedDirectories() {
+    QStringList formattedDirectories;
+    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+    QDir dir(homeDir);
+
+    if (dir.exists()) {
+        QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        
+        for (const QString &dirName : directories) {
+            QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
+            formattedDirectories.append(displayName);
+            formattedDirectories.append("------------");
+        }
+    }
+        return formattedDirectories.join("\n");
+}
+
 void TaskBar::showPopup() {
     if (isPopupVisible) {
         closePopup();
     } else {
+        QString directoryText = getFormattedDirectories();
+        popupExtension->setText(directoryText);
+        popupExtension->setWordWrap(true);
+
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);

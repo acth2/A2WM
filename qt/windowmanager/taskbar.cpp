@@ -50,7 +50,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     font.setPixelSize(25);
 
     popup = new QLabel(nullptr);
-    popupCenter = new QLabel(nullptr);
+    popupCenter = new QLabel("A2WM", nullptr);
     popupExtension = new QLabel(nullptr);
     username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);

@@ -156,9 +156,8 @@ QString TaskBar::getFormattedDirectories() {
 
             QPushButton *dirButton = new QPushButton(displayName, popupExtension);
             dirButton->setObjectName(dirName);
-            dirButton->setAlignment(Qt::AlignHCenter);
             dirButton->setCursor(Qt::PointingHandCursor);
-            dirButton->setStyleSheet("color: black; margin: 5px;");
+            dirButton->setStyleSheet("color: black; margin: 5px; text-align: center;");
 
             connect(dirButton, &QPushButton::clicked, [this, dirName]() {
                 QString homeDir = QDir::homePath() + "/a2wm/startMenu";

@@ -43,9 +43,14 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     setLayout(layout);
 
+    QFont font("Segoe UI Semibold");
+    font.setPixelSize(15);
+
     popup = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
+    username = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
+    username->setText(usernameString);
     userLogo->setIconSize(QSize(126, 126));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
     userLogo->setStyleSheet(
@@ -57,6 +62,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
     popupExtension->setFixedSize(125, 425);
+    username->setFont(font);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
@@ -68,6 +74,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popup->hide();
     popupExtension->hide();
     userLogo->hide();
+    username->hide();
 
     powerButton = new QPushButton(popup);
     powerButton->setIcon(QIcon("/usr/cydra/icons/power.png"));
@@ -125,14 +132,18 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
+        username->move(userLogo->x() - username->width() - 5, userLogo->y());
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->raise();
         userLogo->raise();
+        username->raise();
         userLogo->show();
+        username6->show();
         popupExtension->show();
 
         isPopupVisible = true;
@@ -143,6 +154,7 @@ void TaskBar::closePopup() {
     popup->hide();
     userLogo->hide();
     popupExtension->hide();
+    username->hide();
     isPopupVisible = false;
 }
 

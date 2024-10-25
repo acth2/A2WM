@@ -142,7 +142,6 @@ void TaskBar::adjustSizeToScreen() {
 QString TaskBar::getFormattedDirectories() {
     QString homeDir = QDir::homePath() + "/a2wm/startMenu";
     QDir dir(homeDir);
-    
     QLayoutItem* item;
     while ((item = popupExtension->layout()->takeAt(0))) {
         delete item->widget();
@@ -151,45 +150,45 @@ QString TaskBar::getFormattedDirectories() {
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
-
-            QLabel *dirLabel = new QLabel(displayName, popupExtension);
-            dirLabel->setObjectName(dirName);
-            dirLabel->setAlignment(Qt::AlignHCenter);
-            dirLabel->setCursor(Qt::PointingHandCursor);
-            dirLabel->setStyleSheet("color: black; margin: 5px;");
-
-            connect(dirLabel, &QLabel::mousePressEvent, [this, dirName](QMouseEvent* event) {
-                if (event->button() == Qt::LeftButton) {
-                    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-                    QDir clickedDir(homeDir + "/" + dirName);
-                    QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-                    popupCenter->setText(contentList.join("\n"));
-                    popupCenter->show();
+            QPushButton *dirButton = new QPushButton(displayName, popupExtension);
+            dirButton->setStyleSheet(R"(
+                QPushButton {
+                    border: none; 
+                    background: transparent; 
+                    color: black; 
+                    margin: 5px;
+                    font-size: 16px; /* Match the label font size */
                 }
+                QPushButton:hover {
+                    color: #005A9E; /* Change color on hover */
+                }
+                QPushButton:pressed {
+                    background-color: rgba(0, 0, 0, 0.1); /* Light relief effect on click */
+                    padding-left: 2px; /* Slight shift to give a pressed look */
+                    padding-top: 2px;
+                }
+            )");
+            dirButton->setCursor(Qt::PointingHandCursor);
+            dirButton->setFlat(true);
+            
+            connect(dirButton, &QPushButton::clicked, [this, dirName]() {
+                QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+                QDir clickedDir(homeDir + "/" + dirName);
+                QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+                popupCenter->setText(contentList.join("\n"));
+                popupCenter->show();
             });
 
-            popupExtension->layout()->addWidget(dirLabel);
+            popupExtension->layout()->addWidget(dirButton);
 
             QLabel *separatorLabel = new QLabel("━━━━━━━━━━━━━━", popupExtension);
             separatorLabel->setAlignment(Qt::AlignHCenter);
             popupExtension->layout()->addWidget(separatorLabel);
         }
     }
-
-    int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
-    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
-
-    if (!fontFamilies.isEmpty()) {
-        QFont font(fontFamilies.at(0));
-        font.setPointSize(16);
-        popupExtension->setFont(font);
-    } else {
-        qDebug() << "Font not loaded. Please check the path.";
-    }
-
-    popupExtension->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     
     return QString();
 }

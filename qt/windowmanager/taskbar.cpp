@@ -12,6 +12,7 @@
 #include <QWidget>
 #include <QFile>
 #include <QTimer>
+#include <QFontDatabase>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -43,7 +44,9 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     setLayout(layout);
 
-    QFont font("Segoe UI Semibold");
+    int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    QFont font(fontFamilies.at(0));
     font.setPixelSize(25);
     font.setBold(true);
 
@@ -135,7 +138,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height());
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());

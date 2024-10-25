@@ -177,62 +177,31 @@ void TaskBar::showPopup() {
         closePopup();
     } else {
         QString directoryText = getFormattedDirectories();
+        popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
-        QLayout *layout = popupExtension->layout();
-        if (layout) {
-            QLayoutItem *item;
-            while ((item = layout->takeAt(0))) {
-                delete item->widget();
-                delete item;
-            }
-        }
-
-        QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-        QDir dir(homeDir);
-        if (dir.exists()) {
-            QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-            for (const QString &dirName : directories) {
-                QLabel *directoryLabel = new QLabel(dirName, popupExtension);
-                directoryLabel->setStyleSheet("cursor: pointer; padding: 5px;");
-                directoryLabel->setAlignment(Qt::AlignCenter);
-                
-                connect(directoryLabel, &QLabel::mousePressEvent, [this, dirName](QMouseEvent *event) {
-                    if (event->button() == Qt::LeftButton) {
-                        onDirectoryClicked(dirName);
-                    }
-                });
-
-                layout->addWidget(directoryLabel);
-            }
-        }
 
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(37, popup->y() + 75);
         popupExtension->move(435, 275);
-        
         popup->show();
+        popup->setWindowFlags(windowFlags());
+        userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->raise();
+        popupCenter->raise();
+        userLogo->raise();
+        username->raise();
+        userLogo->show();
+        popupCenter->show();
+        username->show();
+        popupExtension->show();
+
         isPopupVisible = true;
     }
-}
-
-void TaskBar::onDirectoryClicked(const QString &directoryName) {
-    QString content;
-    QString path = QDir::homePath() + "/a2wm/startMenu/" + directoryName;
-    QDir dir(path);
-    
-    if (dir.exists()) {
-        QStringList files = dir.entryList(QDir::Files);
-        for (const QString &fileName : files) {
-            content += fileName + "\n";
-        }
-    } else {
-        content = "Directory does not exist.";
-    }
-
-    popupCenter->setText(content);
-    popupCenter->show();
 }
 
 void TaskBar::closePopup() {

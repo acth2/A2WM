@@ -48,6 +48,7 @@ private:
     bool isDarkMode;
     bool isWindowVisible = true;
 
+    void onLabelClicked(QString &labelText);
 };
 
 #endif // TASKBAR_H

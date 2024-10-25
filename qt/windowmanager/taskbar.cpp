@@ -139,21 +139,31 @@ void TaskBar::adjustSizeToScreen() {
 }
 
 QString TaskBar::getFormattedDirectories() {
-    QStringList formattedDirectories;
-    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-    QDir dir(homeDir);
+    QString formattedDirectories;
+    QDir dir("/home/$USER/a2wm/startMenu");
+    QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-    if (dir.exists()) {
-        QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        
-        for (const QString &dirName : directories) {
-            QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
-            formattedDirectories.append(displayName);
-            formattedDirectories.append("------------");
+    for (const QString &directory : directories) {
+        QString shortName = directory;
+        if (shortName.length() > 10) {
+            shortName = shortName.left(10) + "-";
         }
+        formattedDirectories += shortName + "\n";
     }
-        return formattedDirectories.join("\n");
+
+    int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    
+    if (!fontFamilies.isEmpty()) {
+        QFont font(fontFamilies.at(0));
+        font.setPointSize(12);
+        popupExtension->setFont(font);
+    }
+
+    popupExtension->setText(formattedDirectories);
+    return formattedDirectories;
 }
+
 
 void TaskBar::showPopup() {
     if (isPopupVisible) {

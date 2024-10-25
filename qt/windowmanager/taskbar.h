@@ -48,7 +48,7 @@ private:
     bool isDarkMode;
     bool isWindowVisible = true;
 
-    void onLabelClicked(QString &labelText);
+    void onLabelClicked(const QString &labelText);
 };
 
 #endif // TASKBAR_H

@@ -1,4 +1,5 @@
 #include "taskbar.h"
+#include "utils/ClickableLabel.h"
 #include <QtCore/qtextstream.h>
 #include <QApplication>
 #include <QScreen>
@@ -138,23 +139,26 @@ void TaskBar::adjustSizeToScreen() {
         move(0, screenGeometry.height() - height());
     }
 }
-
 QString TaskBar::getFormattedDirectories() {
-    QStringList formattedDirectories;
     QString homeDir = QDir::homePath() + "/a2wm/startMenu";
     QDir dir(homeDir);
+    QStringList formattedDirectories;
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        
+        QVBoxLayout *layout = new QVBoxLayout(popupExtension);
+
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
             formattedDirectories.append(displayName);
-            formattedDirectories.append("━━━━━━━━━━━━━━");
-        }
-    }
 
-    popupExtension->setText(formattedDirectories.join("\n"));
+            ClickableLabel *label = new ClickableLabel(displayName, popupExtension);
+            connect(label, &ClickableLabel::clicked, this, &TaskBar::onLabelClicked);
+            layout->addWidget(label);
+        }
+
+        popupExtension->setLayout(layout);
+    }
 
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
@@ -168,8 +172,12 @@ QString TaskBar::getFormattedDirectories() {
     }
 
     popupExtension->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    
+
     return formattedDirectories.join("\n");
+}
+
+void TaskBar::onLabelClicked(const QString &labelText) {
+    closePopup(); // just for test
 }
 
 void TaskBar::showPopup() {

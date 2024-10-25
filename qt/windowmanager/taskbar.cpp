@@ -140,34 +140,21 @@ void TaskBar::adjustSizeToScreen() {
 }
 
 QString TaskBar::getFormattedDirectories() {
+    QStringList formattedDirectories;
     QString homeDir = QDir::homePath() + "/a2wm/startMenu";
     QDir dir(homeDir);
-    
-    QLayoutItem* item;
-    while ((item = popupExtension->layout()->takeAt(0))) {
-        delete item->widget();
-        delete item;
-    }
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
-
-            QLabel *dirLabel = new QLabel(displayName, popupExtension);
-            dirLabel->setObjectName(dirName);
-            dirLabel->setAlignment(Qt::AlignHCenter);
-            dirLabel->setCursor(Qt::PointingHandCursor);
-            dirLabel->setStyleSheet("color: black; margin: 5px;");
-            dirLabel->installEventFilter(this);
-
-            popupExtension->layout()->addWidget(dirLabel);
-
-            QLabel *separatorLabel = new QLabel("━━━━━━━━━━━━━━", popupExtension);
-            separatorLabel->setAlignment(Qt::AlignHCenter);
-            popupExtension->layout()->addWidget(separatorLabel);
+            formattedDirectories.append(displayName);
+            formattedDirectories.append("━━━━━━━━━━━━━━");
         }
     }
+
+    popupExtension->setText(formattedDirectories.join("\n"));
 
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
@@ -182,7 +169,7 @@ QString TaskBar::getFormattedDirectories() {
 
     popupExtension->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     
-    return QString();
+    return formattedDirectories.join("\n");
 }
 
 void TaskBar::showPopup() {
@@ -361,24 +348,12 @@ void TaskBar::installEventFilter() {
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->button() == Qt::LeftButton) {
-            if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
-                if (!userLogo->geometry().contains(mouseEvent->globalPos()) &&
-                    !popupExtension->geometry().contains(mouseEvent->globalPos())) {
+        if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
+            if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
+                if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
                     closePopup();
                     return true;
                 }
-            }
-
-            QLabel *clickedLabel = qobject_cast<QLabel *>(object);
-            if (clickedLabel) {
-                QString dirName = clickedLabel->objectName();
-                QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-                QDir clickedDir(homeDir + "/" + dirName);
-                QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-                popupCenter->setText(contentList.join("\n"));
-                popupCenter->show();
-                return true;
             }
         }
     }

@@ -150,7 +150,7 @@ QString TaskBar::getFormattedDirectories() {
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
             formattedDirectories.append(displayName);
-            formattedDirectories.append("━━━━━━━━━━━━━━━━━━━━━━━━━");
+            formattedDirectories.append("━━━━━━━━━━━━━━");
         }
     }
 
@@ -167,8 +167,7 @@ QString TaskBar::getFormattedDirectories() {
         qDebug() << "Font not loaded. Please check the path.";
     }
 
-    popupExtension->setStyleSheet("color: black;");
-    popupExtension->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    popupExtension->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     
     return formattedDirectories.join("\n");
 }

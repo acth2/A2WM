@@ -55,7 +55,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     );
     userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
-    popupExtension->setFixedSize(125, 300);
+    popupExtension->setFixedSize(125, 425);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #399cb3; border: 1px solid #000000;");
@@ -116,7 +116,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
-        popupExtension->move(500, 250);
+        popupExtension->move(500, 200);
         popup->show();
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
@@ -130,10 +130,10 @@ void TaskBar::showPopup() {
     }
 }
 
-
 void TaskBar::closePopup() {
     popup->hide();
     userLogo->hide();
+    popupExtension->hide();
     isPopupVisible = false;
 }
 
@@ -274,8 +274,10 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
             if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
-                closePopup();
-                return true;
+                if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
+                    closePopup();
+                    return true;
+                }
             }
         }
     }

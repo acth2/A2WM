@@ -154,23 +154,21 @@ QString TaskBar::getFormattedDirectories() {
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
 
-            QPushButton *dirLabel = new QPushButton(displayName, popupExtension);
-            dirLabel->setObjectName(dirName);
-            dirLabel->setAlignment(Qt::AlignHCenter);
-            dirLabel->setCursor(Qt::PointingHandCursor);
-            dirLabel->setStyleSheet("color: black; margin: 5px;");
+            QPushButton *dirButton = new QPushButton(displayName, popupExtension);
+            dirButton->setObjectName(dirName);
+            dirButton->setAlignment(Qt::AlignHCenter);
+            dirButton->setCursor(Qt::PointingHandCursor);
+            dirButton->setStyleSheet("color: black; margin: 5px;");
 
-            connect(dirLabel, &QLabel::mousePressEvent, [this, dirName](QMouseEvent* event) {
-                if (event->button() == Qt::LeftButton) {
-                    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-                    QDir clickedDir(homeDir + "/" + dirName);
-                    QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-                    popupCenter->setText(contentList.join("\n"));
-                    popupCenter->show();
-                }
+            connect(dirButton, &QPushButton::clicked, [this, dirName]() {
+                QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+                QDir clickedDir(homeDir + "/" + dirName);
+                QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+                popupCenter->setText(contentList.join("\n"));
+                popupCenter->show();
             });
 
-            popupExtension->layout()->addWidget(dirLabel);
+            popupExtension->layout()->addWidget(dirButton);
 
             QLabel *separatorLabel = new QLabel("━━━━━━━━━━━━━━", popupExtension);
             separatorLabel->setAlignment(Qt::AlignHCenter);

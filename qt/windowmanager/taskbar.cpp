@@ -43,6 +43,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     popup = new QLabel(nullptr);
+    popupExtension = new QLabel(nullptr);
     userLogo = new QPushButton(nullptr);
     userLogo->setIconSize(QSize(126, 126));
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
@@ -54,13 +55,17 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     );
     userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
+    popupExtension->setFixedSize(125, 300);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
+        popupExtension->setStyleSheet("background-color: #399cb3; border: 1px solid #000000;");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
+        popupExtension->setStyleSheet("background-color: #399cb3; border: 1px solid #000000;"); 
     }
     
     popup->hide();
+    popupExtension->hide();
     userLogo->hide();
 
     powerButton = new QPushButton(popup);
@@ -111,11 +116,15 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
+        popupExtension->move(500, 250);
         popup->show();
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->raise();
         userLogo->raise();
         userLogo->show();
+        popupExtension->show();
 
         isPopupVisible = true;
     }

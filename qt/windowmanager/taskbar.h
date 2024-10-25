@@ -20,6 +20,7 @@ public:
     void showPopup();
     void closePopup();
     bool isPopupVisible = false;
+    QString getFormattedDirectories();
 
 signals:
     void windowMinimized();

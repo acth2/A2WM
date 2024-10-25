@@ -44,8 +44,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     QFont font("Segoe UI Semibold");
+    font.setPixelSize(35);
     font.setBold(true);
-    font.setPixelSize(15);
 
     popup = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
@@ -71,7 +71,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
         popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
     }
-    username->setStyleSheet("background: transparent;");
     
     popup->hide();
     popupExtension->hide();
@@ -134,7 +133,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x(), userLogo->y() + userLogo->height() + 5);
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() - userLogo->height());
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());

@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <QDialog>
 #include <QEvent>
+#include <cstdlib>
 
 class TaskBar : public QWidget {
     Q_OBJECT
@@ -32,6 +33,7 @@ protected:
 private:
     QLabel *popup;
     QLabel *popupExtension;
+    QString username = QString::fromLocal8Bit(getenv("USER"));
     QPushButton *userLogo;
     QPushButton *startButton;
     QPushButton *powerButton;

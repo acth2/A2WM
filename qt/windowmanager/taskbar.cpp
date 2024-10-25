@@ -58,10 +58,10 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popupExtension->setFixedSize(125, 425);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
-        popupExtension->setStyleSheet("background-color: #399cb3; border: 1px solid #000000;");
+        popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
-        popupExtension->setStyleSheet("background-color: #399cb3; border: 1px solid #000000;"); 
+        popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;"); 
     }
     
     popup->hide();

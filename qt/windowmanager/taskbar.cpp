@@ -150,6 +150,7 @@ void TaskBar::showPopup() {
         popup->setWindowFlags(windowFlags());
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->raise();
         userLogo->raise();

@@ -48,7 +48,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFont font(fontFamilies.at(0));
     font.setPixelSize(25);
-    font.setBold(true);
 
     popup = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);

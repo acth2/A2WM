@@ -154,7 +154,7 @@ QString TaskBar::getFormattedDirectories() {
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
 
-            QLabel *dirLabel = new QLabel(displayName, popupExtension);
+            QPushButton *dirLabel = new QPushButton(displayName, popupExtension);
             dirLabel->setObjectName(dirName);
             dirLabel->setAlignment(Qt::AlignHCenter);
             dirLabel->setCursor(Qt::PointingHandCursor);

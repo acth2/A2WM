@@ -154,24 +154,14 @@ QString TaskBar::getFormattedDirectories() {
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
 
-            QPushButton *dirButton = new QPushButton(displayName, popupExtension);
-            dirButton->setObjectName(dirName);
-            dirButton->setCursor(Qt::PointingHandCursor);
-            dirButton->setStyleSheet("color: black; margin: 5px; text-align: center;");
+            QLabel *dirLabel = new QLabel(displayName, popupExtension);
+            dirLabel->setObjectName(dirName);
+            dirLabel->setAlignment(Qt::AlignHCenter);
+            dirLabel->setCursor(Qt::PointingHandCursor);
+            dirLabel->setStyleSheet("color: black; margin: 5px;");
+            dirLabel->installEventFilter(this);
 
-            connect(dirButton, &QPushButton::clicked, this, [this, dirName]() {
-                QString homeDir = QDir::homePath() + "/a2wm/startMenu";
-                QDir clickedDir(homeDir + "/" + dirName);
-                QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-                if (!contentList.isEmpty()) {
-                    popupCenter->setText(contentList.join("\n"));
-                    popupCenter->show();
-                } else {
-                    qDebug() << "No files in directory:" << dirName;
-                }
-            });
-
-            popupExtension->layout()->addWidget(dirButton);
+            popupExtension->layout()->addWidget(dirLabel);
 
             QLabel *separatorLabel = new QLabel("━━━━━━━━━━━━━━", popupExtension);
             separatorLabel->setAlignment(Qt::AlignHCenter);
@@ -371,12 +361,24 @@ void TaskBar::installEventFilter() {
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
-            if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
-                if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
+        if (mouseEvent->button() == Qt::LeftButton) {
+            if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
+                if (!userLogo->geometry().contains(mouseEvent->globalPos()) &&
+                    !popupExtension->geometry().contains(mouseEvent->globalPos())) {
                     closePopup();
                     return true;
                 }
+            }
+
+            QLabel *clickedLabel = qobject_cast<QLabel *>(object);
+            if (clickedLabel) {
+                QString dirName = clickedLabel->objectName();
+                QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+                QDir clickedDir(homeDir + "/" + dirName);
+                QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+                popupCenter->setText(contentList.join("\n"));
+                popupCenter->show();
+                return true;
             }
         }
     }

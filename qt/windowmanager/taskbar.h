@@ -32,6 +32,7 @@ protected:
 
 private:
     QLabel *popup;
+    QLabel *popupCenter;
     QLabel *popupExtension;
     QLabel *username;
     QString usernameString = QString::fromLocal8Bit(getenv("USER"));

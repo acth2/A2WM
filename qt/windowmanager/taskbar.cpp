@@ -148,7 +148,7 @@ QString TaskBar::getFormattedDirectories() {
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-        popupExtension->clear();
+        popupExtension->setText("");
         if (popupExtension->layout()) {
             QLayoutItem *item;
             while ((item = popupExtension->layout()->takeAt(0)) != nullptr) {

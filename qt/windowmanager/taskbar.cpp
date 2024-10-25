@@ -159,12 +159,16 @@ QString TaskBar::getFormattedDirectories() {
             dirButton->setCursor(Qt::PointingHandCursor);
             dirButton->setStyleSheet("color: black; margin: 5px; text-align: center;");
 
-            connect(dirButton, &QPushButton::clicked, [this, dirName]() {
+            connect(dirButton, &QPushButton::clicked, this, [this, dirName]() {
                 QString homeDir = QDir::homePath() + "/a2wm/startMenu";
                 QDir clickedDir(homeDir + "/" + dirName);
                 QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-                popupCenter->setText(contentList.join("\n"));
-                popupCenter->show();
+                if (!contentList.isEmpty()) {
+                    popupCenter->setText(contentList.join("\n"));
+                    popupCenter->show();
+                } else {
+                    qDebug() << "No files in directory:" << dirName;
+                }
             });
 
             popupExtension->layout()->addWidget(dirButton);

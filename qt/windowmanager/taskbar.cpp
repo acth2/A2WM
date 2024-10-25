@@ -140,21 +140,43 @@ void TaskBar::adjustSizeToScreen() {
 }
 
 QString TaskBar::getFormattedDirectories() {
-    QStringList formattedDirectories;
     QString homeDir = QDir::homePath() + "/a2wm/startMenu";
     QDir dir(homeDir);
+    
+    QLayoutItem* item;
+    while ((item = popupExtension->layout()->takeAt(0))) {
+        delete item->widget();
+        delete item;
+    }
 
     if (dir.exists()) {
         QStringList directories = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
-            formattedDirectories.append(displayName);
-            formattedDirectories.append("━━━━━━━━━━━━━━");
+
+            QLabel *dirLabel = new QLabel(displayName, popupExtension);
+            dirLabel->setObjectName(dirName);
+            dirLabel->setAlignment(Qt::AlignHCenter);
+            dirLabel->setCursor(Qt::PointingHandCursor);
+            dirLabel->setStyleSheet("color: black; margin: 5px;");
+
+            connect(dirLabel, &QLabel::mousePressEvent, [this, dirName](QMouseEvent* event) {
+                if (event->button() == Qt::LeftButton) {
+                    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+                    QDir clickedDir(homeDir + "/" + dirName);
+                    QStringList contentList = clickedDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+                    popupCenter->setText(contentList.join("\n"));
+                    popupCenter->show();
+                }
+            });
+
+            popupExtension->layout()->addWidget(dirLabel);
+
+            QLabel *separatorLabel = new QLabel("━━━━━━━━━━━━━━", popupExtension);
+            separatorLabel->setAlignment(Qt::AlignHCenter);
+            popupExtension->layout()->addWidget(separatorLabel);
         }
     }
-
-    popupExtension->setText(formattedDirectories.join("\n"));
 
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
@@ -169,7 +191,7 @@ QString TaskBar::getFormattedDirectories() {
 
     popupExtension->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     
-    return formattedDirectories.join("\n");
+    return QString();
 }
 
 void TaskBar::showPopup() {

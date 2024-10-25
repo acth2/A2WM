@@ -22,7 +22,8 @@ HEADERS += windowmanager.h \
            userinteractright.h \
            taskbar.h \
            win/topbar.h \
-           win/MinimizedPosArray.h
+           win/MinimizedPosArray.h \
+           utils/ClickableLabel.h
 
 DESTDIR = src
 

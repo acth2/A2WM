@@ -44,7 +44,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setLayout(layout);
 
     QFont font("Segoe UI Semibold");
-    font.setPixelSize(35);
+    font.setPixelSize(25);
     font.setBold(true);
 
     popup = new QLabel(nullptr);
@@ -133,7 +133,7 @@ void TaskBar::showPopup() {
     } else {
         popup->move(0, height() * 5.7);
         userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() - userLogo->height());
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height());
         popupExtension->move(435, 275);
         popup->show();
         popup->setWindowFlags(windowFlags());

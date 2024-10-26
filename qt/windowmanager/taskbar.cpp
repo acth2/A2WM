@@ -238,7 +238,6 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
 
         execList.append(execValue);
-        }
     }
 
     popupCenter->setLayout(layout);

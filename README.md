@@ -11,7 +11,7 @@
 <p>✔️ TaskBar</p>
 <p>✔️ Text Editor</p>
 <p>✔️ Terminal</p>
-<p>❌ TaskBar Menu</p>
+<p>🟧 TaskBar Menu (Soon finished)</p>
 <p>❌ Settings application</p>
 <p>❌ Desktop Icons</p>
 <p>❌ Windows container live adapter</p>

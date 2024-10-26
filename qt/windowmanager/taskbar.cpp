@@ -164,7 +164,9 @@ QString TaskBar::getFormattedDirectories() {
         for (const QString &dirName : directories) {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
             ClickableLabel *label = new ClickableLabel(displayName, homeDir + "/" + dirName, popupExtension);
-            connect(label, &ClickableLabel::clicked, this, &TaskBar::onLabelClicked);
+            connect(label, &ClickableLabel::clicked, this, [this, dirName]() {
+                onLabelClicked(dirName);
+            });
             label->setAlignment(Qt::AlignCenter);
             layout->addWidget(label);
         }
@@ -190,7 +192,7 @@ QString TaskBar::getFormattedDirectories() {
 
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
-    ClickableLabel *testLabel = new ClickableLabel("Test", "/home/acth2/a2wm/startMenu/Help", popupCenter);
+    ClickableLabel *testLabel = new ClickableLabel("/home/acth2/a2wm/startMenu/" + labelText, "/home/acth2/a2wm/startMenu/" + labelText, popupCenter);
     testLabel->setAlignment(Qt::AlignCenter);
     testLabel->setFixedSize(64, 64);
     layout->addWidget(testLabel, 0, Qt::AlignTop | Qt::AlignLeft);

@@ -199,7 +199,7 @@ QString TaskBar::getFormattedDirectories() {
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
 
-    QDir directory(QString("/home/" + getenv("USER") + "/a2wm/startMenu/%1").arg(labelText));
+    QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     QRegularExpression execRegex(R"(Exec=(.*))");
     QRegularExpression nameRegex(R"(Name=(.*))");
 

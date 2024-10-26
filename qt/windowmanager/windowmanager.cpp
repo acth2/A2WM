@@ -80,16 +80,6 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
-    Atom netWmWindowTypeNormal = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-    Atom netWmWindowTypeDesktop = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-    Atom netWmWindowTypeDock = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DOCK", False);
-    Atom netWmWindowTypeToolbar = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-    Atom netWmWindowTypeMenu = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False);
-    Atom netWmWindowTypeUtility = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_UTILITY", False);
-    Atom netWmWindowTypeSplash = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_SPLASH", False);
-    Atom netWmWindowTypeDialog = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-
     Window windowRoot = DefaultRootWindow(xDisplay);
     Window parent, *children = nullptr;
     unsigned int nChildren;
@@ -100,71 +90,43 @@ void WindowManager::listExistingWindows() {
             XWindowAttributes attributes;
 
             if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
-                appendLog("INFO: Skipping non-viewable window: " + QString::number(child));
-                continue;
-            }
-
-            QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
-            if (windowGeometry.width() <= 0 || windowGeometry.height() <= 0) {
-                appendLog("INFO: Skipping non-graphical window (0x0 size): " + QString::number(child));
+                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
                 continue;
             }
 
             char *windowName = nullptr;
             if (XFetchName(xDisplay, child, &windowName) && windowName) {
                 QString name(windowName);
-
+                
                 if (name == "A2WM") {
-                    appendLog("INFO: An A2WM Window detected (ID: " + QString::number(child) + "). Skipping...");
+                    appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
                     XFree(windowName);
                     continue;
                 }
-
-                if (name == "QTerminal" || name == "Shell No. 1") {
-                    appendLog("INFO: Detected QTerminal window: " + QString::number(child));
-                    createAndTrackWindow(child, "QTerminal");
-                    XFree(windowName);
-                    continue;
-                }
-
-                if (name == "A2WMEdit" || name == "Fadyedit") {
-                    appendLog("INFO: Detected A2WMEdit/FadyEdit window: " + QString::number(child));
-                    createAndTrackWindow(child, "A2WMEdit");
-                    XFree(windowName);
-                    continue;
-                }
-
+                
+                appendLog("INFO: Detected window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 XFree(windowName);
             }
 
-            Atom type;
-            int format;
-            unsigned long nItems, bytesAfter;
-            unsigned char *data = nullptr;
-            if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, 1, False, XA_ATOM,
-                                   &type, &format, &nItems, &bytesAfter, &data) == Success && data) {
-                Atom *atoms = (Atom *)data;
-                if (atoms[0] != netWmWindowTypeDock     &&
-                    atoms[0] != netWmWindowTypeToolbar  &&
-                    atoms[0] != netWmWindowTypeMenu     &&
-                    atoms[0] != netWmWindowTypeUtility  &&
-                    atoms[0] != netWmWindowTypeSplash   &&
-                    atoms[0] != netWmWindowTypeDialog   &&
-                    atoms[0] != netWmWindowTypeNormal) {
-                    appendLog("INFO: Skipping non-relevant window type: " + QString::number(child));
-                    XFree(data);
-                    continue;
-                }
-                XFree(data); 
+            QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
+            if (windowGeometry.width() <= 0 || windowGeometry.height() <= 0) {
+                appendLog("INFO: Skipping window with zero or negative dimensions: " + QString::number(child));
+                continue;
+            }
+            
+            XClassHint classHint;
+            if (XGetClassHint(xDisplay, child, &classHint)) {
+                appendLog("INFO: Window Class (WM_CLASS): " 
+                          + QString(classHint.res_class ? classHint.res_class : "")
+                          + ", Instance: " 
+                          + QString(classHint.res_name ? classHint.res_name : "")
+                          + ", ID: " + QString::number(child));
+                XFree(classHint.res_class);
+                XFree(classHint.res_name);
             }
 
-            char *windowName2 = nullptr;
-            if (XFetchName(xDisplay, child, &windowName2) && windowName2) {
-                QString name2(windowName2);
-                if (!trackedWindows.contains(child)) {
-                    createAndTrackWindow(child, name2);
-                }
-                XFree(windowName2);
+            if (!trackedWindows.contains(child)) {
+                createAndTrackWindow(child, QString("Window ID: ") + QString::number(child));
             }
         }
         XFree(children);

@@ -307,6 +307,7 @@ void TaskBar::showPopup() {
     } else {
         closePopup();
         showPopup();
+        firstTime = false;
     }
 }
 

@@ -98,6 +98,12 @@ void WindowManager::listExistingWindows() {
             char *windowName = nullptr;
             if (XFetchName(xDisplay, child, &windowName) && windowName) {
                 QString name(windowName);
+
+                if (name.isEmpty()){
+                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
+                    XFree(windowName);
+                    continue;
+                }
                 
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));

@@ -49,6 +49,7 @@ private:
     bool isWindowVisible = true;
 
     void onLabelClicked(const QString &labelText);
+    void onLabelClickedExec(const QString &execCommand);
 };
 
 #endif // TASKBAR_H

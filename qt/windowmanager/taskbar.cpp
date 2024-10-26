@@ -251,6 +251,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         std::cout << "File: " << fileName.toStdString() << ", Name: " << nameValue.toStdString() << ", Exec: " << execValue.toStdString() << '\n';
 
         if (!nameValue.isEmpty()) {
+            delete label;
             ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
             label->setAlignment(Qt::AlignCenter);
             label->setFixedSize(64, 64);

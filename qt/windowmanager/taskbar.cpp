@@ -215,6 +215,11 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
     for (const QString &fileName : desktopFiles) {
         QFile file(directory.filePath(fileName));
+    
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
+            continue;
+        }
 
         QTextStream in(&file);
         QString execValue, nameValue;
@@ -230,14 +235,16 @@ void TaskBar::onLabelClicked(const QString &labelText) {
             }
         }
         file.close();
-        std::cout << "File: " << fileName.toStdString() << ", Name: " << nameValue.toStdString() << ", Exec: " << execValue.toStdString() << '\n';
-        std::cout << "Adding label: " << nameValue.toStdString() << '\n';
-        ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
-        label->setAlignment(Qt::AlignCenter);
-        label->setFixedSize(64, 64);
-        layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
 
-        execList.append(execValue);
+        std::cout << "File: " << fileName.toStdString() << ", Name: " << nameValue.toStdString() << ", Exec: " << execValue.toStdString() << '\n';
+
+        if (!nameValue.isEmpty()) {
+            ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
+            label->setAlignment(Qt::AlignCenter);
+            label->setFixedSize(64, 64);
+            layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
+            execList.append(execValue);
+        }
     }
 
     popupCenter->setLayout(layout);

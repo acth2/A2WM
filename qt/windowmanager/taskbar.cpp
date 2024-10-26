@@ -196,6 +196,17 @@ QString TaskBar::getFormattedDirectories() {
     return formattedDirectories.join("\n");
 }
 
+void TaskBar::onLabelClickedExec(const QString &execCommand) {
+    QProcess *process = new QProcess(this);
+    process->start(execCommand);
+
+    if (!process->waitForStarted()) {
+        QMessageBox::warning(popupCenter, "Execution Failed", 
+                             "Failed to start application: " + execCommand);
+        delete process;
+    }
+}
+
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
@@ -244,6 +255,10 @@ void TaskBar::onLabelClicked(const QString &labelText) {
             label->setFixedSize(64, 64);
             layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
             execList.append(execValue);
+
+            connect(label, &ClickableLabel::clicked, this, [this, execValue]() {
+                onLabelClickedExec(execValue);
+            });
         }
     }
 

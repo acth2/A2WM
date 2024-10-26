@@ -147,36 +147,29 @@ void WindowManager::listExistingWindows() {
                 }
 
                 XWindowAttributes attributes;
-                if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
+                /*if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
                     appendLog("INFO: Skipping attribute window: " + QString::number(child));
                     continue;
-                }
+                }*/
 
                 QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
 
-                if (windowGeometry.width() == 0 || windowGeometry.height() == 0) {
+                if (windowGeometry.width() <= 0 || windowGeometry.height() <= 0) {
                     appendLog("INFO: Skipping non-graphical window (0x0 size): " + QString::number(child));
                     continue;
-                } else {
-                    char *windowName3 = nullptr;
-                    if (XFetchName(xDisplay, child, &windowName3) && windowName3) {
-                        QString name3(windowName3);
-                        if (!trackedWindows.contains(child)) {
-                            createAndTrackWindow(child, name3);
-                        }
-                    }
                 }
 
+                
                 appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
-                    char *windowName2 = nullptr;
-                    if (XFetchName(xDisplay, child, &windowName2) && windowName2) {
-                        QString name2(windowName2);
-                        if (!trackedWindows.contains(child)) {
-                            createAndTrackWindow(child, name2);
-                        }
+                char *windowName2 = nullptr;
+                if (XFetchName(xDisplay, child, &windowName2) && windowName2) {
+                    QString name2(windowName2);
+                    if (!trackedWindows.contains(child)) {
+                        createAndTrackWindow(child, name2);
                     }
-                    XFree(children);
                 }
+                XFree(children);
+            }
         }
     } else {
         appendLog("ERR: Failed to open X Display ..");

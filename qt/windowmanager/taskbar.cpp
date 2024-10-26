@@ -189,13 +189,15 @@ QString TaskBar::getFormattedDirectories() {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    QString dirPath = QDir::homePath() + "/a2wm/startMenu/" + labelText;
-    QDir dir(dirPath);
+    QString directoryPath = QDir::homePath() + "/a2wm/startMenu/" + labelText;
+    QDir dir(directoryPath);
 
-    QStringList desktopFiles = dir.entryList({"*.desktop"}, QDir::Files);
-    if (desktopFiles.isEmpty()) {
+    if (!dir.exists()) {
+        qDebug() << "Directory does not exist:" << directoryPath;
         return;
     }
+
+    QStringList desktopFiles = dir.entryList(QStringList() << "*.desktop", QDir::Files);
 
     if (popupCenter->layout()) {
         QLayoutItem *item;
@@ -206,45 +208,54 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         delete popupCenter->layout();
     }
 
-    QVBoxLayout *centerLayout = new QVBoxLayout(popupCenter);
-    
-    for (const QString &desktopFile : desktopFiles) {
-        QFile file(dir.filePath(desktopFile));
+    QVBoxLayout *layout = new QVBoxLayout(popupCenter);
+
+    for (const QString &fileName : desktopFiles) {
+        QString filePath = directoryPath + "/" + fileName;
+        QFile desktopFile(filePath);
         
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            QString name;
-            QString exec;
-            
-            while (!in.atEnd()) {
-                QString line = in.readLine();
-                if (line.startsWith("Name=")) {
-                    name = line.mid(5);
-                }
-                if (line.startsWith("Exec=")) {
-                    exec = line.mid(5);
-                }
+        if (!desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "Failed to open .desktop file:" << filePath;
+            continue;
+        }
+
+        QTextStream stream(&desktopFile);
+        QString name, exec;
+
+        while (!stream.atEnd()) {
+            QString line = stream.readLine();
+            if (line.startsWith("Name=")) {
+                name = line.mid(5);
+            } else if (line.startsWith("Exec=")) {
+                exec = line.mid(5);
             }
+        }
+        desktopFile.close();
 
-            file.close();
-
-            if (!name.isEmpty() && !exec.isEmpty()) {
-                QPushButton *appButton = new QPushButton(name, popupCenter);
-                connect(appButton, &QPushButton::clicked, [=]() {
-                    QProcess *process = new QProcess(this);
-                    process->start(exec);
-
-                    if (!process->waitForStarted()) {
-                        QMessageBox::warning(this, "Error", "Failed to launch application: " + name);
-                        delete process;
-                    }
+        if (!name.isEmpty() && !exec.isEmpty()) {
+            ClickableLabel *appLabel = new ClickableLabel(name, exec, popupCenter);
+            appLabel->setAlignment(Qt::AlignCenter);
+            connect(appLabel, &ClickableLabel::clicked, this, [=]() {
+                QProcess *process = new QProcess(this);
+                connect(process, &QProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
+                    QMessageBox::warning(this, "Error", "Failed to launch " + name + ": " + process->errorString());
+                    process->deleteLater();
                 });
-                centerLayout->addWidget(appButton);
-            }
+                
+                process->start(exec);
+
+                if (!process->waitForStarted()) {
+                    QMessageBox::warning(this, "Error", "Failed to launch " + name);
+                    process->deleteLater();
+                }
+            });
+            layout->addWidget(appLabel);
+        } else {
+            QMessageBox::warning(this, "Error", "Invalid .desktop file in " + directoryPath);
         }
     }
 
-    popupCenter->setLayout(centerLayout);
+    popupCenter->setLayout(layout);
     popupCenter->show();
 }
 

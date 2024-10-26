@@ -29,6 +29,7 @@
 
 TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_AlwaysShowToolTips, true);
+    this->setWindowTitle("A2WM");
     if (QFile::exists("/usr/cydra/settings/darkmode")) {
         isDarkMode = true;
     } else {

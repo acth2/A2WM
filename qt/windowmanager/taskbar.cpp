@@ -192,9 +192,9 @@ QString TaskBar::getFormattedDirectories() {
 
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
-    ClickableLabel *testLabel = new ClickableLabel("/home/acth2/a2wm/startMenu/" + labelText, "/home/acth2/a2wm/startMenu/" + labelText, popupCenter);
+    ClickableLabel *testLabel = new ClickableLabel('Jhon pork :-)', "/home/acth2/a2wm/startMenu/" + labelText, popupCenter);
     testLabel->setAlignment(Qt::AlignCenter);
-    testLabel->setFixedSize(300, 300);
+    testLabel->setFixedSize(64, 64);
     layout->addWidget(testLabel, 0, Qt::AlignTop | Qt::AlignLeft);
     popupCenter->setLayout(layout);
 }

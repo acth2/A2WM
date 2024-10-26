@@ -209,6 +209,7 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
+    delete layout;
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
@@ -251,7 +252,6 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         std::cout << "File: " << fileName.toStdString() << ", Name: " << nameValue.toStdString() << ", Exec: " << execValue.toStdString() << '\n';
 
         if (!nameValue.isEmpty()) {
-            delete label;
             ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
             label->setAlignment(Qt::AlignCenter);
             label->setFixedSize(64, 64);

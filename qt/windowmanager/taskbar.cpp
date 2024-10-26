@@ -198,8 +198,9 @@ QString TaskBar::getFormattedDirectories() {
 
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
-
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
+    std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
+
     QRegularExpression execRegex(R"(Exec=(.*))");
     QRegularExpression nameRegex(R"(Name=(.*))");
 
@@ -209,8 +210,10 @@ void TaskBar::onLabelClicked(const QString &labelText) {
     }
 
     QStringList execList;
+    QStringList desktopFiles = directory.entryList(QStringList() << "*.desktop", QDir::Files);
+    std::cout << "Found desktop files: " << desktopFiles.join(", ").toStdString() << '\n';
 
-    for (const QString &fileName : directory.entryList(QStringList() << "*.desktop", QDir::Files)) {
+    for (const QString &fileName : desktopFiles) {
         QFile file(directory.filePath(fileName));
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
@@ -231,6 +234,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
             }
         }
         file.close();
+        std::cout << "File: " << fileName.toStdString() << ", Name: " << nameValue.toStdString() << ", Exec: " << execValue.toStdString() << '\n';
 
         if (!nameValue.isEmpty() && !execValue.isEmpty()) {
             std::cout << "Adding label: " << nameValue.toStdString() << '\n';
@@ -245,7 +249,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
     popupCenter->setLayout(layout);
     popupCenter->adjustSize();
-    popupCenter->update();
+    popupCenter->setVisible(true);
 
     for (const QString &exec : execList) {
         std::cout << "Stored Exec: " << exec.toStdString() << '\n';

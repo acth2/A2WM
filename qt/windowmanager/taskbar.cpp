@@ -23,6 +23,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <QRegularExpression>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -198,7 +199,7 @@ QString TaskBar::getFormattedDirectories() {
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
 
-    QDir directory(QString("/home/" + username + "/a2wm/startMenu/%1").arg(labelText));
+    QDir directory(QString("/home/" + getenv("USER") + "/a2wm/startMenu/%1").arg(labelText));
     QRegularExpression execRegex(R"(Exec=(.*))");
     QRegularExpression nameRegex(R"(Name=(.*))");
 

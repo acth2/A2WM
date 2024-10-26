@@ -189,14 +189,14 @@ QString TaskBar::getFormattedDirectories() {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    QString directoryPath = QDir::homePath() + "/a2wm/startMenu/" + labelText;
-    QDir dir(directoryPath);
-    if (!dir.exists()) {
-        qDebug() << "Directory does not exist:" << directoryPath;
+    QString dirPath = QDir::homePath() + "/a2wm/startMenu/" + labelText;
+    QDir dir(dirPath);
+
+    QStringList desktopFiles = dir.entryList({"*.desktop"}, QDir::Files);
+    if (desktopFiles.isEmpty()) {
         return;
     }
 
-    QStringList desktopFiles = dir.entryList(QStringList() << "*.desktop", QDir::Files);
     if (popupCenter->layout()) {
         QLayoutItem *item;
         while ((item = popupCenter->layout()->takeAt(0)) != nullptr) {
@@ -206,54 +206,45 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         delete popupCenter->layout();
     }
 
-    QVBoxLayout *layout = new QVBoxLayout(popupCenter);
-
-    for (const QString &fileName : desktopFiles) {
-        QString filePath = directoryPath + "/" + fileName;
-        QFile desktopFile(filePath);
-        if (!desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug() << "Failed to open .desktop file:" << filePath;
-            continue;
-        }
-
-        QTextStream stream(&desktopFile);
-        QString name;
-        QString exec;
-
-        while (!stream.atEnd()) {
-            QString line = stream.readLine();
-            if (line.startsWith("Name=")) {
-                name = line.mid(5);
-            } else if (line.startsWith("Exec=")) {
-                exec = line.mid(5);
-            }
-        }
-        desktopFile.close();
-
-        if (!name.isEmpty() && !exec.isEmpty()) {
-            ClickableLabel *appLabel = new ClickableLabel(name, popupCenter);
-            appLabel->setAlignment(Qt::AlignCenter);
-            connect(appLabel, &ClickableLabel::clicked, this, [=]() {
-                QProcess *process = new QProcess(this);
-                connect(process, &QProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
-                    QMessageBox::warning(this, "Error", "Failed to launch " + name + ": " + process->errorString());
-                    process->deleteLater();
-                });
-
-                process->start(exec);
-
-                if (!process->waitForStarted()) {
-                    QMessageBox::warning(this, "Error", "Failed to launch " + name);
-                    process->deleteLater();
+    QVBoxLayout *centerLayout = new QVBoxLayout(popupCenter);
+    
+    for (const QString &desktopFile : desktopFiles) {
+        QFile file(dir.filePath(desktopFile));
+        
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            QString name;
+            QString exec;
+            
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                if (line.startsWith("Name=")) {
+                    name = line.mid(5);
                 }
-            });
-            layout->addWidget(appLabel);
-        } else {
-            QMessageBox::warning(this, "Error", "Missing Name or Exec in .desktop file: " + filePath + ": ");
+                if (line.startsWith("Exec=")) {
+                    exec = line.mid(5);
+                }
+            }
+
+            file.close();
+
+            if (!name.isEmpty() && !exec.isEmpty()) {
+                QPushButton *appButton = new QPushButton(name, popupCenter);
+                connect(appButton, &QPushButton::clicked, [=]() {
+                    QProcess *process = new QProcess(this);
+                    process->start(exec);
+
+                    if (!process->waitForStarted()) {
+                        QMessageBox::warning(this, "Error", "Failed to launch application: " + name);
+                        delete process;
+                    }
+                });
+                centerLayout->addWidget(appButton);
+            }
         }
     }
 
-    popupCenter->setLayout(layout);
+    popupCenter->setLayout(centerLayout);
     popupCenter->show();
 }
 

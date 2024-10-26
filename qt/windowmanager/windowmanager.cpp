@@ -133,7 +133,7 @@ void WindowManager::listExistingWindows() {
             }
 
             if (!trackedWindows.contains(child)) {
-                createAndTrackWindow(child, QString("Window ID: ") + QString::number(child));
+                createAndTrackWindow(child, windowName);
             }
         }
         XFree(children);

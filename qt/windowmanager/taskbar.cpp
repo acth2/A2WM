@@ -18,6 +18,11 @@
 #include <QDir>
 #include <QDebug>
 #include <QProcess>
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <string>
+#include <regex>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -192,11 +197,52 @@ QString TaskBar::getFormattedDirectories() {
 
 void TaskBar::onLabelClicked(const QString &labelText) {
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
-    ClickableLabel *testLabel = new ClickableLabel('Jhon pork :-)', "/home/acth2/a2wm/startMenu/" + labelText, popupCenter);
-    testLabel->setAlignment(Qt::AlignCenter);
-    testLabel->setFixedSize(64, 64);
-    layout->addWidget(testLabel, 0, Qt::AlignTop | Qt::AlignLeft);
+
+    QDir directory(QString("/home/" + username + "/a2wm/startMenu/%1").arg(labelText));
+    QRegularExpression execRegex(R"(Exec=(.*))");
+    QRegularExpression nameRegex(R"(Name=(.*))");
+
+    if (!directory.exists()) {
+        std::cerr << "Directory does not exist: " << directory.absolutePath().toStdString() << '\n';
+        return;
+    }
+
+    QStringList execList;
+
+    for (const QString &fileName : directory.entryList(QStringList() << "*.desktop", QDir::Files)) {
+        QFile file(directory.filePath(fileName));
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            QString execValue, nameValue;
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                QRegularExpressionMatch execMatch = execRegex.match(line);
+                QRegularExpressionMatch nameMatch = nameRegex.match(line);
+
+                if (execMatch.hasMatch()) {
+                    execValue = execMatch.captured(1).trimmed();
+                } else if (nameMatch.hasMatch()) {
+                    nameValue = nameMatch.captured(1).trimmed();
+                }
+            }
+            file.close();
+
+            if (!nameValue.isEmpty() && !execValue.isEmpty()) {
+                ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
+                label->setAlignment(Qt::AlignCenter);
+                label->setFixedSize(64, 64);
+                layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
+
+                execList.append(execValue);
+            }
+        }
+    }
+
     popupCenter->setLayout(layout);
+
+    for (const QString &exec : execList) {
+        std::cout << "Stored Exec: " << exec.toStdString() << '\n';
+    }
 }
 
 void TaskBar::showPopup() {

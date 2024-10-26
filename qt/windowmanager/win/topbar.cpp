@@ -438,6 +438,7 @@ void TopBar::closeTrackedWindow() {
                 QProcess::execute("kill -9 " + QString::number(pid));
             }
         }
+        trackedWindow->hide();
         this->close();
     }
 }

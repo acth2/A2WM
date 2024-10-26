@@ -47,6 +47,7 @@ private:
     bool powerMenuVisible = false;
     bool isDarkMode;
     bool isWindowVisible = true;
+    bool firstTime = false;
 
     void onLabelClicked(const QString &labelText);
     void onLabelClickedExec(const QString &execCommand);

@@ -200,9 +200,8 @@ QString TaskBar::getFormattedDirectories() {
 void TaskBar::onLabelClickedExec(const QString &execCommand) {
     QProcess *process = new QProcess(this);
     process->start(execCommand);
-
+    closePopup();
     if (!process->waitForStarted()) {
-        closePopup();
         QMessageBox::warning(popupCenter, "Execution Failed", 
                              "Failed to start application: " + execCommand);
         delete process;

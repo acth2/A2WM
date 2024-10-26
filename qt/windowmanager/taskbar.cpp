@@ -193,7 +193,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
     ClickableLabel *testLabel = new ClickableLabel("Test", "/home/acth2/a2wm/startMenu/Help", popupCenter);
     testLabel->setAlignment(Qt::AlignCenter);
     testLabel->setFixedSize(32, 32);
-    layout->addWidget(testLabel);
+    layout->addWidget(testLabel, 0, Qt::AlignTop | Qt::AlignLeft);
     popupCenter->setLayout(layout);
 }
 

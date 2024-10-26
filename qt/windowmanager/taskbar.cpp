@@ -2,6 +2,7 @@
 #include "utils/ClickableLabel.h"
 #include <QtCore/qtextstream.h>
 #include <QApplication>
+#include <QMessageBox>
 #include <QScreen>
 #include <QPropertyAnimation>
 #include <QMouseEvent>
@@ -186,40 +187,74 @@ QString TaskBar::getFormattedDirectories() {
     return formattedDirectories.join("\n");
 }
 
-void TaskBar::onLabelClicked(const QString &directoryPath) {
-    QString desktopFilePath = directoryPath + "/" + directoryPath.split("/").last() + ".desktop";
+void TaskBar::onLabelClicked(const QString &labelText) {
+    QString directoryPath = QDir::homePath() + "/a2wm/startMenu/" + labelText;
+    QDir dir(directoryPath);
+    if (!dir.exists()) {
+        qDebug() << "Directory does not exist:" << directoryPath;
+        return;
+    }
 
-    qDebug() << "Trying to open:" << desktopFilePath;
+    QStringList desktopFiles = dir.entryList(QStringList() << "*.desktop", QDir::Files);
+    if (popupCenter->layout()) {
+        QLayoutItem *item;
+        while ((item = popupCenter->layout()->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete popupCenter->layout();
+    }
 
-    QFile desktopFile(desktopFilePath);
-    if (desktopFile.exists() && desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QVBoxLayout *layout = new QVBoxLayout(popupCenter);
+
+    for (const QString &fileName : desktopFiles) {
+        QString filePath = directoryPath + "/" + fileName;
+        QFile desktopFile(filePath);
+        if (!desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "Failed to open .desktop file:" << filePath;
+            continue;
+        }
+
         QTextStream stream(&desktopFile);
-        QString name, icon;
+        QString name;
+        QString exec;
 
         while (!stream.atEnd()) {
             QString line = stream.readLine();
             if (line.startsWith("Name=")) {
                 name = line.mid(5);
-                qDebug() << "Found Name:" << name;
-            } else if (line.startsWith("Icon=")) {
-                icon = line.mid(5);
-                qDebug() << "Found Icon:" << icon;
+            } else if (line.startsWith("Exec=")) {
+                exec = line.mid(5);
             }
         }
-
-        popupCenter->setText(name);
-
-        if (!icon.isEmpty()) {
-            popupCenter->setStyleSheet(QString("QLabel { background-image: url(%1); background-repeat: no-repeat; }").arg(icon));
-            popupCenter->setFixedSize(100, 100);
-        } else {
-            qDebug() << "No icon found in .desktop file.";
-        }
-
         desktopFile.close();
-    } else {
-        qDebug() << "Desktop file does not exist or cannot be opened:" << desktopFilePath;
+
+        if (!name.isEmpty() && !exec.isEmpty()) {
+            ClickableLabel *appLabel = new ClickableLabel(name, popupCenter);
+            appLabel->setAlignment(Qt::AlignCenter);
+            connect(appLabel, &ClickableLabel::clicked, this, [=]() {
+                QProcess *process = new QProcess(this);
+                connect(process, &QProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
+                    QMessageBox::warning(this, "Error", "Failed to launch " + name + ": " + process->errorString());
+                    process->deleteLater();
+                });
+
+                process->start(exec);
+
+                if (!process->waitForStarted()) {
+                    QMessageBox::warning(this, "Error", "Failed to launch " + name);
+                    process->deleteLater();
+                }
+            });
+
+            layout->addWidget(appLabel);
+        } else {
+            qDebug() << "Missing Name or Exec in .desktop file:" << filePath;
+        }
     }
+
+    popupCenter->setLayout(layout);
+    popupCenter->show();
 }
 
 void TaskBar::showPopup() {

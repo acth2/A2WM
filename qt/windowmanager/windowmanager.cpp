@@ -157,6 +157,14 @@ void WindowManager::listExistingWindows() {
                 if (windowGeometry.width() == 0 || windowGeometry.height() == 0) {
                     appendLog("INFO: Skipping non-graphical window (0x0 size): " + QString::number(child));
                     continue;
+                } else {
+                    char *windowName3 = nullptr;
+                    if (XFetchName(xDisplay, child, &windowName3) && windowName3) {
+                        QString name3(windowName3);
+                        if (!trackedWindows.contains(child)) {
+                            createAndTrackWindow(child, name3);
+                        }
+                    }
                 }
 
                 appendLog("INFO: Detected graphical X11 window: " + QString::number(child));
@@ -167,7 +175,7 @@ void WindowManager::listExistingWindows() {
                             createAndTrackWindow(child, name2);
                         }
                     }
-                        XFree(children);
+                    XFree(children);
                 }
         }
     } else {

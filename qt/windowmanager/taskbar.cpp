@@ -212,34 +212,40 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
     for (const QString &fileName : directory.entryList(QStringList() << "*.desktop", QDir::Files)) {
         QFile file(directory.filePath(fileName));
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            QString execValue, nameValue;
-            while (!in.atEnd()) {
-                QString line = in.readLine();
-                QRegularExpressionMatch execMatch = execRegex.match(line);
-                QRegularExpressionMatch nameMatch = nameRegex.match(line);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
+            continue;
+        }
 
-                if (execMatch.hasMatch()) {
-                    execValue = execMatch.captured(1).trimmed();
-                } else if (nameMatch.hasMatch()) {
-                    nameValue = nameMatch.captured(1).trimmed();
-                }
+        QTextStream in(&file);
+        QString execValue, nameValue;
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            QRegularExpressionMatch execMatch = execRegex.match(line);
+            QRegularExpressionMatch nameMatch = nameRegex.match(line);
+
+            if (execMatch.hasMatch()) {
+                execValue = execMatch.captured(1).trimmed();
+            } else if (nameMatch.hasMatch()) {
+                nameValue = nameMatch.captured(1).trimmed();
             }
-            file.close();
+        }
+        file.close();
 
-            if (!nameValue.isEmpty() && !execValue.isEmpty()) {
-                ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
-                label->setAlignment(Qt::AlignCenter);
-                label->setFixedSize(64, 64);
-                layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
+        if (!nameValue.isEmpty() && !execValue.isEmpty()) {
+            std::cout << "Adding label: " << nameValue.toStdString() << '\n';
+            ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
+            label->setAlignment(Qt::AlignCenter);
+            label->setFixedSize(64, 64);
+            layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
 
-                execList.append(execValue);
-            }
+            execList.append(execValue);
         }
     }
 
     popupCenter->setLayout(layout);
+    popupCenter->adjustSize();
+    popupCenter->update();
 
     for (const QString &exec : execList) {
         std::cout << "Stored Exec: " << exec.toStdString() << '\n';

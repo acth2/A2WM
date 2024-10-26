@@ -202,6 +202,7 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
     process->start(execCommand);
 
     if (!process->waitForStarted()) {
+        closePopup();
         QMessageBox::warning(popupCenter, "Execution Failed", 
                              "Failed to start application: " + execCommand);
         delete process;
@@ -259,6 +260,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
             connect(label, &ClickableLabel::clicked, this, [this, execValue]() {
                 onLabelClickedExec(execValue);
+                closePopup();
             });
         }
     }

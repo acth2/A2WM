@@ -246,10 +246,9 @@ void TaskBar::onLabelClicked(const QString &labelText) {
                     process->deleteLater();
                 }
             });
-
             layout->addWidget(appLabel);
         } else {
-            qDebug() << "Missing Name or Exec in .desktop file:" << filePath;
+            QMessageBox::warning(this, "Error", "Missing Name or Exec in .desktop file: " + filePath + ": ");
         }
     }
 

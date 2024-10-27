@@ -17,6 +17,8 @@ private:
     bool isDarkMode = false;
     QString buttonStyle;
     QString labelStyle;
+
+    void displaySystemInfoPane();
 };
 
 #endif // SETTINGSAPP_H

@@ -219,7 +219,7 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    QVBoxLayout *layout = new QVBoxLayout(popupCenter);
+    QHBoxLayout *layout = new QHBoxLayout(popupCenter);
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
 
@@ -282,6 +282,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         std::cout << "Stored Exec: " << exec.toStdString() << '\n';
     }
 }
+
 
 void TaskBar::showPopup() {
     if (isPopupVisible) {

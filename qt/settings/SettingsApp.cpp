@@ -1,4 +1,5 @@
 #include "SettingsApp.h"
+#include "SystemInfoPane.h"
 
 SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
     if (QFile::exists("/usr/cydra/settings/darkmode")) {
@@ -77,4 +78,11 @@ SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
+
+    connect(systemInfoButton, &QPushButton::clicked, this, &SettingsApp::displaySystemInfoPane);
+}
+
+void SettingsApp::displaySystemInfoPane() {
+    SystemInfoPane *systemInfoPane = new SystemInfoPane(this);
+    setCentralWidget(systemInfoPane);
 }

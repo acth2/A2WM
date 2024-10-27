@@ -30,9 +30,6 @@ public:
         QLabel *bitsLabel = new QLabel("System Architecture: " + QString::number(QSysInfo::WordSize) + "-bit");
         layout->addWidget(bitsLabel);
 
-        QLabel *gpuLabel = new QLabel("Graphics Card: " + getGraphicsCardInfo());
-        layout->addWidget(gpuLabel);
-
         QLabel *cpuLabel = new QLabel("Processor: " + getCpuInfo());
         layout->addWidget(cpuLabel);
 
@@ -82,13 +79,5 @@ private:
         QString output = proc.readAllStandardOutput();
         if (!output.contains("VGA compatible controller")) return "Unavailable";
         return output.section("VGA compatible controller", 1, 1).trimmed();
-    }
-
-    QString getCpuInfo() {
-        QProcess proc;
-        proc.start("lscpu");
-        proc.waitForFinished();
-        QString output = proc.readAllStandardOutput();
-        return output.section("Model name:", 1, 1).trimmed();
     }
 };

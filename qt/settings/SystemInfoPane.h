@@ -72,12 +72,11 @@ private:
         return "Unavailable";
     }
 
-    QString getGraphicsCardInfo() {
+    QString getCpuInfo() {
         QProcess proc;
-        proc.start("lspci", QStringList() << "-mm");
+        proc.start("lscpu");
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
-        if (!output.contains("VGA compatible controller")) return "Unavailable";
-        return output.section("VGA compatible controller", 1, 1).trimmed();
+        return output.section("Model name:", 1, 1).trimmed();
     }
 };

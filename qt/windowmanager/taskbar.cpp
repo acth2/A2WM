@@ -220,9 +220,9 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 
 void TaskBar::onLabelClicked(const QString &labelText) {
     QHBoxLayout *layout = new QHBoxLayout(popupCenter);
-    layout->setSpacing(5);
+    layout->setSpacing(-10);
     layout->setContentsMargins(0, 0, 0, 0);
-    
+
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
 

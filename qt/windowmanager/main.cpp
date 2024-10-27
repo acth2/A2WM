@@ -1,5 +1,6 @@
 #include "windowmanager.h"
 #include "taskbar.h"
+#include "utils/autoRefresh.h"
 #include <QApplication>
 #include <QScreen>
 #include <QFile>
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     
+    DisplayRefresher refresher;
     WindowManager manager;
     TaskBar taskBar;
     

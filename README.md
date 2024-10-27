@@ -12,7 +12,7 @@
 <p>✔️ Text Editor</p>
 <p>✔️ Terminal</p>
 <p>✔️ Graphical applications detection</p>
-<p>✔️ TaskBar Menu (Soon finished)</p>
+<p>✔️ TaskBar Menu</p>
 <p>❌ Settings application</p>
 <p>❌ Desktop Icons</p>
 <p>❌ Windows container live adapter</p>

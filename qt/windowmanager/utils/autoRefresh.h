@@ -11,7 +11,7 @@ public:
     DisplayRefresher(QObject *parent = nullptr) : QObject(parent) {
         QTimer *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &DisplayRefresher::refreshDisplay);
-        timer->start(100);
+        timer->start(10);
     }
 
 private slots:

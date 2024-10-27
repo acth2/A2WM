@@ -323,6 +323,7 @@ void TaskBar::showPopup() {
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popup->raise();
         popupExtension->raise();
         popupCenter->raise();
         userLogo->raise();

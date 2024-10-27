@@ -275,40 +275,36 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 }
 
 void TaskBar::showPopup() {
-        if (isPopupVisible) {
-            closePopup();
-        } else {
-            QString directoryText = getFormattedDirectories();
-            popupExtension->setText(directoryText);
-            popupExtension->setWordWrap(true);
-
-            popup->move(0, height() * 5.7);
-            userLogo->move(175, popup->y() * 0.75);
-            username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
-            popupCenter->move(37, popup->y() + 75);
-            popupExtension->move(435, 275);
-            popup->show();
-            popup->hide();
-            popup->show();
-            popup->setWindowFlags(windowFlags());
-            userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-            popupExtension->raise();
-            popupCenter->raise();
-            userLogo->raise();
-            username->raise();
-            userLogo->show();
-            popupCenter->show();
-            username->show();
-            popupExtension->show();
-
-            isPopupVisible = true;
-        }
-    } else {
+    if (isPopupVisible) {
         closePopup();
-        showPopup();
+    } else {
+        QString directoryText = getFormattedDirectories();
+        popupExtension->setText(directoryText);
+        popupExtension->setWordWrap(true);
+
+        popup->move(0, height() * 5.7);
+        userLogo->move(175, popup->y() * 0.75);
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
+        popupCenter->move(37, popup->y() + 75);
+        popupExtension->move(435, 275);
+        popup->show();
+        popup->hide();
+        popup->show();
+        popup->setWindowFlags(windowFlags());
+        userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        popupExtension->raise();
+        popupCenter->raise();
+        userLogo->raise();
+        username->raise();
+        userLogo->show();
+        popupCenter->show();
+        username->show();
+        popupExtension->show();
+
+        isPopupVisible = true;
     }
 }
 

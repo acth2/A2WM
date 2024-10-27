@@ -209,6 +209,10 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
+    if (popupCenter->isVisible() && popupCenter->layout()->count() > 0) {
+        return;
+    }
+    
     QLayoutItem* item;
     while ((item = popupCenter->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -233,7 +237,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
     for (const QString &fileName : desktopFiles) {
         QFile file(directory.filePath(fileName));
-    
+
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
             continue;

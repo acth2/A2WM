@@ -66,10 +66,6 @@ WindowManager::WindowManager(QWidget *parent)
     QTimer *desktopUpdateTimer = new QTimer(this);
     connect(desktopUpdateTimer, &QTimer::timeout, this, &WindowManager::updateDesktopIcons);
     desktopUpdateTimer->start(1000); 
-
-    QTimer::singleShot(100, this, [=]() {
-        QApplication::primaryScreen()->grabWindow(0);
-    });
     
     showFullScreen();
 }

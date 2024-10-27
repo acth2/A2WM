@@ -15,6 +15,7 @@ public:
         opacityEffect->setOpacity(1.0);
 
         setAttribute(Qt::WA_TranslucentBackground);
+        setMinimumSize(64, 64);
     }
 
     QString getDirectoryPath() const { return directoryPath; }
@@ -29,6 +30,8 @@ protected:
         setPalette(palette);
         update();
 
+        opacityEffect->setOpacity(0.6);
+
         emit clicked(directoryPath);
         QLabel::mousePressEvent(event);
     }
@@ -38,7 +41,8 @@ protected:
         palette.setColor(QPalette::Window, Qt::transparent);
         setPalette(palette);
         update();
-        
+
+        opacityEffect->setOpacity(1.0);
         QLabel::mouseReleaseEvent(event);
     }
 

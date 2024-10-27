@@ -1,16 +1,22 @@
-#include <QWidget>
+#ifndef SETTINGSAPP_H
+#define SETTINGSAPP_H
+
+#include <QMainWindow>
 #include <QPushButton>
+#include <QLabel>
+#include <QFile>
 #include <QVBoxLayout>
 
-class SettingsApp : public QWidget {
+class SettingsApp : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit SettingsApp(QWidget *parent = nullptr);
+    SettingsApp(QWidget *parent = nullptr);
 
 private:
-    QPushButton *customizationButton;
-    QPushButton *systemInfoButton;
-    QPushButton *systemSettingsButton;
-    void setupUI();
+    bool isDarkMode = false;
+    QString buttonStyle;
+    QString labelStyle;
 };
+
+#endif // SETTINGSAPP_H

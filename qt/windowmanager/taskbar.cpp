@@ -209,7 +209,6 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    delete layout;
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';

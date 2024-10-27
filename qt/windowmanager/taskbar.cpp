@@ -68,6 +68,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     userLogo = new QPushButton(nullptr);
     username->setText(usernameString);
     userLogo->setIconSize(QSize(126, 126));
+    userLogo->setStyleSheet("background-color: transparent; border: none;");
     userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
     userLogo->setStyleSheet(
         "border: none;"

@@ -1,38 +1,80 @@
 #include "SettingsApp.h"
 
-SettingsApp::SettingsApp(QWidget *parent) : QWidget(parent) {
-    setupUI();
-}
+SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
+    if (QFile::exists("/usr/cydra/settings/darkmode")) {
+        isDarkMode = true;
+    }
 
-void SettingsApp::setupUI() {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    if (isDarkMode) {
+        buttonStyle = R"(
+            QPushButton {
+                background-color: #cfcfcf; 
+                color: #595853;
+                border: none;
+                border-radius: 5px; 
+                padding: 8px 16px;
+                font-size: 12px;
+                font-weight: bold;
+                min-width: 100px; 
+            }
+            QPushButton:hover {
+                color: #bab9b5;
+                background-color: #52514e;
+            }
+        )";
 
-    customizationButton = new QPushButton("Customization", this);
-    systemInfoButton = new QPushButton("System Information", this);
-    systemSettingsButton = new QPushButton("System Settings", this);
+        labelStyle = R"(
+            QLabel {
+                color: #bab9b5;
+                font-size: 14px;
+                font-weight: medium;
+                margin-bottom: 10px;
+                background-color: transparent;
+            }
+        )";
+    } else {
+        buttonStyle = R"(
+            QPushButton {
+                background-color: #0078D4;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-size: 12px;
+                font-weight: bold;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #005A9E;
+            }
+        )";
 
-    QString buttonStyle = R"(
-        QPushButton {
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-        }
-        QPushButton:hover {
-            background-color: #45a049;
-        }
-    )";
+        labelStyle = R"(
+            QLabel {
+                color: #333333;
+                font-size: 14px;
+                font-weight: medium;
+                margin-bottom: 10px;
+                background-color: transparent;
+            }
+        )";
+    }
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+
+    QPushButton *customizationButton = new QPushButton("Customization", this);
     customizationButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(customizationButton);
+
+    QPushButton *systemInfoButton = new QPushButton("System Information", this);
     systemInfoButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(systemInfoButton);
+
+    QPushButton *systemSettingsButton = new QPushButton("System Settings", this);
     systemSettingsButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(systemSettingsButton);
 
-    layout->addWidget(customizationButton);
-    layout->addWidget(systemInfoButton);
-    layout->addWidget(systemSettingsButton);
-    layout->setSpacing(15);
-    layout->setContentsMargins(30, 30, 30, 30);
-
-    setLayout(layout);
+    QWidget *centralWidget = new QWidget(this);
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
 }

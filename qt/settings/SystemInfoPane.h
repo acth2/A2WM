@@ -20,7 +20,7 @@ public:
         QLabel *bootLabel = new QLabel("BIOS Boot-Time: " + getBootTime());
         layout->addWidget(bootLabel);
 
-        QLabel *ramLabel = new QLabel("Total RAM: " + QString::number(QSysInfo::totalRam() / (1024 * 1024)) + " MB");
+        QLabel *ramLabel = new QLabel("Total RAM: " + getTotalRam() + " MB");
         layout->addWidget(ramLabel);
 
         QStorageInfo storage = QStorageInfo::root();
@@ -57,6 +57,22 @@ private:
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
         return output.isEmpty() ? "Unavailable" : output;
+    }
+
+    QString getTotalRam() {
+        QFile file("/proc/meminfo");
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!file.atEnd()) {
+                QString line = file.readLine();
+                if (line.startsWith("MemTotal:")) {
+                    QStringList parts = line.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+                    if (parts.size() >= 2) {
+                        return QString::number(parts[1].toInt() / 1024);
+                    }
+                }
+            }
+        }
+        return "Unavailable";
     }
 
     QString getGraphicsCardInfo() {

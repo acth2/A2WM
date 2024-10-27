@@ -317,7 +317,6 @@ void TaskBar::showPopup() {
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(37, popup->y() + 75);
         popupExtension->move(435, 275);
-        popup->show();
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
@@ -328,6 +327,7 @@ void TaskBar::showPopup() {
         popupCenter->raise();
         userLogo->raise();
         username->raise();
+        popup->show();
         userLogo->show();
         popupCenter->show();
         username->show();

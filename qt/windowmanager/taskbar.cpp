@@ -275,7 +275,6 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 }
 
 void TaskBar::showPopup() {
-    if (!firstTime) {
         if (isPopupVisible) {
             closePopup();
         } else {

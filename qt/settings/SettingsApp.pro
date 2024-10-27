@@ -8,6 +8,6 @@ SOURCES += main.cpp \
            SettingsApp.cpp
 
 HEADERS += SettingsApp.h \
-           SystemInfoPane.cpp
+           SystemInfoPane.h
 
 DEFINES += QT_DEPRECATED_WARNINGS

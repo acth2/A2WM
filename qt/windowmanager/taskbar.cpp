@@ -172,6 +172,16 @@ QString TaskBar::getFormattedDirectories() {
             QString displayName = dirName.length() > 10 ? dirName.left(10) + "-" : dirName;
             ClickableLabel *label = new ClickableLabel(displayName, homeDir + "/" + dirName, popupExtension);
             connect(label, &ClickableLabel::clicked, this, [this, dirName]() {
+                QLayout* layout = popupCenter->layout();
+                if (layout) {
+                    QLayoutItem* item;
+                    while ((item = layout->takeAt(0)) != nullptr) {
+                        delete item->widget();
+                        delete item;
+                    }
+
+                    delete layout;
+                }
                 onLabelClicked(dirName);
             });
             label->setAlignment(Qt::AlignCenter);

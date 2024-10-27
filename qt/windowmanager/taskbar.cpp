@@ -212,7 +212,7 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
     process->start(execCommand);
     closePopup();
     if (!process->waitForStarted()) {
-        QMessageBox::warning(popupCenter, "Execution Failed", 
+        QMessageBox::warning(popupCenter, "A2WM", 
                              "Failed to start application: " + execCommand);
         delete process;
     }

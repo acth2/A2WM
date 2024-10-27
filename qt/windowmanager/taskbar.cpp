@@ -219,8 +219,17 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    QHBoxLayout *layout = new QHBoxLayout(popupCenter);
-    layout->setSpacing(-10);
+    if (popupCenter->layout()) {
+        QLayoutItem *item;
+        while ((item = popupCenter->layout()->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete popupCenter->layout();
+    }
+
+    QGridLayout *layout = new QGridLayout(popupCenter);
+    layout->setSpacing(5);
     layout->setContentsMargins(0, 0, 0, 0);
 
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
@@ -238,9 +247,13 @@ void TaskBar::onLabelClicked(const QString &labelText) {
     QStringList desktopFiles = directory.entryList(QStringList() << "*.desktop", QDir::Files);
     std::cout << "Found desktop files: " << desktopFiles.join(", ").toStdString() << '\n';
 
+    int row = 0;
+    int col = 0;
+    const int maxCols = 5;
+
     for (const QString &fileName : desktopFiles) {
         QFile file(directory.filePath(fileName));
-    
+
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
             continue;
@@ -267,13 +280,18 @@ void TaskBar::onLabelClicked(const QString &labelText) {
             ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
             label->setAlignment(Qt::AlignCenter);
             label->setFixedSize(64, 64);
-            layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
+            layout->addWidget(label, row, col, Qt::AlignTop | Qt::AlignLeft);
             execList.append(execValue);
 
             connect(label, &ClickableLabel::clicked, this, [this, execValue]() {
                 onLabelClickedExec(execValue);
                 closePopup();
             });
+
+            if (++col >= maxCols) {
+                col = 0;
+                ++row;
+            }
         }
     }
 

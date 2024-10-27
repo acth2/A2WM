@@ -209,16 +209,6 @@ void TaskBar::onLabelClickedExec(const QString &execCommand) {
 }
 
 void TaskBar::onLabelClicked(const QString &labelText) {
-    if (popupCenter->isVisible() && popupCenter->layout()->count() > 0) {
-        return;
-    }
-    
-    QLayoutItem* item;
-    while ((item = popupCenter->layout()->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
-    }
-
     QVBoxLayout *layout = new QVBoxLayout(popupCenter);
     QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
@@ -237,7 +227,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
 
     for (const QString &fileName : desktopFiles) {
         QFile file(directory.filePath(fileName));
-
+    
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             std::cerr << "Failed to open file: " << file.fileName().toStdString() << '\n';
             continue;
@@ -263,6 +253,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         if (!nameValue.isEmpty()) {
             ClickableLabel *label = new ClickableLabel(nameValue, directory.filePath(fileName), popupCenter);
             label->setAlignment(Qt::AlignCenter);
+            label->setFixedSize(64, 64);
             layout->addWidget(label, 0, Qt::AlignTop | Qt::AlignLeft);
             execList.append(execValue);
 

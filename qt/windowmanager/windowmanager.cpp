@@ -298,9 +298,6 @@ void WindowManager::toggleConsole() {
 
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
-    if (!trackedWindows.contains(xorgWindowId)) {
-        trackedWindows.insert(xorgWindowId, new QWidget(this));
-    }
 
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
     if (!x11Window) {

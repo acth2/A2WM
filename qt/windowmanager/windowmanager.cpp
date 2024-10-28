@@ -300,25 +300,25 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
-
     if (!x11Window) {
         appendLog("ERR: Failed to create QWindow from X11 ID.");
         return;
     }
-    
+
     trackedWindows.insert(xorgWindowId, x11Window);
+
     QWidget *containerWidget = new QWidget(this);
     if (!containerWidget) {
         appendLog("ERR: Failed to create container widget.");
         return;
     }
 
-    QRect initialGeometry = x11Window->geometry();
+    x11Window->setGeometry(x11Window->geometry());
+    QRect geometry = x11Window->geometry();
     int topbarHeight = 30;
 
-    if (initialGeometry.isValid() && initialGeometry.width() > 0 && initialGeometry.height() > 0) {
-        containerWidget->setGeometry(initialGeometry.x(), initialGeometry.y(), 
-                                     initialGeometry.width(), initialGeometry.height() + topbarHeight);
+    if (geometry.width() > 0 && geometry.height() > 0) {
+        containerWidget->setGeometry(geometry.x(), geometry.y(), geometry.width(), geometry.height() + topbarHeight);
     } else {
         containerWidget->setGeometry(50, 80, 400, 400 + topbarHeight);
     }

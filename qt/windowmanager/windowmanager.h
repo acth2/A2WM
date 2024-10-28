@@ -66,7 +66,6 @@ private:
     bool isConsoleVisible;
     UserInteractRight *userInteractRightWidget;
 
-    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width = 0, int height = 0);
     void listExistingWindows();
     QMap<WId, QWindow*> trackedWindows;
     QMap<QWindow*, TaskBar*> windowTaskbars;

@@ -13,12 +13,15 @@ class SettingsApp : public QMainWindow {
 public:
     SettingsApp(QWidget *parent = nullptr);
 
+private slots:
+    void displaySystemInfoPane();
+    void onBackRequested();
+
 private:
     bool isDarkMode = false;
     QString buttonStyle;
     QString labelStyle;
 
-    void displaySystemInfoPane();
 };
 
 #endif // SETTINGSAPP_H

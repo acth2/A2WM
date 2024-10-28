@@ -16,11 +16,7 @@ public:
             isDarkMode = true;
             this->setStyleSheet("background-color: rgb(17, 17, 17);");
         }
-        
-        QString labelStyle = isDarkMode ? 
-            "QLabel { color: white; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }" :
-            "QLabel { color: #333333; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }";
-
+    
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setSpacing(1);
 
@@ -58,6 +54,9 @@ private:
 
     QLabel* createBoldLabel(const QString &text) {
         QLabel *label = new QLabel(text);
+        QString labelStyle = isDarkMode ? 
+            "QLabel { color: white; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }" :
+            "QLabel { color: #333333; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }";
         label->setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 1px;");
         label->setStyleSheet(labelStyle);
         return label;

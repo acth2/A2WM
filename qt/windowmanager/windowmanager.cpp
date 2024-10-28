@@ -317,12 +317,6 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
     QRect geometry = x11Window->geometry();
     int topbarHeight = 30;
 
-    if (geometry.width() > 0 && geometry.height() > 0) {
-        containerWidget->setGeometry(geometry.x(), geometry.y(), geometry.width(), geometry.height() + topbarHeight);
-    } else {
-        containerWidget->setGeometry(50, 80, 400, 400 + topbarHeight);
-    }
-
     QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
     if (!windowWidget) {
         appendLog("ERR: Failed to create window container.");

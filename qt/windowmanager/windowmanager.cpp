@@ -298,18 +298,6 @@ void WindowManager::toggleConsole() {
 
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
-
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        QRect screenGeometry = screen->geometry();
-        int centerX = (screenGeometry.width() - width) / 2;
-        int centerY = (screenGeometry.height() - height) / 2;
-
-        XMoveWindow(xDisplay, xorgWindowId, centerX, centerY);
-        appendLog("INFO: Centered window ID " + QString::number(xorgWindowId) + " at " 
-                  + QString::number(centerX) + ", " + QString::number(centerY));
-    }
-
     if (!trackedWindows.contains(xorgWindowId)) {
         trackedWindows.insert(xorgWindowId, new QWidget(this));
     }
@@ -345,6 +333,17 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     if (!topBar) {
         appendLog("ERR: Failed to create TopBar.");
         return;
+    }
+
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->geometry();
+        int centerX = (screenGeometry.width() - width) / 2;
+        int centerY = (screenGeometry.height() - height) / 2;
+
+        containerWidget->move(centerX, centerY);
+        appendLog("INFO: Centered window ID " + QString::number(xorgWindowId) + " at " 
+                  + QString::number(centerX) + ", " + QString::number(centerY));
     }
 
     topBar->setGeometry(containerWidget->geometry().x(), containerWidget->geometry().y() - topbarHeight,

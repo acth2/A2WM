@@ -299,6 +299,21 @@ void WindowManager::toggleConsole() {
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->geometry();
+        int centerX = (screenGeometry.width() - width) / 2;
+        int centerY = (screenGeometry.height() - height) / 2;
+
+        XMoveWindow(xDisplay, xorgWindowId, centerX, centerY);
+        appendLog("INFO: Centered window ID " + QString::number(xorgWindowId) + " at " 
+                  + QString::number(centerX) + ", " + QString::number(centerY));
+    }
+
+    if (!trackedWindows.contains(xorgWindowId)) {
+        trackedWindows.insert(xorgWindowId, new QWidget(this));
+    }
+
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
     if (!x11Window) {
         appendLog("ERR: Failed to create QWindow from X11 ID.");

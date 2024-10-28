@@ -7,6 +7,7 @@ SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
     }
 
     if (isDarkMode) {
+        this->setStyleSheet("background-color: rgb(51, 51, 51);");
         buttonStyle = R"(
             QPushButton {
                 background-color: #cfcfcf; 

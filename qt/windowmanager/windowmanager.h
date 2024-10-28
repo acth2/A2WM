@@ -32,7 +32,7 @@ public:
     QMap<WId, TopBar*> windowTopBars;
     void closeWindow(WId xorgWindowId);
     void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
-    void createAndTrackWindow(WId xorgWindowId);
+    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width, int height);
 
 private slots:
     void updateDesktopIcons();

@@ -84,5 +84,28 @@ SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
 
 void SettingsApp::displaySystemInfoPane() {
     SystemInfoPane *systemInfoPane = new SystemInfoPane(this);
+    connect(systemInfoPane, &SystemInfoPane::backRequested, this, &SettingsApp::onBackRequested);
     setCentralWidget(systemInfoPane);
+}
+
+void SettingsApp::onBackRequested() {
+    QWidget *centralWidget = new QWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+
+    QPushButton *customizationButton = new QPushButton("Customization", this);
+    customizationButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(customizationButton);
+
+    QPushButton *systemInfoButton = new QPushButton("System Information", this);
+    systemInfoButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(systemInfoButton);
+
+    QPushButton *systemSettingsButton = new QPushButton("System Settings", this);
+    systemSettingsButton->setStyleSheet(buttonStyle);
+    mainLayout->addWidget(systemSettingsButton);
+
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
+
+    connect(systemInfoButton, &QPushButton::clicked, this, &SettingsApp::displaySystemInfoPane);
 }

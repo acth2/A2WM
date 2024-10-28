@@ -22,8 +22,7 @@ public:
         QLabel *bootLabel = createLabel("BIOS Boot-Time: " + getBootTime());
         layout->addWidget(bootLabel);
 
-        QLabel *ramLabel = createLabel("Total RAM: " + QString::number(QSysInfo::totalPhysicalMemory() / (1024 * 1024)) + " MB");
-        layout->addWidget(ramLabel);
+        layout->addWidget(createBoldLabel("Total RAM: " + getTotalRam() + " MB"));
 
         QStorageInfo storage = QStorageInfo::root();
         QLabel *diskLabel = createLabel("Disk Space Left: " + QString::number(storage.bytesAvailable() / (1024 * 1024 * 1024)) + " GB");
@@ -42,6 +41,12 @@ public:
     }
 
 private:
+    QLabel* createBoldLabel(const QString &text) {
+        QLabel *label = new QLabel(text);
+        label->setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 1px;");
+        return label;
+    }
+
     QLabel* createLabel(const QString &text) {
         QLabel *label = new QLabel("<b>" + text + "</b>");
         label->setStyleSheet("font-size: 14px;");
@@ -62,6 +67,18 @@ private:
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
         return output.isEmpty() ? "Unavailable" : output;
+    }
+
+    QString getTotalRam() {
+        QFile memInfo("/proc/meminfo");
+        if (memInfo.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QString line = memInfo.readLine();
+            memInfo.close();
+            bool ok;
+            double kb = line.split(":").last().trimmed().split(" ").first().toDouble(&ok);
+            if (ok) return QString::number(kb / 1024, 'f', 0);
+        }
+        return "Unavailable";
     }
 
     QString getShortCpuInfo() {

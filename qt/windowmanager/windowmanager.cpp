@@ -305,20 +305,20 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
         appendLog("ERR: Failed to create QWindow from X11 ID.");
         return;
     }
-
+    
     trackedWindows.insert(xorgWindowId, x11Window);
-
     QWidget *containerWidget = new QWidget(this);
     if (!containerWidget) {
         appendLog("ERR: Failed to create container widget.");
         return;
     }
 
-    QRect geometry = x11Window->geometry();
+    QRect initialGeometry = x11Window->geometry();
     int topbarHeight = 30;
 
-    if (geometry.isValid()) {
-        containerWidget->setGeometry(geometry.x(), geometry.y(), geometry.width(), geometry.height() + topbarHeight);
+    if (initialGeometry.isValid() && initialGeometry.width() > 0 && initialGeometry.height() > 0) {
+        containerWidget->setGeometry(initialGeometry.x(), initialGeometry.y(), 
+                                     initialGeometry.width(), initialGeometry.height() + topbarHeight);
     } else {
         containerWidget->setGeometry(50, 80, 400, 400 + topbarHeight);
     }
@@ -340,7 +340,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
 
     topBar->setGeometry(containerWidget->geometry().x(), containerWidget->geometry().y() - topbarHeight,
                         containerWidget->geometry().width(), topbarHeight);
-    
+
     topBar->setTitle(windowName);
     topBar->show();
     containerWidget->show();
@@ -352,6 +352,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
 
     topBar->updatePosition();
 }
+
 
 void WindowManager::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton && resizeMode) {

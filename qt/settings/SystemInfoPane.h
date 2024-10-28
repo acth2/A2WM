@@ -16,7 +16,7 @@ public:
         layout->setSpacing(1);
 
         QString wmVersion = readFileContents("/usr/cydra/info/version").trimmed();
-        layout->addWidget(createBoldLabel("Window Manager: A2WM (AcTh2WindowManager) - Version: " + wmVersion));
+        layout->addWidget(createBoldLabel("Window Manager: A2WM Version: " + wmVersion));
 
         layout->addWidget(createBoldLabel("BIOS Boot-Time: " + getBootTime()));
 

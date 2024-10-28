@@ -39,6 +39,9 @@ public:
         layout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
     }
 
+signals:
+    void backRequested();
+
 private slots:
     void onBackButtonClicked() {
         emit backRequested();

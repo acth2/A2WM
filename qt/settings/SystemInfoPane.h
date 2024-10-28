@@ -69,13 +69,21 @@ private:
         return "Unavailable";
     }
 
-    QString getCpuInfo() {
-        QProcess proc;
-        proc.start("lscpu");
-        proc.waitForFinished();
-        QString output = proc.readAllStandardOutput();
-        QString cpuName = output.section("Model name:", 1, 1).simplified();
-        QString cpuGHz = output.section("CPU MHz:", 1, 1).simplified();
-        return cpuName + " " + QString::number(cpuGHz.toDouble() / 1000, 'f', 2) + " GHz";
+QString getCpuInfo() {
+    QProcess proc;
+    proc.start("lscpu");
+    proc.waitForFinished();
+    QString output = proc.readAllStandardOutput();
+
+    QString cpuName = output.section("Model name:", 1, 1).simplified();
+    cpuName = cpuName.split('@').first().trimmed();
+
+    QString cpuMHz = output.section("CPU MHz:", 1, 1).simplified();
+    if (!cpuMHz.isEmpty()) {
+        double ghz = cpuMHz.toDouble() / 1000;
+        return cpuName + " (" + QString::number(ghz, 'f', 2) + " GHz)";
     }
+    return cpuName;
+}
+
 };

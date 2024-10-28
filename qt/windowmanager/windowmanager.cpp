@@ -133,7 +133,7 @@ void WindowManager::listExistingWindows() {
             }
 
             if (!trackedWindows.contains(child)) {
-                createAndTrackWindow(child, QString("Window ID: ") + QString::number(child));
+                createAndTrackWindow(child, QString("Window ID: ") + QString::number(child), attributes.width, attributes.height);
             }
         }
         XFree(children);
@@ -296,7 +296,7 @@ void WindowManager::toggleConsole() {
     appendLog("Welcome into the DEBUG window (Where my nightmare comes true), Press ESC to exit it");
 }
 
-void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
+void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
@@ -313,9 +313,9 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName) {
         return;
     }
 
-    x11Window->setGeometry(x11Window->geometry());
-    QRect geometry = x11Window->geometry();
     int topbarHeight = 30;
+
+    containerWidget->setGeometry(x11Window->geometry().x(), x11Window->geometry().y(), width, height + topbarHeight);
 
     QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
     if (!windowWidget) {

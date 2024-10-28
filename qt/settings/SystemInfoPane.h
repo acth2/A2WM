@@ -6,6 +6,7 @@
 #include <QSysInfo>
 #include <QStorageInfo>
 #include <QStandardPaths>
+#include <sys/utsname.h>
 
 class SystemInfoPane : public QWidget {
     Q_OBJECT
@@ -15,7 +16,7 @@ public:
         layout->setSpacing(1);
 
         QString wmVersion = readFileContents("/usr/cydra/info/version").trimmed();
-        layout->addWidget(createBoldLabel("Window Manager: A2WM - Version: " + wmVersion));
+        layout->addWidget(createBoldLabel("Window Manager: A2WM (AcTh2WindowManager) - Version: " + wmVersion));
 
         layout->addWidget(createBoldLabel("BIOS Boot-Time: " + getBootTime()));
 
@@ -30,6 +31,9 @@ public:
 
         layout->addWidget(createBoldLabel("Username: " + qgetenv("USER")));
         layout->addWidget(createBoldLabel("System Name: " + QSysInfo::machineHostName()));
+
+        layout->addWidget(createBoldLabel("OS Name: " + QSysInfo::prettyProductName()));
+        layout->addWidget(createBoldLabel("Kernel Version: " + getKernelVersion()));
 
         layout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
     }
@@ -69,21 +73,26 @@ private:
         return "Unavailable";
     }
 
-QString getCpuInfo() {
-    QProcess proc;
-    proc.start("lscpu");
-    proc.waitForFinished();
-    QString output = proc.readAllStandardOutput();
-
-    QString cpuName = output.section("Model name:", 1, 1).simplified();
-    cpuName = cpuName.split('@').first().trimmed();
-
-    QString cpuMHz = output.section("CPU MHz:", 1, 1).simplified();
-    if (!cpuMHz.isEmpty()) {
-        double ghz = cpuMHz.toDouble() / 1000;
-        return cpuName + " (" + QString::number(ghz, 'f', 2) + " GHz)";
+    QString getCpuInfo() {
+        QProcess proc;
+        proc.start("lscpu");
+        proc.waitForFinished();
+        QString output = proc.readAllStandardOutput();
+        QString cpuName = output.section("Model name:", 1, 1).simplified();
+        cpuName = cpuName.split('@').first().trimmed();
+        QString cpuMHz = output.section("CPU MHz:", 1, 1).simplified();
+        if (!cpuMHz.isEmpty()) {
+            double ghz = cpuMHz.toDouble() / 1000;
+            return cpuName + " (" + QString::number(ghz, 'f', 2) + " GHz)";
+        }
+        return cpuName;
     }
-    return cpuName;
-}
 
+    QString getKernelVersion() {
+        struct utsname buffer;
+        if (uname(&buffer) == 0) {
+            return QString(buffer.sysname) + " " + QString(buffer.release);
+        }
+        return "Unavailable";
+    }
 };

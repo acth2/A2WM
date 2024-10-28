@@ -6,6 +6,7 @@
 #include <QSysInfo>
 #include <QStorageInfo>
 #include <QStandardPaths>
+#include <QPushButton>
 #include <sys/utsname.h>
 
 class SystemInfoPane : public QWidget {
@@ -15,27 +16,33 @@ public:
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setSpacing(1);
 
+        QPushButton *backButton = new QPushButton("Back", this);
+        backButton->setStyleSheet(buttonStyle);
+        layout->addWidget(backButton);
+        
+        connect(backButton, &QPushButton::clicked, this, &SystemInfoPane::onBackButtonClicked);
+
         QString wmVersion = readFileContents("/usr/cydra/info/version").trimmed();
         layout->addWidget(createBoldLabel("Window Manager: A2WM Version: " + wmVersion));
-
         layout->addWidget(createBoldLabel("BIOS Boot-Time: " + getBootTime()));
-
         layout->addWidget(createBoldLabel("Total RAM: " + getTotalRam() + " MB"));
 
         QStorageInfo storage = QStorageInfo::root();
         layout->addWidget(createBoldLabel("Disk Space Left: " + QString::number(storage.bytesAvailable() / (1024 * 1024 * 1024)) + " GB"));
 
         layout->addWidget(createBoldLabel("System Architecture: " + QString::number(QSysInfo::WordSize) + "-bit"));
-
         layout->addWidget(createBoldLabel("Processor: " + getCpuInfo()));
-
         layout->addWidget(createBoldLabel("Username: " + qgetenv("USER")));
         layout->addWidget(createBoldLabel("System Name: " + QSysInfo::machineHostName()));
-
         layout->addWidget(createBoldLabel("OS Name: " + QSysInfo::prettyProductName()));
         layout->addWidget(createBoldLabel("Kernel Version: " + getKernelVersion()));
 
         layout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    }
+
+private slots:
+    void onBackButtonClicked() {
+        emit backRequested();
     }
 
 private:
@@ -95,4 +102,7 @@ private:
         }
         return "Unavailable";
     }
+
+signals:
+    void backRequested();
 };

@@ -13,9 +13,14 @@ class SystemInfoPane : public QWidget {
 public:
     SystemInfoPane(QWidget *parent = nullptr) : QWidget(parent) {
         if (QFile::exists("/usr/cydra/settings/darkmode")) {
+            isDarkMode = true;
             this->setStyleSheet("background-color: rgb(17, 17, 17);");
         }
         
+        QString labelStyle = isDarkMode ? 
+            "QLabel { color: white; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }" :
+            "QLabel { color: #333333; font-size: 14px; font-weight: medium; margin-bottom: 10px; background-color: transparent; }";
+
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setSpacing(1);
 
@@ -49,9 +54,12 @@ private slots:
     }
 
 private:
+    bool isDarkMode = false;
+
     QLabel* createBoldLabel(const QString &text) {
         QLabel *label = new QLabel(text);
         label->setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 1px;");
+        label->setStyleSheet(labelStyle);
         return label;
     }
 

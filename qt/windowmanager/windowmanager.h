@@ -32,7 +32,7 @@ public:
     QMap<WId, TopBar*> windowTopBars;
     void closeWindow(WId xorgWindowId);
     void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
-    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width, int height);
+    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width = 0, int height = 0);
 
 private slots:
     void updateDesktopIcons();
@@ -66,7 +66,7 @@ private:
     bool isConsoleVisible;
     UserInteractRight *userInteractRightWidget;
 
-    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width, int height);
+    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width = 0, int height = 0);
     void listExistingWindows();
     QMap<WId, QWindow*> trackedWindows;
     QMap<QWindow*, TaskBar*> windowTaskbars;

@@ -5,7 +5,6 @@
 #include <QProcess>
 #include <QSysInfo>
 #include <QStorageInfo>
-#include <QStandardPaths>
 #include <QPushButton>
 #include <sys/utsname.h>
 
@@ -17,9 +16,9 @@ public:
         layout->setSpacing(1);
 
         QPushButton *backButton = new QPushButton("Back", this);
-        backButton->setStyleSheet(buttonStyle);
+        backButton->setStyleSheet(getButtonStyle());
         layout->addWidget(backButton);
-        
+
         connect(backButton, &QPushButton::clicked, this, &SystemInfoPane::onBackButtonClicked);
 
         QString wmVersion = readFileContents("/usr/cydra/info/version").trimmed();
@@ -50,6 +49,43 @@ private:
         QLabel *label = new QLabel(text);
         label->setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 1px;");
         return label;
+    }
+
+    QString getButtonStyle() const {
+        if (QFile::exists("/usr/cydra/settings/darkmode")) {
+            return R"(
+                QPushButton {
+                    background-color: #cfcfcf; 
+                    color: #595853;
+                    border: none;
+                    border-radius: 5px; 
+                    padding: 8px 16px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    min-width: 100px; 
+                }
+                QPushButton:hover {
+                    color: #bab9b5;
+                    background-color: #52514e;
+                }
+            )";
+        } else {
+            return R"(
+                QPushButton {
+                    background-color: #0078D4;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 8px 16px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    min-width: 100px;
+                }
+                QPushButton:hover {
+                    background-color: #005A9E;
+                }
+            )";
+        }
     }
 
     QString readFileContents(const QString &filePath) {

@@ -75,11 +75,7 @@ private:
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
         QString cpuName = output.section("Model name:", 1, 1).simplified();
-        QString cpuMHz = output.section("CPU MHz:", 1, 1).simplified();
-        if (!cpuMHz.isEmpty()) {
-            double ghz = cpuMHz.toDouble() / 1000;
-            return cpuName + " (" + QString::number(ghz, 'f', 2) + " GHz)";
-        }
-        return cpuName;
+        QString cpuGHz = output.section("CPU MHz:", 1, 1).simplified();
+        return cpuName + " " + QString::number(cpuGHz.toDouble() / 1000, 'f', 2) + " GHz";
     }
 };

@@ -12,6 +12,10 @@ class SystemInfoPane : public QWidget {
     Q_OBJECT
 public:
     SystemInfoPane(QWidget *parent = nullptr) : QWidget(parent) {
+        if (QFile::exists("/usr/cydra/settings/darkmode")) {
+            this->setStyleSheet("background-color: rgb(51, 51, 51);");
+        }
+        
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setSpacing(1);
 

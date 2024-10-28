@@ -14,7 +14,7 @@ public:
     SystemInfoPane(QWidget *parent = nullptr) : QWidget(parent) {
         if (QFile::exists("/usr/cydra/settings/darkmode")) {
             isDarkMode = true;
-            this->setStyleSheet("background-color: rgb(17, 17, 17);");
+            this->setStyleSheet("background-color: rgb(30, 30, 30);");
         }
     
         QVBoxLayout *layout = new QVBoxLayout(this);

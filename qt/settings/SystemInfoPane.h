@@ -12,30 +12,39 @@ class SystemInfoPane : public QWidget {
 public:
     SystemInfoPane(QWidget *parent = nullptr) : QWidget(parent) {
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setSpacing(1);
+        layout->setSpacing(0);
+        layout->setContentsMargins(0, 0, 0, 0);
 
         QString wmVersion = readFileContents("/usr/cydra/info/version").trimmed();
-        layout->addWidget(createBoldLabel("Window Manager: A2WM (AcTh2WindowManager) - Version: " + wmVersion));
+        QLabel *wmLabel = createLabel("Window Manager: A2WM (AcTh2WindowManager) - Version: " + wmVersion);
+        layout->addWidget(wmLabel);
 
-        layout->addWidget(createBoldLabel("BIOS Boot-Time: " + getBootTime()));
-        
-        layout->addWidget(createBoldLabel("Total RAM: " + getTotalRam() + " MB"));
+        QLabel *bootLabel = createLabel("BIOS Boot-Time: " + getBootTime());
+        layout->addWidget(bootLabel);
+
+        QLabel *ramLabel = createLabel("Total RAM: " + QString::number(QSysInfo::totalPhysicalMemory() / (1024 * 1024)) + " MB");
+        layout->addWidget(ramLabel);
 
         QStorageInfo storage = QStorageInfo::root();
-        layout->addWidget(createBoldLabel("Disk Space Left: " + QString::number(storage.bytesAvailable() / (1024 * 1024 * 1024)) + " GB"));
+        QLabel *diskLabel = createLabel("Disk Space Left: " + QString::number(storage.bytesAvailable() / (1024 * 1024 * 1024)) + " GB");
+        layout->addWidget(diskLabel);
 
-        layout->addWidget(createBoldLabel("System Architecture: " + QString::number(QSysInfo::WordSize) + "-bit"));
+        QLabel *bitsLabel = createLabel("System Architecture: " + QString::number(QSysInfo::WordSize) + "-bit");
+        layout->addWidget(bitsLabel);
 
-        layout->addWidget(createBoldLabel("Processor: " + getCpuInfo()));
+        QLabel *cpuLabel = createLabel("Processor: " + getShortCpuInfo());
+        layout->addWidget(cpuLabel);
 
-        layout->addWidget(createBoldLabel("Username: " + qgetenv("USER")));
-        layout->addWidget(createBoldLabel("System Name: " + QSysInfo::machineHostName()));
+        QLabel *userLabel = createLabel("Username: " + qgetenv("USER"));
+        QLabel *systemLabel = createLabel("System Name: " + QSysInfo::machineHostName());
+        layout->addWidget(userLabel);
+        layout->addWidget(systemLabel);
     }
 
 private:
-    QLabel* createBoldLabel(const QString &text) {
-        QLabel *label = new QLabel(text);
-        label->setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 1px;");
+    QLabel* createLabel(const QString &text) {
+        QLabel *label = new QLabel("<b>" + text + "</b>");
+        label->setStyleSheet("font-size: 14px;");
         return label;
     }
 
@@ -52,32 +61,15 @@ private:
         proc.start("systemd-analyze", QStringList() << "time");
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
-        return output.isEmpty() ? "Unavailable (Requires root)" : output;
+        return output.isEmpty() ? "Unavailable" : output;
     }
 
-    QString getTotalRam() {
-        QFile memInfo("/proc/meminfo");
-        if (memInfo.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QString line = memInfo.readLine();
-            memInfo.close();
-            bool ok;
-            double kb = line.split(":").last().trimmed().split(" ").first().toDouble(&ok);
-            if (ok) return QString::number(kb / 1024, 'f', 0);
-        }
-        return "Unavailable";
-    }
-
-    QString getCpuInfo() {
+    QString getShortCpuInfo() {
         QProcess proc;
         proc.start("lscpu");
         proc.waitForFinished();
         QString output = proc.readAllStandardOutput();
-        QString cpuName = output.section("Model name:", 1, 1).simplified();
-        QString cpuMHz = output.section("CPU MHz:", 1, 1).simplified();
-        if (!cpuMHz.isEmpty()) {
-            double ghz = cpuMHz.toDouble() / 1000;
-            return cpuName + " (" + QString::number(ghz, 'f', 2) + " GHz)";
-        }
-        return cpuName;
+        QString cpuInfo = output.section("Model name:", 1, 1).trimmed();
+        return cpuInfo.section(' ', 0, 2);
     }
 };

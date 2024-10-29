@@ -86,6 +86,8 @@ private:
 
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
+
+    QString *nameExtractor;
 };
 
 #endif // WINDOWMANAGER_H

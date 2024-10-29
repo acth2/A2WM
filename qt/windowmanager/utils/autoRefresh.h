@@ -19,7 +19,7 @@ private slots:
         QString display = getCurrentDisplay();
 
         if (!display.isEmpty()) {
-            QProcess::execute("xrefresh", QStringList() << "-display" << display);
+            //QProcess::execute("xrefresh", QStringList() << "-display" << display);
         } else {
             qWarning() << "Unable to determine the current display number.";
         }

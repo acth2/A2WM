@@ -110,6 +110,8 @@ void WindowManager::listExistingWindows() {
                     XFree(windowName);
                     continue;
                 }
+
+                nameExtractor = name;
                 
                 appendLog("INFO: Detected window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 XFree(windowName);
@@ -133,7 +135,7 @@ void WindowManager::listExistingWindows() {
             }
 
             if (!trackedWindows.contains(child)) {
-                createAndTrackWindow(child, QString("Window ID: ") + QString::number(child), attributes.width, attributes.height);
+                createAndTrackWindow(child, nameExtractor, attributes.width, attributes.height);
             }
         }
         XFree(children);

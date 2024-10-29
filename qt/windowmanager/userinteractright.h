@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QPoint>
 #include <QWindow>
+#include <QString>
+#include <QFile>
 
 class UserInteractRight : public QWidget {
     Q_OBJECT
@@ -37,6 +39,15 @@ private:
     QLabel *textLabel;
     bool isDarkMode;
     QPoint initialClickPos;
+
+
+    QString readFileContents(const QString &filePath) {
+        QFile file(filePath);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return file.readAll();
+        }
+        return "Unavailable";
+    }
 
 };
 

@@ -32,10 +32,10 @@ UserInteractRight::UserInteractRight(QWidget *parent)
 }
 
 void UserInteractRight::setupUI() {
-    button1 = new QPushButton("Terminal", this);
-    button2 = new QPushButton("Text Editor", this);
-    button3 = new QPushButton("Thing 3 bruh", this);
-    textLabel = new QLabel("Control panel", this);
+    button1 = new QPushButton(readFileContents("/usr/cydra/info/CPMB1").trimmed(), this);
+    button2 = new QPushButton(readFileContents("/usr/cydra/info/CPMB2").trimmed(), this);
+    button3 = new QPushButton(readFileContents("/usr/cydra/info/CPMB3").trimmed(), this);
+    textLabel = new QLabel(readFileContents("/usr/cydra/info/CPL").trimmed(), this);
 
     textLabel->setAlignment(Qt::AlignCenter);
 

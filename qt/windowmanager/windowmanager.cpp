@@ -111,6 +111,10 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
+                if (name = "Shell No. 1") {
+                    name = "QTerminal";
+                }
+
                 nameExtractor = name;
                 
                 appendLog("INFO: Detected window (WM_NAME): " + name + ", ID: " + QString::number(child));

@@ -111,7 +111,7 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (name = "Shell No. 1") {
+                if (name == "Shell No. 1") {
                     name = "QTerminal";
                 }
 

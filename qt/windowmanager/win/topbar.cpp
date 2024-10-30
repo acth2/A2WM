@@ -224,6 +224,7 @@ void TopBar::minimizeWindow() {
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
         int maxMinimizedWindows = screenGeometry.width() - 75 / 95;
+        int minimizedIndex = minimizedX / 95;
 
         origTitle = titleLabel->text();
         if (origTitle.size() > 10) {
@@ -235,9 +236,9 @@ void TopBar::minimizeWindow() {
         this->setFixedSize(95, this->height());
         this->setGeometry(minimizedX + 75, screenGeometry.height() - 38, 25, this->height());
 
-        if (maxMinimizedWindows < MinimizedPosArray::getInstance().getSmallestAvailable()) {
+        if (maxMinimizedWindows < minimizedIndex) {
             QProcess *process = new QProcess(this);
-            process->start("qterminal");
+            process->start("sysmon-qt");
         }
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);

@@ -235,7 +235,7 @@ void TopBar::minimizeWindow() {
         this->setFixedSize(95, this->height());
         this->setGeometry(minimizedX + 75, screenGeometry.height() - 38, 25, this->height());
 
-        if (maxMinimizedWindows < MinimizedPosArray::getInstance().getSmallestAvailable();) {
+        if (maxMinimizedWindows < MinimizedPosArray::getInstance().getSmallestAvailable()) {
             QProcess *process = new QProcess(this);
             process->start("qterminal");
         }

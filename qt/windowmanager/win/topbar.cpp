@@ -223,6 +223,7 @@ void TopBar::minimizeWindow() {
         int minimizedX = MinimizedPosArray::getInstance().getSmallestAvailable();
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
+        int maxMinimizedWindows = screenGeometry.width() - 75 / 95;
 
         origTitle = titleLabel->text();
         if (origTitle.size() > 10) {
@@ -233,6 +234,11 @@ void TopBar::minimizeWindow() {
         originalTopBarSize = this->size();
         this->setFixedSize(95, this->height());
         this->setGeometry(minimizedX + 75, screenGeometry.height() - 38, 25, this->height());
+
+        if (maxMinimizedWindows < MinimizedPosArray::getInstance().getSmallestAvailable();) {
+            QProcess *process = new QProcess(this);
+            process->start("qterminal");
+        }
 
         MinimizedPosArray::getInstance().markPositionAsTaken(minimizedX);
         isMinimized = true;

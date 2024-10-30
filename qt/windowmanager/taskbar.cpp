@@ -151,7 +151,7 @@ void TaskBar::adjustSizeToScreen() {
 }
 
 QString TaskBar::getFormattedDirectories() {
-    QString homeDir = QDir::homePath() + "/a2wm/startMenu";
+    QString homeDir = QDir::homePath() + "/.a2wm/startMenu";
     QDir dir(homeDir);
     QStringList formattedDirectories;
 
@@ -233,7 +233,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
     layout->setSpacing(5);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QDir directory(QString("/home/%1/a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
+    QDir directory(QString("/home/%1/.a2wm/startMenu/%2").arg(getenv("USER")).arg(labelText));
     std::cout << "Accessing directory: " << directory.absolutePath().toStdString() << '\n';
 
     QRegularExpression execRegex(R"(Exec=(.*))");

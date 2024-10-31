@@ -80,7 +80,7 @@ void WindowManager::createIconGrid() {
     int cols = this->width() / gridSize;
 
     QDir desktopDir(desktopPath);
-    QStringList entries = desktopDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    QStringList entries = desktopDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
 
     int row = 0, col = 0;
     for (const QString &entryName : entries) {
@@ -97,6 +97,7 @@ void WindowManager::createIconGrid() {
         }
 
         addIcon(iconPath, entryName, row, col);
+
         col++;
         if (col >= cols) {
             col = 0;

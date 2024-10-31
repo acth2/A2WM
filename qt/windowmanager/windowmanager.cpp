@@ -52,12 +52,13 @@ WindowManager::WindowManager(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
-    setLayout(layout);
-
     iconGridLayout = new QGridLayout();
     QWidget *desktopWidget = new QWidget();
     desktopWidget->setLayout(iconGridLayout);
+    desktopWidget->setVisible(true);
+    iconGridLayout->setVisible(true);
     layout->addWidget(desktopWidget);
+    setLayout(layout);
 
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);

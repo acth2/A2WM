@@ -19,6 +19,8 @@
 #include <QTransform>
 #include <QPushButton>
 #include <QStringList>
+#include <QPixmap>
+#include <QFileInfo>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -54,6 +56,9 @@ WindowManager::WindowManager(QWidget *parent)
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
 
+    iconGridLayout = new QGridLayout(this);
+    iconGridLayout->setSpacing(10);
+
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 
@@ -63,15 +68,63 @@ WindowManager::WindowManager(QWidget *parent)
     connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
     windowCheckTimer->start(50);
     
-    QTimer *desktopUpdateTimer = new QTimer(this);
-    connect(desktopUpdateTimer, &QTimer::timeout, this, &WindowManager::updateDesktopIcons);
-    desktopUpdateTimer->start(1000); 
-    
+    iconUpdateTimer = new QTimer(this);
+    connect(iconUpdateTimer, &QTimer::timeout, this, &WindowManager::updateDesktopIcons);
+    iconUpdateTimer->start(3000);
+
+    createIconGrid();
     showFullScreen();
 }
 
+void WindowManager::createIconGrid() {
+    int gridSize = 64;
+    int rows = this->height() / gridSize;
+    int cols = this->width() / gridSize;
+
+    QDir desktopDir(desktopPath);
+    QStringList entries = desktopDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+
+    int row = 0, col = 0;
+    for (const QString &entryName : entries) {
+        QString fullPath = desktopDir.filePath(entryName);
+        QFileInfo fileInfo(fullPath);
+
+        QString iconPath;
+        if (fileInfo.isFile()) {
+            iconPath = fileIconPath;
+        } else if (fileInfo.isDir()) {
+            iconPath = dirIconPath;
+        } else {
+            continue;
+        }
+
+        addIcon(iconPath, entryName, row, col);
+        col++;
+        if (col >= cols) {
+            col = 0;
+            row++;
+            if (row >= rows) break;
+        }
+    }
+}
+
+void WindowManager::clearIconGrid() {
+    while (QLayoutItem *item = iconGridLayout->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
+}
+
+void WindowManager::addIcon(const QString &iconPath, const QString &name, int row, int col) {
+    QLabel *iconLabel = new QLabel();
+    iconLabel->setPixmap(QPixmap(iconPath).scaled(64, 64, Qt::KeepAspectRatio));
+    iconLabel->setToolTip(name);
+    iconGridLayout->addWidget(iconLabel, row, col);
+}
+
 void WindowManager::updateDesktopIcons() {
-    appendLog("Desktop Icons timer updated!");
+    clearIconGrid();
+    createIconGrid();
 }
 
 Display *xDisplay;

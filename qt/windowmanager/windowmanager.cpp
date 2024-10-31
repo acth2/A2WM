@@ -54,8 +54,10 @@ WindowManager::WindowManager(QWidget *parent)
     layout->setContentsMargins(10, 10, 10, 10);
     setLayout(layout);
 
-    iconGridLayout = new QGridLayout(this);
-    iconGridLayout->setSpacing(10);
+    iconGridLayout = new QGridLayout();
+    QWidget *desktopWidget = new QWidget();
+    desktopWidget->setLayout(iconGridLayout);
+    layout->addWidget(desktopWidget);
 
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
@@ -75,7 +77,7 @@ WindowManager::WindowManager(QWidget *parent)
 }
 
 void WindowManager::createIconGrid() {
-    int gridSize = 64;
+    int gridSize = 32;
     int rows = this->height() / gridSize;
     int cols = this->width() / gridSize;
 

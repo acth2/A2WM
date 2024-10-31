@@ -86,8 +86,17 @@ private:
 
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
-
     QString nameExtractor;
+
+    QGridLayout *iconGridLayout;
+    QTimer *iconUpdateTimer;
+    const QString fileIconPath = "/usr/cydra/icons/file.png";
+    const QString dirIconPath = "/usr/cydra/icons/dir.png";
+    const QString desktopPath = "/home/.a2wm/desktop";
+
+    void createIconGrid();
+    void clearIconGrid();
+    void addIcon(const QString &iconPath, const QString &name, int row, int col);
 };
 
 #endif // WINDOWMANAGER_H

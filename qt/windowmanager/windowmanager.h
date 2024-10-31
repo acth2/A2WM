@@ -14,6 +14,9 @@
 #include <QMap>
 #include <QResizeEvent>
 #include <QVector>
+#include <QPixmap>
+#include <QFileInfo>
+#include <QDir>
 #include "taskbar.h"
 #include "konami_code_handler.h"
 #include "userinteractright.h"

@@ -11,7 +11,7 @@ public:
     DisplayRefresher(QObject *parent = nullptr) : QObject(parent) {
         QTimer *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &DisplayRefresher::refreshDisplay);
-        timer->start(10);
+        timer->start(1000);
     }
 
 private slots:
@@ -19,7 +19,7 @@ private slots:
         QString display = getCurrentDisplay();
 
         if (!display.isEmpty()) {
-            //QProcess::execute("xrefresh", QStringList() << "-display" << display);
+            QProcess::execute("xrefresh", QStringList() << "-display" << display);
         } else {
             qWarning() << "Unable to determine the current display number.";
         }

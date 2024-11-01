@@ -52,7 +52,6 @@ WindowManager::WindowManager(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
-    iconGridLayout = new QGridLayout();
     QWidget *desktopWidget = new QWidget();
     desktopWidget->setLayout(iconGridLayout);
     desktopWidget->setVisible(true);
@@ -68,7 +67,6 @@ WindowManager::WindowManager(QWidget *parent)
     connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
     windowCheckTimer->start(50);
 
-    createIconGrid();
     showFullScreen();
 }
 

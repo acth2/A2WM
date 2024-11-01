@@ -56,7 +56,6 @@ WindowManager::WindowManager(QWidget *parent)
     QWidget *desktopWidget = new QWidget();
     desktopWidget->setLayout(iconGridLayout);
     desktopWidget->setVisible(true);
-    iconGridLayout->setVisible(true);
     layout->addWidget(desktopWidget);
     setLayout(layout);
 

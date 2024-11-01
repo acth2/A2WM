@@ -53,7 +53,6 @@ WindowManager::WindowManager(QWidget *parent)
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
     QWidget *desktopWidget = new QWidget();
-    desktopWidget->setLayout(iconGridLayout);
     desktopWidget->setVisible(true);
     layout->addWidget(desktopWidget);
     setLayout(layout);

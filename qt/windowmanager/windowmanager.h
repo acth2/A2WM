@@ -37,9 +37,6 @@ public:
     void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
     void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width = 0, int height = 0);
 
-private slots:
-    void updateDesktopIcons();
-
 protected:
     bool event(QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;

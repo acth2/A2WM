@@ -72,35 +72,13 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-QList<QString> WindowManager::loadApplicationList(const QString &filePath) {
-    QList<QString> appList;
-    QFile file(filePath);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "ERR: Unable to open the app list file";
-        return appList;
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine().trimmed().toLower();
-        if (!line.isEmpty()) {
-            appList.append(line);
-        }
-    }
-    file.close();
-    return appList;
-}
-
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (!xDisplay) {
         appendLog("ERR: Failed to open X Display ..");
         return;
     }
-
-    QList<QString> appList = loadApplicationList("/usr/cydra/settings/softwareExp.list");
-
+    
     Window windowRoot = DefaultRootWindow(xDisplay);
     Window parent, *children = nullptr;
     unsigned int nChildren;
@@ -141,18 +119,9 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                QStringList nameWords = name.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
-                
-                bool matchFound = false;
-                for (const QString &appName : appList) {
-                    for (const QString &word : nameWords) {
-                        if (word.contains(appName, Qt::CaseInsensitive)) {
-                            appendLog("INFO: Found partial match for app: " + appName + " in window name: " + name);
-                            createAndTrackWindow(child, name, attributes.width, attributes.height);
-                            matchFound = true;
-                            break;
-                        }
-                    }
+                if (name == "Krusader") {
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                    continue;
                 }
 
                 if (name.toLower() == name && existingWindows.contains(name.toUpper())) {

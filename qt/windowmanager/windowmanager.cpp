@@ -95,11 +95,6 @@ void WindowManager::listExistingWindows() {
                 QString name(windowName);
                 XFree(windowName);
 
-                if (name.isEmpty()) {
-                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
-                    continue;
-                }
-
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
                     continue;
@@ -114,14 +109,14 @@ void WindowManager::listExistingWindows() {
                 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
 
-                QRect screenGeometry = QApplication::primaryScreen()->geometry();
+                /*QRect screenGeometry = QApplication::primaryScreen()->geometry();
                 QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
                 if (!screenGeometry.contains(windowGeometry)) {
                     int centerX = (screenGeometry.width() - attributes.width) / 2;
                     int centerY = (screenGeometry.height() - attributes.height) / 2;
                     XMoveWindow(xDisplay, child, centerX, centerY);
                     appendLog("INFO: Moved window to center: " + QString::number(child));
-                }
+                }*/
             }
         }
         XFree(children);

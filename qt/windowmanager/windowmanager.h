@@ -90,7 +90,7 @@ private:
     QString nameExtractor;
 
     QMap<QString, QSize> existingWindows;
-    QList<QString> loadApplicationList();
+    QList<QString> loadApplicationList(const QString &filePath);
 };
 
 #endif // WINDOWMANAGER_H

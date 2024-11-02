@@ -141,11 +141,17 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
+                QStringList nameWords = name.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+                
+                bool matchFound = false;
                 for (const QString &appName : appList) {
-                    if (name.contains(appName, Qt::CaseInsensitive)) {
-                        createAndTrackWindow(child, name, attributes.width, attributes.height);
-                        appendLog("INFO: Found matching app in list: " + appName + " in window name: " + name);
-                        break;
+                    for (const QString &word : nameWords) {
+                        if (word.contains(appName, Qt::CaseInsensitive)) {
+                            appendLog("INFO: Found partial match for app: " + appName + " in window name: " + name);
+                            createAndTrackWindow(child, name, attributes.width, attributes.height);
+                            matchFound = true;
+                            break;
+                        }
                     }
                 }
 

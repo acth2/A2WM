@@ -95,6 +95,11 @@ void WindowManager::listExistingWindows() {
                 QString name(windowName);
                 XFree(windowName);
 
+                if (name.isEmpty()) {
+                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
+                    continue;
+                }
+
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
                     continue;

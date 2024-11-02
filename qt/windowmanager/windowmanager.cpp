@@ -116,7 +116,7 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (currentHasUpperCase && name.compare(currentWindowName, Qt::CaseSensitive) == 0) {
+                if (name == name.toLower()) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }

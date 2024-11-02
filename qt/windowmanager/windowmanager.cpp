@@ -117,10 +117,11 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
                 
-                if (name.toLower() == name && name.contains(QRegularExpression("[A-Z]"))) {
+                if (name.toLower() == name && existingWindowNames.contains(name.toUpper())) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }
+                existingWindowNames.insert(name.toUpper());
 
                 if (trackedWindows.contains(child)) {
                     appendLog("INFO: Window already tracked: " + QString::number(child));

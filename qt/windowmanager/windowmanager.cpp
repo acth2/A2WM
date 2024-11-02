@@ -112,6 +112,21 @@ void WindowManager::listExistingWindows() {
 
                 appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 
+                Atom type;
+                Atom actualType;
+                int format;
+                unsigned long nItems, bytesAfter;
+                unsigned char *prop = nullptr;
+
+                if (XGetWindowProperty(xDisplay, child, XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE"), 0, 1024, False,
+                    AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
+                    if (nItems > 0) {
+                        type = static_cast<Atom>(prop[0]);
+                        appendLog("INFO: Window type: " + QString::number(type));
+                    }
+                    XFree(prop);
+                }
+
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
 
                 /*QRect screenGeometry = QApplication::primaryScreen()->geometry();

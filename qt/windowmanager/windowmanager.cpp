@@ -120,16 +120,26 @@ void WindowManager::listExistingWindows() {
 
                 if (XGetWindowProperty(xDisplay, child, windowTypeAtom, 0, 1024, False,
                     AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
+    
+                    bool isMenu = false;
                     if (nItems > 0) {
-                        Atom type = static_cast<Atom>(prop[0]);
-                        appendLog("INFO: Window type: " + QString::number(type));
-
-                        if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False)) {
-                            appendLog("INFO: Skipping menu window: " + QString::number(child));
-                            continue;
+                        for (unsigned long j = 0; j < nItems; ++j) {
+                            Atom type = static_cast<Atom>(prop[j]);
+                            if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False) ||
+                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False) ||
+                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False)) {
+                                isMenu = true;
+                                appendLog("INFO: Detected menu window type: " + QString::number(child));
+                                break;
+                            }
                         }
                     }
                     XFree(prop);
+
+                    if (isMenu) {
+                        appendLog("INFO: Skipping menu window: " + QString::number(child));
+                        continue;
+                    }
                 }
 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);

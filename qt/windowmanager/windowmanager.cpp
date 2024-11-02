@@ -21,6 +21,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 #include <QStringList>
+#include <QList>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -71,23 +72,23 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-QStringList loadApplicationList(const QString& filePath) {
-    QStringList appList;
-
+QList<QString> WindowManager::loadApplicationList(const QString &filePath) {
+    QList<QString> appList;
     QFile file(filePath);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (!line.isEmpty()) {
-                appList.append(line);
-            }
-        }
-        file.close();
-    } else {
-        qDebug() << "ERR: Could not open file:" << filePath;
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "ERR: Unable to open the app list file";
+        return appList;
     }
 
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed().toLower();
+        if (!line.isEmpty()) {
+            appList.append(line);
+        }
+    }
+    file.close();
     return appList;
 }
 
@@ -98,7 +99,7 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
-    QStringList appList = loadApplicationList("/usr/cydra/settings/softwareExp.list");
+    QList<QString> appList = loadApplicationList("/usr/cydra/settings/softwareExp.list");
 
     Window windowRoot = DefaultRootWindow(xDisplay);
     Window parent, *children = nullptr;

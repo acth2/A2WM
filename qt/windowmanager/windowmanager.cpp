@@ -123,6 +123,11 @@ void WindowManager::listExistingWindows() {
                     if (nItems > 0) {
                         Atom type = static_cast<Atom>(prop[0]);
                         appendLog("INFO: Window type: " + QString::number(type));
+
+                        if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False)) {
+                            appendLog("INFO: Skipping menu window: " + QString::number(child));
+                            continue;
+                        }
                     }
                     XFree(prop);
                 }

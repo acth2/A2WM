@@ -116,9 +116,11 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (name == name.toLower()) {
-                    appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
-                    continue;
+                if (name.contains(QRegExp("[A-Z]")) {
+                    if (name == name.toLower()) {
+                        appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
+                        continue;
+                    }
                 }
 
                 if (trackedWindows.contains(child)) {

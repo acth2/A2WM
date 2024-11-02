@@ -23,6 +23,7 @@ protected:
 private slots:
     void button1Clicked();
     void button2Clicked();
+    void button3Clicked();
 
 private:
     void setupUI();

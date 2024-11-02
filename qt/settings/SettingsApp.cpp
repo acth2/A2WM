@@ -80,6 +80,7 @@ SettingsApp::SettingsApp(QWidget *parent) : QMainWindow(parent) {
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
+    connect(customizationButton, &QPushButton::clicked, this, &SettingsApp::displayCustomizationPane);
     connect(systemInfoButton, &QPushButton::clicked, this, &SettingsApp::displaySystemInfoPane);
 }
 
@@ -87,6 +88,27 @@ void SettingsApp::displaySystemInfoPane() {
     SystemInfoPane *systemInfoPane = new SystemInfoPane(this);
     connect(systemInfoPane, &SystemInfoPane::backRequested, this, &SettingsApp::onBackRequested);
     setCentralWidget(systemInfoPane);
+}
+
+void SettingsApp::displayCustomizationPane() {
+    QWidget *customizationPane = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(customizationPane);
+
+    QPushButton *rightClickMouseButton = new QPushButton("Right Click Mouse Interaction", this);
+    rightClickMouseButton->setStyleSheet(buttonStyle);
+    layout->addWidget(rightClickMouseButton);
+
+    QPushButton *taskBarMenuButton = new QPushButton("TaskBar Menu Interaction", this);
+    taskBarMenuButton->setStyleSheet(buttonStyle);
+    layout->addWidget(taskBarMenuButton);
+
+    QPushButton *backButton = new QPushButton("Back", this);
+    backButton->setStyleSheet(buttonStyle);
+    layout->addWidget(backButton);
+
+    connect(backButton, &QPushButton::clicked, this, &SettingsApp::onBackRequested);
+
+    setCentralWidget(customizationPane);
 }
 
 void SettingsApp::onBackRequested() {
@@ -108,5 +130,6 @@ void SettingsApp::onBackRequested() {
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
+    connect(customizationButton, &QPushButton::clicked, this, &SettingsApp::displayCustomizationPane);
     connect(systemInfoButton, &QPushButton::clicked, this, &SettingsApp::displaySystemInfoPane);
 }

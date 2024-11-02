@@ -116,13 +116,14 @@ void WindowManager::listExistingWindows() {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
                     continue;
                 }
-                
+
                 if (name.toLower() == name && existingWindows.contains(name.toUpper())) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }
 
-                QSize newSize = window->size();
+                QSize newSize(attributes.width, attributes.height);
+                
                 if (existingWindows.contains(name)) {
                     if (existingWindows[name] != newSize) {
                         appendLog("INFO: Skipping window with the same name but different size: " + name);
@@ -132,8 +133,9 @@ void WindowManager::listExistingWindows() {
                     existingWindows.insert(name, newSize);
                     appendLog("Tracking new window: " + name + " with size: " + QString::number(newSize.width()) + "x" + QString::number(newSize.height()));
                 }
-                
-                existingWindows.insert(name.toUpper());
+
+                existingWindows.insert(name.toUpper(), QSize(0, 0));
+
                 if (trackedWindows.contains(child)) {
                     appendLog("INFO: Window already tracked: " + QString::number(child));
                     continue;

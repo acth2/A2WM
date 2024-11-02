@@ -85,10 +85,10 @@ void WindowManager::listExistingWindows() {
             Window child = children[i];
             XWindowAttributes attributes;
 
-            /*if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
+            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
                 appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
                 continue;
-            }*/
+            }
 
             char *windowName = nullptr;
             if (XFetchName(xDisplay, child, &windowName) && windowName) {

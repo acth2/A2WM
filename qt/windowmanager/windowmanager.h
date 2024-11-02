@@ -88,7 +88,7 @@ private:
     QMap<WId, QWidget*> trackedContainers;
     QString nameExtractor;
 
-    QSet<QString> existingWindowNames;
+    QMap<QString, QSize> existingWindows;
 };
 
 #endif // WINDOWMANAGER_H

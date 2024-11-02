@@ -117,7 +117,7 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
                 
-                if (name.toLower() == name && existingWindowNames.contains(name.toUpper())) {
+                if (name.toLower() == name && existingWindows.contains(name.toUpper())) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }
@@ -133,7 +133,7 @@ void WindowManager::listExistingWindows() {
                     appendLog("Tracking new window: " + name + " with size: " + QString::number(newSize.width()) + "x" + QString::number(newSize.height()));
                 }
                 
-                existingWindowNames.insert(name.toUpper());
+                existingWindows.insert(name.toUpper());
                 if (trackedWindows.contains(child)) {
                     appendLog("INFO: Window already tracked: " + QString::number(child));
                     continue;

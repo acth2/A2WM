@@ -15,6 +15,7 @@ public:
 
 private slots:
     void displaySystemInfoPane();
+    void displayCustomizationPane();
     void onBackRequested();
 
 private:

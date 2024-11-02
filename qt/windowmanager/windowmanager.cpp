@@ -69,7 +69,6 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (!xDisplay) {
         appendLog("ERR: Failed to open X Display ..");
@@ -79,6 +78,17 @@ void WindowManager::listExistingWindows() {
     Window windowRoot = DefaultRootWindow(xDisplay);
     Window parent, *children = nullptr;
     unsigned int nChildren;
+
+    Window currentWindow;
+    int revert_to;
+    XGetInputFocus(xDisplay, &currentWindow, &revert_to);
+    
+    char *currentWindowNameChar = nullptr;
+    XFetchName(xDisplay, currentWindow, &currentWindowNameChar);
+    QString currentWindowName(currentWindowNameChar);
+    XFree(currentWindowNameChar);
+
+    bool currentHasUpperCase = currentWindowName.contains(QRegExp("[A-Z]"));
 
     if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
         for (unsigned int i = 0; i < nChildren; i++) {
@@ -102,6 +112,11 @@ void WindowManager::listExistingWindows() {
 
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
+                    continue;
+                }
+
+                if (currentHasUpperCase && name.compare(currentWindowName, Qt::CaseSensitive) == 0) {
+                    appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }
 
@@ -143,15 +158,6 @@ void WindowManager::listExistingWindows() {
                 }
 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
-
-                /*QRect screenGeometry = QApplication::primaryScreen()->geometry();
-                QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
-                if (!screenGeometry.contains(windowGeometry)) {
-                    int centerX = (screenGeometry.width() - attributes.width) / 2;
-                    int centerY = (screenGeometry.height() - attributes.height) / 2;
-                    XMoveWindow(xDisplay, child, centerX, centerY);
-                    appendLog("INFO: Moved window to center: " + QString::number(child));
-                }*/
             }
         }
         XFree(children);

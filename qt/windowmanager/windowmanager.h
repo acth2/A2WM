@@ -17,6 +17,7 @@
 #include <QPixmap>
 #include <QFileInfo>
 #include <QDir>
+#include <QStringList>
 #include "taskbar.h"
 #include "konami_code_handler.h"
 #include "userinteractright.h"
@@ -89,6 +90,7 @@ private:
     QString nameExtractor;
 
     QMap<QString, QSize> existingWindows;
+    QStringList loadApplicationList(const QString& filePath);
 };
 
 #endif // WINDOWMANAGER_H

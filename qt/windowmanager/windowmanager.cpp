@@ -69,6 +69,7 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (!xDisplay) {
         appendLog("ERR: Failed to open X Display ..");

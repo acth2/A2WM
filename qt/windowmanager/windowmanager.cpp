@@ -105,7 +105,6 @@ void WindowManager::listExistingWindows() {
             char *windowName = nullptr;
             if (XFetchName(xDisplay, child, &windowName) && windowName) {
                 QString name(windowName);
-                name = name.toUpper();
                 XFree(windowName);
 
                 if (name.isEmpty()) {
@@ -118,11 +117,10 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
                 
-                if (name.toLower() == name) {
+                if (name.toLower() == name && !name.contains(QRegularExpression("[A-Z]"))) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
                 }
-
 
                 if (trackedWindows.contains(child)) {
                     appendLog("INFO: Window already tracked: " + QString::number(child));

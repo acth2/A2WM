@@ -112,16 +112,16 @@ void WindowManager::listExistingWindows() {
 
                 appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 
-                Atom type;
+                Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
                 Atom actualType;
                 int format;
                 unsigned long nItems, bytesAfter;
                 unsigned char *prop = nullptr;
 
-                if (XGetWindowProperty(xDisplay, child, XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE"), 0, 1024, False,
+                if (XGetWindowProperty(xDisplay, child, windowTypeAtom, 0, 1024, False,
                     AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
                     if (nItems > 0) {
-                        type = static_cast<Atom>(prop[0]);
+                        Atom type = static_cast<Atom>(prop[0]);
                         appendLog("INFO: Window type: " + QString::number(type));
                     }
                     XFree(prop);

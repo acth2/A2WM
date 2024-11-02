@@ -151,7 +151,7 @@ void UserInteractRight::paintEvent(QPaintEvent *event) {
 void UserInteractRight::button1Clicked() {
     QProcess *xtermProcess = new QProcess(this);
 
-    QString program = "qterminal";
+    QString program = readFileContents("/usr/cydra/info/CPBA1").trimmed();
     QStringList arguments;
 
     xtermProcess->start(program, arguments);
@@ -159,17 +159,13 @@ void UserInteractRight::button1Clicked() {
     connect(xtermProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
-
-    connect(xtermProcess, &QProcess::started, []() {
-        qDebug() << "qterminal started successfully";
-    });
     close();
 }
 
 void UserInteractRight::button2Clicked() {
     QProcess *xtermProcess2 = new QProcess(this);
 
-    QString program2 = "a2wmedit";
+    QString program2 = readFileContents("/usr/cydra/info/CPBA2").trimmed();
     QStringList arguments2;
 
     xtermProcess2->start(program2, arguments2);
@@ -177,9 +173,19 @@ void UserInteractRight::button2Clicked() {
     connect(xtermProcess2, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
+    close();
+}
 
-    connect(xtermProcess2, &QProcess::started, []() {
-        qDebug() << "qterminal started successfully";
+void UserInteractRight::button3Clicked() {
+    QProcess *xtermProcess2 = new QProcess(this);
+
+    QString program2 = readFileContents("/usr/cydra/info/CPBA3").trimmed();
+    QStringList arguments2;
+
+    xtermProcess2->start(program2, arguments2);
+
+    connect(xtermProcess2, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
+        qDebug() << "Error occurred:" << error;
     });
     close();
 }

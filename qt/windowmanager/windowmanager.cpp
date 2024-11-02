@@ -120,7 +120,7 @@ void WindowManager::listExistingWindows() {
                 
                 if (name.toLower() == name) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
-                    ontinue;
+                    continue;
                 }
 
 

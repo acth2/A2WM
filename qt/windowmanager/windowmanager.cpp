@@ -140,10 +140,12 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (appList.contains(name, Qt::CaseInsensitive)) {
-                    appendLog("INFO: Tracking window finded in the exp file" + name);
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                    continue;
+                for (const QString &appName : appList) {
+                    if (name.contains(appName, Qt::CaseInsensitive)) {
+                        createAndTrackWindow(child, name, attributes.width, attributes.height);
+                        appendLog("INFO: Found matching app in list: " + appName + " in window name: " + name);
+                        break;
+                    }
                 }
 
                 if (name.toLower() == name && existingWindows.contains(name.toUpper())) {

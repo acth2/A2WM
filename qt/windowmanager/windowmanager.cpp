@@ -93,48 +93,35 @@ void WindowManager::listExistingWindows() {
             char *windowName = nullptr;
             if (XFetchName(xDisplay, child, &windowName) && windowName) {
                 QString name(windowName);
+                XFree(windowName);
 
-                if (name.isEmpty()){
+                if (name.isEmpty()) {
                     appendLog("INFO: Skipping No-Name window: " + QString::number(child));
-                    XFree(windowName);
                     continue;
                 }
-                
+
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
-                    XFree(windowName);
                     continue;
                 }
 
-                if (name == "Shell No. 1") {
-                    name = "QTerminal";
+                if (trackedWindows.contains(child)) {
+                    appendLog("INFO: Window already tracked: " + QString::number(child));
+                    continue;
                 }
 
-                nameExtractor = name;
+                appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 
-                appendLog("INFO: Detected window (WM_NAME): " + name + ", ID: " + QString::number(child));
-                XFree(windowName);
-            }
+                createAndTrackWindow(child, name, attributes.width, attributes.height);
 
-            QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
-            if (windowGeometry.width() <= 0 || windowGeometry.height() <= 0) {
-                appendLog("INFO: Skipping window with zero or negative dimensions: " + QString::number(child));
-                continue;
-            }
-            
-            XClassHint classHint;
-            if (XGetClassHint(xDisplay, child, &classHint)) {
-                appendLog("INFO: Window Class (WM_CLASS): " 
-                          + QString(classHint.res_class ? classHint.res_class : "")
-                          + ", Instance: " 
-                          + QString(classHint.res_name ? classHint.res_name : "")
-                          + ", ID: " + QString::number(child));
-                XFree(classHint.res_class);
-                XFree(classHint.res_name);
-            }
-
-            if (!trackedWindows.contains(child)) {
-                createAndTrackWindow(child, nameExtractor, attributes.width, attributes.height);
+                QRect screenGeometry = QApplication::primaryScreen()->geometry();
+                QRect windowGeometry(attributes.x, attributes.y, attributes.width, attributes.height);
+                if (!screenGeometry.contains(windowGeometry)) {
+                    int centerX = (screenGeometry.width() - attributes.width) / 2;
+                    int centerY = (screenGeometry.height() - attributes.height) / 2;
+                    XMoveWindow(xDisplay, child, centerX, centerY);
+                    appendLog("INFO: Moved window to center: " + QString::number(child));
+                }
             }
         }
         XFree(children);

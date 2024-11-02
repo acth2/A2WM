@@ -70,12 +70,34 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+QStringList loadApplicationList(const QString& filePath) {
+    QStringList appList;
+
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine().trimmed();
+            if (!line.isEmpty()) {
+                appList.append(line);
+            }
+        }
+        file.close();
+    } else {
+        qDebug() << "ERR: Could not open file:" << filePath;
+    }
+
+    return appList;
+}
+
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (!xDisplay) {
         appendLog("ERR: Failed to open X Display ..");
         return;
     }
+
+    QStringList appList = loadApplicationList("/usr/cydra/settings/softwareExp.list");
 
     Window windowRoot = DefaultRootWindow(xDisplay);
     Window parent, *children = nullptr;
@@ -114,6 +136,12 @@ void WindowManager::listExistingWindows() {
 
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
+                    continue;
+                }
+
+                if (appList.contains(name, Qt::CaseInsensitive)) {
+                    appendLog("INFO: Tracking window finded in the exp file" + name);
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
                     continue;
                 }
 

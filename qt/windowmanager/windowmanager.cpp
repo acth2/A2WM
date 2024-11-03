@@ -143,6 +143,11 @@ void WindowManager::listExistingWindows() {
 
                 existingWindows.insert(name.toUpper(), QSize(0, 0));
 
+                if (trackedWindows.contains(child)) {
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                    continue;
+                }
+
                 appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
                 
                 Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);

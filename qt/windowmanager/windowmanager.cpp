@@ -72,6 +72,43 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+bool WindowManager::windowStillExists(const QString &name) const {
+    QList<QString> activeWindowNames = getCurrentWindowNames();
+    return activeWindowNames.contains(name);
+}
+
+QList<QString> WindowManager::getCurrentWindowNames() const {
+    QList<QString> activeWindowNames;
+    Display* display = XOpenDisplay(nullptr);
+
+    if (!display) {
+        appendLog("ERROR: Unable to open X display.");
+        return activeWindowNames;
+    }
+
+    Window root = DefaultRootWindow(display);
+    Window parent;
+    Window* children;
+    unsigned int nchildren;
+
+    if (XQueryTree(display, root, &root, &parent, &children, &nchildren) != 0) {
+        for (unsigned int i = 0; i < nchildren; ++i) {
+            char* windowName = nullptr;
+
+            if (XFetchName(display, children[i], &windowName) > 0 && windowName != nullptr) {
+                activeWindowNames.append(QString::fromUtf8(windowName));
+                XFree(windowName);
+            }
+        }
+        XFree(children);
+    } else {
+        appendLog("ERROR: Failed to query window tree.");
+    }
+
+    XCloseDisplay(display);
+    return activeWindowNames;
+}
+
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
     if (!xDisplay) {
@@ -524,6 +561,17 @@ void WindowManager::cleanUpClosedWindows() {
             windowTopBars.remove(xorgWindowId);
         }
 
+    }
+    
+    for (const auto &name : existingWindows.keys()) {
+        if (!windowStillExists(name)) {
+            windowsToRemove.append(name);
+        }
+    }
+
+    for (const auto &name : windowsToRemove) {
+        existingWindows.remove(name);
+        appendLog("INFO: Removed closed window from tracking: " + name);
     }
 }
 

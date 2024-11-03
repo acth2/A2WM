@@ -563,15 +563,15 @@ void WindowManager::cleanUpClosedWindows() {
 
     }
     
-    for (const auto &name : existingWindows.keys()) {
-        if (!windowStillExists(name)) {
-            windowsToRemove.append(name);
+    for (const auto &key : existingWindows.keys()) {
+        if (!windowStillExists(key)) {
+            windowsToRemove.append(key);
         }
     }
 
-    for (const auto &name : windowsToRemove) {
-        existingWindows.remove(name);
-        appendLog("INFO: Removed closed window from tracking: " + name);
+    for (const auto &key : windowsToRemove) {
+        existingWindows.remove(key);
+        appendLog("INFO: Removed closed window from tracking: " + key);
     }
 }
 

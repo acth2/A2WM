@@ -82,7 +82,6 @@ QList<QString> WindowManager::getCurrentWindowNames() const {
     Display* display = XOpenDisplay(nullptr);
 
     if (!display) {
-        appendLog("ERROR: Unable to open X display.");
         return activeWindowNames;
     }
 
@@ -101,8 +100,6 @@ QList<QString> WindowManager::getCurrentWindowNames() const {
             }
         }
         XFree(children);
-    } else {
-        appendLog("ERROR: Failed to query window tree.");
     }
 
     XCloseDisplay(display);

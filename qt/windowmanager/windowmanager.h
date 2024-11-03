@@ -90,6 +90,7 @@ private:
     QString nameExtractor;
 
     QMap<QString, QSize> existingWindows;
+    bool windowStillExists(const QString &name) const;
 };
 
 #endif // WINDOWMANAGER_H

@@ -289,9 +289,10 @@ bool TopBar::eventFilter(QObject *obj, QEvent *event) {
         }
     }
 
-    dragStartPos = event->globalPos();
+    auto *mouseEvent = static_cast<QMouseEvent *>(event);
+    dragStartPos = mouseEvent->globalPos();
     windowStartPos = trackedWindow->position();
-    trackedWindow->setPosition(windowStartPos + (event->globalPos() - dragStartPos));
+    trackedWindow->setPosition(windowStartPos + (mouseEvent->globalPos() - dragStartPos));
 
     return QWidget::eventFilter(obj, event);
 }

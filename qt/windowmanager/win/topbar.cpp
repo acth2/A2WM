@@ -213,6 +213,10 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 
 void TopBar::onLoop() {
     updatePosition();
+    auto *mouseEvent = static_cast<QMouseEvent *>(event);
+    dragStartPos = mouseEvent->globalPos();
+    windowStartPos = trackedWindow->position();
+    trackedWindow->setPosition(windowStartPos + (mouseEvent->globalPos() - dragStartPos));
 }
 
 void TopBar::minimizeWindow() {
@@ -288,11 +292,6 @@ bool TopBar::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
     }
-
-    auto *mouseEvent = static_cast<QMouseEvent *>(event);
-    dragStartPos = mouseEvent->globalPos();
-    windowStartPos = trackedWindow->position();
-    trackedWindow->setPosition(windowStartPos + (mouseEvent->globalPos() - dragStartPos));
 
     return QWidget::eventFilter(obj, event);
 }

@@ -171,11 +171,6 @@ void WindowManager::listExistingWindows() {
                     }
                 }
 
-                if (whitelist.contains(name)) {
-                    appendLog("INFO: Whitelisted window detected: " + QString::number(child));
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                }
-                
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
             }
         }

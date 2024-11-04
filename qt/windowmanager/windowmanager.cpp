@@ -561,7 +561,7 @@ void WindowManager::cleanUpClosedWindows() {
     }
     
     for (const WId &key : existingWindows.keys()) {
-        if (!windowStillExists(key)) {
+        if (!windowStillExists(QString::number(key))) {
             windowsToRemove.append(key);
         }
     }

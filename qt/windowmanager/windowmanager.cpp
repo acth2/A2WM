@@ -108,17 +108,6 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (existingWindows.contains(name)) {
-                    QSize currentSize(attributes.width, attributes.height);
-                    if (existingWindows[name] != currentSize) {
-                        appendLog("INFO: Skipping window with the same name but different size: " + name);
-                        continue;
-                    }
-                } else {
-                    existingWindows.insert(name, QSize(attributes.width, attributes.height));
-                    appendLog("Tracking new window: " + name + " with size: " + QString::number(attributes.width) + "x" + QString::number(attributes.height));
-                }
-
                 Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
                 Atom actualType;
                 int format;

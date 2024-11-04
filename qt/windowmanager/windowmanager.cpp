@@ -99,6 +99,31 @@ void WindowManager::listExistingWindows() {
                 continue;
             }
 
+            Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+            Atom hiddenState = XInternAtom(xDisplay, "_NET_WM_STATE_HIDDEN", False);
+            Atom actualType;
+            int format;
+            unsigned long nItems, bytesAfter;
+            unsigned char *prop = nullptr;
+
+            if (XGetWindowProperty(xDisplay, child, netWmState, 0, (~0L), False, XA_ATOM,
+                                   &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
+                bool isHidden = false;
+                Atom *atoms = reinterpret_cast<Atom*>(prop);
+                for (unsigned long j = 0; j < nItems; j++) {
+                    if (atoms[j] == hiddenState) {
+                        isHidden = true;
+                        break;
+                    }
+                }
+                XFree(prop);
+
+                if (isHidden) {
+                    appendLog("INFO: Skipping hidden/minimized window: " + QString::number(child));
+                    continue;
+                }
+            }
+
             char *windowNameCStr = nullptr;
             if (XFetchName(xDisplay, child, &windowNameCStr) > 0 && windowNameCStr) {
                 QString name(windowNameCStr);

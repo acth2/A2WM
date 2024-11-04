@@ -47,7 +47,6 @@ private slots:
     void stopResizing();
     void toggleMaximizeRestore();
     void minimizeWindow();
-    void onLoop();
     void checkWindowVisibility() {
         if (trackedWindow && trackedWindow->isVisible()) {
             trackedWindow->setVisible(true);

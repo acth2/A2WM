@@ -72,6 +72,7 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+Display *xDisplay;
 void WindowManager::listExistingWindows() {
     Display* display = XOpenDisplay(nullptr);
     if (!display) {

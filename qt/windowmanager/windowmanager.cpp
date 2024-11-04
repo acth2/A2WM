@@ -86,8 +86,13 @@ void WindowManager::listExistingWindows() {
     if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
         for (unsigned int i = 0; i < nChildren; i++) {
             Window child = children[i];
-            XWindowAttributes attributes;
 
+            if (trackedWindows.contains(child)) {
+                appendLog("INFO: Window already tracked, skipping: " + QString::number(child));
+                continue;
+            }
+
+            XWindowAttributes attributes;
             if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
                 appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
                 continue;
@@ -108,12 +113,8 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
-                Atom actualType;
-                int format;
-                unsigned long nItems, bytesAfter;
-                unsigned char *prop = nullptr;
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
+                trackedWindows.insert(child);
             }
         }
         XFree(children);

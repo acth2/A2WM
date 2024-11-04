@@ -115,7 +115,7 @@ void WindowManager::listExistingWindows() {
                 }
 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
-                trackedWindows.insert(child);
+                trackedWindows.insert(child, nullptr);
             }
         }
         XFree(children);

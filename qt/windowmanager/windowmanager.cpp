@@ -88,8 +88,8 @@ void WindowManager::listExistingWindows() {
             Window child = children[i];
             XWindowAttributes attributes;
 
-            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
-                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
+            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0) {
+                appendLog("INFO: Skipping unmapped window: " + QString::number(child));
                 continue;
             }
 
@@ -106,6 +106,17 @@ void WindowManager::listExistingWindows() {
                 if (name == "A2WM") {
                     appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
                     continue;
+                }
+
+                if (existingWindows.contains(name)) {
+                    QSize currentSize(attributes.width, attributes.height);
+                    if (existingWindows[name] != currentSize) {
+                        appendLog("INFO: Skipping window with the same name but different size: " + name);
+                        continue;
+                    }
+                } else {
+                    existingWindows.insert(name, QSize(attributes.width, attributes.height));
+                    appendLog("Tracking new window: " + name + " with size: " + QString::number(attributes.width) + "x" + QString::number(attributes.height));
                 }
 
                 Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);

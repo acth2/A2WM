@@ -147,23 +147,37 @@ void WindowManager::listExistingWindows() {
                 QString name(windowNameCStr);
                 XFree(windowNameCStr);
 
-                if (name.isEmpty()) {
-                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
+                if (name.isEmpty() || name == "A2WM") {
+                    appendLog("INFO: Skipping No-Name or A2WM window: " + QString::number(child));
                     continue;
                 }
 
-                if (name == "A2WM") {
-                    appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
-                    continue;
+                Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
+                if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, (~0L), False, XA_ATOM,
+                                       &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
+                    Atom *types = reinterpret_cast<Atom*>(prop);
+                    bool isNormal = false;
+                    for (unsigned long j = 0; j < nItems; j++) {
+                        if (types[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False)) {
+                            isNormal = true;
+                            break;
+                        }
+                    }
+                    XFree(prop);
+
+                    if (!isNormal) {
+                        appendLog("INFO: Skipping non-normal window type: " + QString::number(child));
+                        continue;
+                    }
                 }
 
-                if (whitelist.contains(name) && !trackedWindows.contains(child)) {
+                if (whitelist.contains(name)) {
                     appendLog("INFO: Whitelisted window detected: " + QString::number(child));
                     createAndTrackWindow(child, name, attributes.width, attributes.height);
                 }
-
+                
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
-                trackedWindows.insert(child, nullptr);
+                trackedWindows.insert(child);
             }
         }
         XFree(children);

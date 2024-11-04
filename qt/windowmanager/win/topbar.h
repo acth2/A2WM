@@ -50,7 +50,6 @@ private slots:
     void checkWindowVisibility() {
         if (trackedWindow && trackedWindow->isVisible()) {
             trackedWindow->setVisible(true);
-        } else { 
             this->setVisible(false);
         }
     }

@@ -47,6 +47,7 @@ private slots:
     void stopResizing();
     void toggleMaximizeRestore();
     void minimizeWindow();
+    void onLoop();
     void moveMinimizedWindow(bool moveRight);
 
 private:

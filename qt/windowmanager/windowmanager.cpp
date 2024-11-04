@@ -525,19 +525,6 @@ void WindowManager::cleanUpClosedWindows() {
         }
 
     }
-    
-    for (auto it = existingWindows.keyBegin(); it != existingWindows.keyEnd(); ++it) {
-        const WId key = *it;
-    
-        if (!windowStillExists(key)) {
-            windowsToRemove.append(key);
-        }
-    }
-
-    for (const WId &key : windowsToRemove) {
-        existingWindows.remove(key);
-        appendLog("INFO: Removed closed window from tracking: " + QString::number(key));
-    }
 }
 
 void WindowManager::keyPressEvent(QKeyEvent *event) {

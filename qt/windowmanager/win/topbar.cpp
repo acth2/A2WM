@@ -213,7 +213,6 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 
 void TopBar::onLoop() {
     updatePosition();
-    trackedWindow->setPosition(windowStartPos + (currentMousePos - dragStartPos));
 }
 
 void TopBar::minimizeWindow() {
@@ -289,6 +288,11 @@ bool TopBar::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
     }
+
+    auto *mouseEvent = static_cast<QMouseEvent *>(event);
+    dragStartPos = mouseEvent->globalPos();
+    windowStartPos = trackedWindow->position();
+    trackedWindow->setPosition(windowStartPos + (mouseEvent->globalPos() - dragStartPos));
 
     return QWidget::eventFilter(obj, event);
 }
@@ -381,9 +385,6 @@ void TopBar::mousePressEvent(QMouseEvent *event) {
         QPoint bottomRightCorner = windowGeometry.bottomRight();
         QCursor::setPos(bottomRightCorner);
     }
-    dragStartPos = event->globalPos();
-    windowStartPos = trackedWindow->pos();
-    
     getTrackedWindow()->raise();
     this->raise();
 }
@@ -428,7 +429,6 @@ void TopBar::mouseMoveEvent(QMouseEvent *event) {
         trackedWindow->setGeometry(trackedWindow->x(), trackedWindow->y(), newWidth, newHeight);
     }
 
-    currentMousePos = event->globalPos();
     updatePosition();
     QWidget::mouseMoveEvent(event);
 }

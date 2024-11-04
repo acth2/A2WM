@@ -51,7 +51,8 @@ private slots:
     void checkWindowVisibility() {
         if (trackedWindow && trackedWindow->isVisible()) {
             trackedWindow->setVisible(true);
-            visibilityCheckTimer->stop();
+        } else { 
+            this->setVisible(false);
         }
     }
     void moveMinimizedWindow(bool moveRight);

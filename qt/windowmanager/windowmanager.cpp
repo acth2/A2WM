@@ -177,7 +177,7 @@ void WindowManager::listExistingWindows() {
 
                 existingWindows.insert(name.toUpper(), QSize(0, 0));
 
-                if (trackedWindows.contains(child)) {
+                if (trackedWindows.contains(name)) {
                     createAndTrackWindow(child, name, attributes.width, attributes.height);
                     continue;
                 }

@@ -81,7 +81,7 @@ private:
     QSize originalTopBarSize;
 
     QString origTitle;
-    QTimer *windowCheckTimer;
+    QTimer *positionUpdater;
 };
 
 #endif // TOPBAR_H

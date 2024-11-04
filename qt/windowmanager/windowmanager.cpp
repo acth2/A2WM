@@ -560,7 +560,9 @@ void WindowManager::cleanUpClosedWindows() {
 
     }
     
-    for (const WId &key : existingWindows.keys()) {
+    for (auto it = existingWindows.keyBegin(); it != existingWindows.keyEnd(); ++it) {
+        const WId key = *it;
+    
         if (!windowStillExists(key)) {
             windowsToRemove.append(key);
         }

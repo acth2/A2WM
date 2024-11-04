@@ -48,6 +48,12 @@ private slots:
     void toggleMaximizeRestore();
     void minimizeWindow();
     void onLoop();
+    void checkWindowVisibility() {
+        if (trackedWindow && trackedWindow->isVisible()) {
+            trackedWindow->setVisible(true);
+            visibilityCheckTimer->stop();
+        }
+    }
     void moveMinimizedWindow(bool moveRight);
 
 private:
@@ -81,7 +87,7 @@ private:
     QSize originalTopBarSize;
 
     QString origTitle;
-    QTimer *positionUpdater;
+    QTimer *visibilityCheckTimer;
 };
 
 #endif // TOPBAR_H

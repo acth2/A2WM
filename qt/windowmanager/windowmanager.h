@@ -90,6 +90,7 @@ private:
     QString nameExtractor;
 
     QMap<QString, QSize> existingWindows;
+    void loadWhitelist();
 };
 
 #endif // WINDOWMANAGER_H

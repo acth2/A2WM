@@ -88,8 +88,8 @@ void WindowManager::listExistingWindows() {
             Window child = children[i];
             XWindowAttributes attributes;
 
-            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0) {
-                appendLog("INFO: Skipping unmapped window: " + QString::number(child));
+            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
+                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
                 continue;
             }
 
@@ -108,45 +108,11 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (existingWindows.contains(name)) {
-                    QSize currentSize(attributes.width, attributes.height);
-                    if (existingWindows[name] != currentSize) {
-                        appendLog("INFO: Skipping window with the same name but different size: " + name);
-                        continue;
-                    }
-                } else {
-                    existingWindows.insert(name, QSize(attributes.width, attributes.height));
-                    appendLog("Tracking new window: " + name + " with size: " + QString::number(attributes.width) + "x" + QString::number(attributes.height));
-                }
-
                 Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
                 Atom actualType;
                 int format;
                 unsigned long nItems, bytesAfter;
                 unsigned char *prop = nullptr;
-
-                if (XGetWindowProperty(xDisplay, child, windowTypeAtom, 0, 1024, False,
-                                       AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
-                    bool isMenu = false;
-                    if (nItems > 0) {
-                        for (unsigned long j = 0; j < nItems; ++j) {
-                            Atom type = static_cast<Atom>(prop[j]);
-                            if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False) ||
-                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False) ||
-                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False)) {
-                                isMenu = true;
-                                appendLog("INFO: Detected menu window type: " + QString::number(child));
-                                break;
-                            }
-                        }
-                    }
-                    XFree(prop);
-
-                    if (isMenu) {
-                        appendLog("INFO: Skipping menu window: " + QString::number(child));
-                        continue;
-                    }
-                }
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
             }
         }

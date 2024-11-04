@@ -72,6 +72,24 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+QSet<QString> whitelist;
+void WindowManager::loadWhitelist() {
+    QFile file("/usr/cydra/settings/whitelist");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        appendLog("ERR: Failed to open whitelist file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (!line.isEmpty()) {
+            whitelist.insert(line);
+        }
+    }
+    file.close();
+}
+
 QSet<WId> trackedWindows;
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
@@ -139,6 +157,10 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
+                if (whitelist.contains(name)) {
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                }
+
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
                 trackedWindows.insert(child, nullptr);
             }
@@ -170,6 +192,7 @@ void WindowManager::setSupportingWMCheck() {
 void WindowManager::checkForNewWindows() {
     xDisplay = XOpenDisplay(nullptr);
     if (xDisplay) {
+        loadWhitelist();
         listExistingWindows();
         processX11Events(); 
         cleanUpClosedWindows();

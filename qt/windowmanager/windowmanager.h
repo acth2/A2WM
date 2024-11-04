@@ -90,7 +90,6 @@ private:
     QString nameExtractor;
 
     QMap<QString, QSize> existingWindows;
-    QSet<WId> trackedWindows;
 };
 
 #endif // WINDOWMANAGER_H

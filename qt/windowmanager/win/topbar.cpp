@@ -206,9 +206,6 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
     
     setLayout(layout);
     updatePosition();
-    visibilityCheckTimer = new QTimer(this);
-    connect(visibilityCheckTimer, &QTimer::timeout, this, &TopBar::checkWindowVisibility);
-    visibilityCheckTimer->start(50);
 }
 
 void TopBar::minimizeWindow() {

@@ -72,119 +72,63 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-Display *xDisplay;
 void WindowManager::listExistingWindows() {
-    if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
+    Display* display = XOpenDisplay(nullptr);
+    if (!display) {
+        std::cerr << "Cannot open display.\n";
         return;
     }
-    
-    Window windowRoot = DefaultRootWindow(xDisplay);
-    Window parent, *children = nullptr;
-    unsigned int nChildren;
 
-    Window currentWindow;
-    int revert_to;
-    XGetInputFocus(xDisplay, &currentWindow, &revert_to);
-    
-    char *currentWindowNameChar = nullptr;
-    XFetchName(xDisplay, currentWindow, &currentWindowNameChar);
-    QString currentWindowName(currentWindowNameChar);
-    XFree(currentWindowNameChar);
+    Window root = DefaultRootWindow(display);
+    Window parent;
+    Window* children;
+    unsigned int numChildren;
 
-    bool currentHasUpperCase = currentWindowName.contains(QRegExp("[A-Z]"));
-
-    if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
-        for (unsigned int i = 0; i < nChildren; i++) {
-            Window child = children[i];
-            XWindowAttributes attributes;
-
-            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
-                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
-                continue;
+    if (XQueryTree(display, root, &root, &parent, &children, &numChildren) > 0 && children) {
+        for (unsigned int i = 0; i < numChildren; ++i) {
+            char* windowNameCStr = nullptr;
+            std::string windowName;
+            if (XFetchName(display, children[i], &windowNameCStr) > 0 && windowNameCStr) {
+                windowName = windowNameCStr;
+                XFree(windowNameCStr);
             }
 
-            char *windowName = nullptr;
-            if (XFetchName(xDisplay, child, &windowName) && windowName) {
-                QString name(windowName);
-                XFree(windowName);
+            Atom actualType;
+            int actualFormat;
+            unsigned long itemCount, bytesAfter;
+            unsigned char* prop = nullptr;
 
-                if (name.isEmpty()) {
-                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
-                    continue;
-                }
+            Atom windowTypeAtom = XInternAtom(display, "_NET_WM_WINDOW_TYPE", True);
+            Atom windowTypeNormal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", True);
 
-                if (name == "A2WM") {
-                    appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
-                    continue;
-                }
+            if (windowTypeAtom == None || windowTypeNormal == None) continue;
 
-                if (name == "Krusader") {
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                    continue;
-                }
-
-                if (name.toLower() == name && existingWindows.contains(name.toUpper())) {
-                    appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
-                    continue;
-                }
-
-                QSize newSize(attributes.width, attributes.height);
-                
-                if (existingWindows.contains(name)) {
-                    if (existingWindows[name] != newSize) {
-                        appendLog("INFO: Skipping window with the same name but different size: " + name);
-                        continue;
-                    }
-                } else {
-                    existingWindows.insert(name, newSize);
-                    appendLog("Tracking new window: " + name + " with size: " + QString::number(newSize.width()) + "x" + QString::number(newSize.height()));
-                }
-
-                existingWindows.insert(name.toUpper(), QSize(0, 0));
-
-                if (existingWindows.contains(name)) {
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                    continue;
-                }
-
-                appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
-                
-                Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
-                Atom actualType;
-                int format;
-                unsigned long nItems, bytesAfter;
-                unsigned char *prop = nullptr;
-
-                if (XGetWindowProperty(xDisplay, child, windowTypeAtom, 0, 1024, False,
-                    AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
-    
-                    bool isMenu = false;
-                    if (nItems > 0) {
-                        for (unsigned long j = 0; j < nItems; ++j) {
-                            Atom type = static_cast<Atom>(prop[j]);
-                            if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False) ||
-                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False) ||
-                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False)) {
-                                isMenu = true;
-                                appendLog("INFO: Detected menu window type: " + QString::number(child));
-                                break;
-                            }
-                        }
-                    }
+            bool isGraphical = false;
+            if (XGetWindowProperty(display, children[i], windowTypeAtom, 0, 1, False, XA_ATOM,
+                                   &actualType, &actualFormat, &itemCount, &bytesAfter, &prop) == Success) {
+                if (prop != nullptr) {
+                    isGraphical = (*(Atom*)prop == windowTypeNormal);
                     XFree(prop);
+                }
+            }
 
-                    if (isMenu) {
-                        appendLog("INFO: Skipping menu window: " + QString::number(child));
-                        continue;
-                    }
+            if (isGraphical && windowName != "A2WM") {
+                QString qWindowName = QString::fromStdString(windowName);
+
+                XWindowAttributes attr;
+                int width = 0, height = 0;
+                if (XGetWindowAttributes(display, children[i], &attr)) {
+                    width = attr.width;
+                    height = attr.height;
                 }
 
-                createAndTrackWindow(child, name, attributes.width, attributes.height);
+                createAndTrackWindow(children[i], qWindowName, width, height);
             }
         }
         XFree(children);
     }
+
+    XCloseDisplay(display);
 }
 
 void WindowManager::setSupportingWMCheck() {

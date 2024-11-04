@@ -206,6 +206,13 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
     
     setLayout(layout);
     updatePosition();
+    positionUpdater = new QTimer(this);
+    connect(positionUpdater, &QTimer::timeout, this, &TopBar::onLoop);
+    positionUpdater->start(50);
+}
+
+void TopBar::onLoop() {
+    updatePosition();
 }
 
 void TopBar::minimizeWindow() {

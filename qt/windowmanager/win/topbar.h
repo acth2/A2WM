@@ -22,7 +22,7 @@ class TopBar : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TopBar(QWindow *parentWindow, WindowManager *manager, bool isBackup, QWidget *parent = nullptr);
+    explicit TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent = nullptr);
     void updatePosition();
     void setTitle(const QString &title);
     QWindow* getTrackedWindow() const;
@@ -47,12 +47,6 @@ private slots:
     void stopResizing();
     void toggleMaximizeRestore();
     void minimizeWindow();
-    void checkWindowVisibility() {
-        if (trackedWindow && trackedWindow->isVisible() && windowManager->isBackup) {
-            trackedWindow->setVisible(true);
-            this->setVisible(false);
-        }
-    }
     void moveMinimizedWindow(bool moveRight);
 
 private:
@@ -86,7 +80,6 @@ private:
     QSize originalTopBarSize;
 
     QString origTitle;
-    QTimer *visibilityCheckTimer;
 };
 
 #endif // TOPBAR_H

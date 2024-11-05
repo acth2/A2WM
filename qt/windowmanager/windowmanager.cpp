@@ -355,7 +355,8 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
 
     QWidget *containerWidget = new QWidget(this);
     containerWidget->setGeometry(x11Window->geometry().x(), x11Window->geometry().y(), width, height + 30);
-    containerWidget->setWindowTitle(windowName);
+    containerWidget->setWindowFlags(Qt::FramelessWindowHint);
+    containerWidget->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
     if (!windowWidget) {
@@ -367,8 +368,10 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     layout->setContentsMargins(0, 30, 0, 0);
     layout->addWidget(windowWidget);
 
-    TopBar *topBar = new TopBar(x11Window, this, containerWidget);
-    topBar->setGeometry(0, 0, width, 30);
+    TopBar *topBar = new TopBar(x11Window, this);
+    topBar->setGeometry(containerWidget->x(), containerWidget->y(), width, 30);
+    topBar->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool); 
+    topBar->setAttribute(Qt::WA_TranslucentBackground);
     topBar->setTitle(windowName);
     topBar->show();
 
@@ -376,6 +379,15 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
 
     windowTopBars.insert(xorgWindowId, topBar);
     trackedContainers.insert(xorgWindowId, containerWidget);
+
+    QTimer *alignmentTimer = new QTimer(this);
+    connect(alignmentTimer, &QTimer::timeout, this, [=]() {
+        if (x11Window->isVisible()) {
+            containerWidget->move(x11Window->geometry().x(), x11Window->geometry().y() + 30);
+            topBar->move(x11Window->geometry().x(), x11Window->geometry().y());
+        }
+    });
+    alignmentTimer->start(16);
 
     appendLog(QString("INFO: Successfully created container and TopBar for window: %1").arg(xorgWindowId));
 }

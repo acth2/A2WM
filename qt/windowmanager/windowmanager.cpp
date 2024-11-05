@@ -179,8 +179,8 @@ void WindowManager::listExistingWindows() {
                 }
                 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
-                WId convertedChild = static_cast<WId>(child);
-                trackedWindows.insert(convertedChild);
+                QWindow *childWindow = QWindow::fromWinId(static_cast<WId>(child));
+                trackedWindows.insert(static_cast<WId>(child), childWindow);
             }
         }
         XFree(children);

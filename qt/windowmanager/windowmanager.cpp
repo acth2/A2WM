@@ -121,14 +121,15 @@ void WindowManager::listExistingWindows() {
 
     for (unsigned int i = 0; i < numChildren; i++) {
         QString windowName = getWindowName(display, children[i]);
-        
+
         if (windowName == "A2WM") {
             qDebug() << "Skipping window named 'A2WM'";
             continue;
         }
 
-        if (isGraphicalWindow(display, children[i])) {
-            qDebug() << "Detected graphical window:" << windowName;
+        int width = 0, height = 0;
+        if (isGraphicalWindow(display, children[i], width, height)) {
+            createAndTrackWindow(children[i], windowName, width, height);
         } else {
             qDebug() << "Non-graphical or hidden window:" << windowName;
         }
@@ -137,6 +138,7 @@ void WindowManager::listExistingWindows() {
     if (children) XFree(children);
     XCloseDisplay(display);
 }
+
 
 void WindowManager::setSupportingWMCheck() {
     xDisplay = XOpenDisplay(nullptr);

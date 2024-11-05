@@ -345,44 +345,41 @@ void WindowManager::toggleConsole() {
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
-    Display* display = QX11Info::display();
-    if (!display) {
-        appendLog("ERR: Could not obtain X11 display.");
+    QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
+    if (!x11Window) {
+        appendLog("ERR: Failed to create QWindow from X11 ID.");
         return;
     }
 
-    XWindowAttributes attr;
-    if (XGetWindowAttributes(display, xorgWindowId, &attr) == 0) {
-        appendLog("ERR: Failed to get window attributes.");
-        return;
-    }
+    trackedWindows.insert(xorgWindowId, x11Window);
 
-    if (attr.map_state != IsViewable || attr.width <= 1 || attr.height <= 1) {
-        appendLog("INFO: Window is not graphical.");
-        return;
-    }
-
-    XMapWindow(display, xorgWindowId);
-
-    QWidget* containerWidget = new QWidget(this);
-    containerWidget->setGeometry(attr.x, attr.y, width, height + 30);
+    QWidget *containerWidget = new QWidget(this);
+    containerWidget->setGeometry(x11Window->geometry().x(), x11Window->geometry().y(), width, height + 30);
     containerWidget->setWindowTitle(windowName);
-    containerWidget->setAttribute(Qt::WA_DeleteOnClose);
 
-    XReparentWindow(display, xorgWindowId, containerWidget->winId(), 0, 30);
-    containerWidget->show();
+    QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
+    if (!windowWidget) {
+        appendLog("ERR: Failed to create window container.");
+        return;
+    }
 
-    TopBar* topBar = new TopBar(containerWidget);
+    QVBoxLayout *layout = new QVBoxLayout(containerWidget);
+    layout->setContentsMargins(0, 30, 0, 0);
+    layout->addWidget(windowWidget);
+
+    TopBar *topBar = new TopBar(x11Window, this, containerWidget);
     topBar->setGeometry(0, 0, width, 30);
     topBar->setTitle(windowName);
     topBar->show();
 
-    trackedWindows.insert(xorgWindowId, QWindow::fromWinId(xorgWindowId));
+    containerWidget->show();
+
     windowTopBars.insert(xorgWindowId, topBar);
     trackedContainers.insert(xorgWindowId, containerWidget);
 
-    appendLog(QString("INFO: Successfully created and embedded X11 window: %1").arg(xorgWindowId));
+    appendLog(QString("INFO: Successfully created container and TopBar for window: %1").arg(xorgWindowId));
 }
+
 
 
 void WindowManager::mouseReleaseEvent(QMouseEvent *event) {

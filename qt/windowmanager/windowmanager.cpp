@@ -92,10 +92,14 @@ QString WindowManager::getWindowName(Display* display, Window window) {
     return windowName;
 }
 
-bool WindowManager::isGraphicalWindow(Display* display, Window window) {
+bool isGraphicalWindow(Display* display, Window window, int& width, int& height) {
     XWindowAttributes attributes;
     if (XGetWindowAttributes(display, window, &attributes)) {
-        return attributes.map_state == IsViewable;
+        if (attributes.map_state == IsViewable) {
+            width = attributes.width;
+            height = attributes.height;
+            return true;
+        }
     }
     return false;
 }

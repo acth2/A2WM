@@ -361,6 +361,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
         appendLog("INFO: Window is not graphical.");
         return;
     }
+
     XMapWindow(display, xorgWindowId);
 
     QWidget* containerWidget = new QWidget(this);

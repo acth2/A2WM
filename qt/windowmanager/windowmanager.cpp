@@ -350,32 +350,28 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
         return;
     }
 
+    x11Window->setFlags(Qt::Window | Qt::FramelessWindowHint);
+    x11Window->setVisible(true);
+
     trackedWindows.insert(xorgWindowId, x11Window);
 
     QWidget *containerWidget = new QWidget(this);
-    if (!containerWidget) {
-        appendLog("ERR: Failed to create container widget.");
-        return;
-    }
-
+    containerWidget->setAttribute(Qt::WA_TranslucentBackground);
+    containerWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
+    
     int topbarHeight = 30;
-
     containerWidget->setGeometry(x11Window->geometry().x(), x11Window->geometry().y(), width, height + topbarHeight);
 
     QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
-    if (!windowWidget) {
-        appendLog("ERR: Failed to create window container.");
-        return;
-    }
+    windowWidget->setVisible(true);
 
     QVBoxLayout *layout = new QVBoxLayout(containerWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(windowWidget);
 
     TopBar *topBar = new TopBar(x11Window, this);
-    if (!topBar) {
-        appendLog("ERR: Failed to create TopBar.");
-        return;
-    }
+    topBar->setGeometry(containerWidget->geometry().x(), containerWidget->geometry().y() - topbarHeight, width, topbarHeight);
+    topBar->setTitle(windowName);
 
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {
@@ -388,10 +384,6 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
                   + QString::number(centerX) + ", " + QString::number(centerY));
     }
 
-    topBar->setGeometry(containerWidget->geometry().x(), containerWidget->geometry().y() - topbarHeight,
-                        containerWidget->geometry().width(), topbarHeight);
-
-    topBar->setTitle(windowName);
     topBar->show();
     containerWidget->show();
 
@@ -400,6 +392,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     windowTopBars.insert(xorgWindowId, topBar);
     trackedContainers.insert(xorgWindowId, containerWidget);
 
+    x11Window->requestActivate();
     topBar->updatePosition();
 }
 

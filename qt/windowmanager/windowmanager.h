@@ -91,6 +91,7 @@ private:
 
     QString getWindowName(Display* display, Window window);
     bool isGraphicalWindow(Display* display, Window window, int& width, int& height);
+    void handleWindowVisibilityChange(Window window, bool isVisible);
 };
 
 #endif // WINDOWMANAGER_H

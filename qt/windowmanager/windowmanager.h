@@ -90,7 +90,7 @@ private:
     QString nameExtractor;
 
     QString getWindowName(Display* display, Window window);
-    bool isGraphicalWindow(Display* display, Window window)
+    bool isGraphicalWindow(Display* display, Window window);
 };
 
 #endif // WINDOWMANAGER_H

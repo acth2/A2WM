@@ -159,7 +159,6 @@ void WindowManager::setSupportingWMCheck() {
 void WindowManager::checkForNewWindows() {
     xDisplay = XOpenDisplay(nullptr);
     if (xDisplay) {
-        loadWhitelist();
         listExistingWindows();
         processX11Events(); 
         cleanUpClosedWindows();

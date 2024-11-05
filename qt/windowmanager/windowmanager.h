@@ -58,6 +58,7 @@ private slots:
     void toggleConsole();
     void processX11Events();
     void cleanUpClosedWindows();
+    void loadWhitelist();
 
 private:
 

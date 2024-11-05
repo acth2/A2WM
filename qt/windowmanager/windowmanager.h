@@ -92,7 +92,7 @@ private:
 
     bool isGraphicalWindow(Window window);
     void handleWindowVisibilityChange(Window window, bool isVisible);
-    QString getWindowName(Display *xDisplay, Window window);
+    QString getWindowName(Window window);
     Display* display;
 };
 

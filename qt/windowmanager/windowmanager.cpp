@@ -22,6 +22,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 #include <QList>
+#include <QX11Info>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -343,57 +344,44 @@ void WindowManager::toggleConsole() {
 
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
-
-    QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
-    if (!x11Window) {
-        appendLog("ERR: Failed to create QWindow from X11 ID.");
+    Display* display = QX11Info::display();
+    if (!display) {
+        appendLog("ERR: Could not obtain X11 display.");
         return;
     }
 
-    x11Window->setFlags(Qt::Window | Qt::FramelessWindowHint);
-    x11Window->setVisible(true);
-
-    trackedWindows.insert(xorgWindowId, x11Window);
-
-    QWidget *containerWidget = new QWidget(this);
-    containerWidget->setAttribute(Qt::WA_TranslucentBackground);
-    containerWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
-    
-    int topbarHeight = 30;
-    containerWidget->setGeometry(x11Window->geometry().x(), x11Window->geometry().y(), width, height + topbarHeight);
-
-    QWidget *windowWidget = QWidget::createWindowContainer(x11Window, containerWidget);
-    windowWidget->setVisible(true);
-
-    QVBoxLayout *layout = new QVBoxLayout(containerWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(windowWidget);
-
-    TopBar *topBar = new TopBar(x11Window, this);
-    topBar->setGeometry(containerWidget->geometry().x(), containerWidget->geometry().y() - topbarHeight, width, topbarHeight);
-    topBar->setTitle(windowName);
-
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        QRect screenGeometry = screen->geometry();
-        int centerX = (screenGeometry.width() - width) / 2;
-        int centerY = (screenGeometry.height() - height) / 2;
-
-        containerWidget->move(centerX, centerY);
-        appendLog("INFO: Centered window ID " + QString::number(xorgWindowId) + " at " 
-                  + QString::number(centerX) + ", " + QString::number(centerY));
+    XWindowAttributes attr;
+    if (XGetWindowAttributes(display, xorgWindowId, &attr) == 0) {
+        appendLog("ERR: Failed to get window attributes.");
+        return;
     }
 
-    topBar->show();
+    if (attr.map_state != IsViewable || attr.width <= 1 || attr.height <= 1) {
+        appendLog("INFO: Window is not graphical.");
+        return;
+    }
+
+    XMapWindow(display, xorgWindowId);
+
+    QWidget* containerWidget = new QWidget(this);
+    containerWidget->setGeometry(attr.x, attr.y, width, height + 30);
+    containerWidget->setWindowTitle(windowName);
+    containerWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+    XReparentWindow(display, xorgWindowId, containerWidget->winId(), 0, 30);
+
     containerWidget->show();
 
-    appendLog(QString("INFO: Successfully created container and TopBar for window: %1").arg(xorgWindowId));
+    TopBar* topBar = new TopBar(containerWidget);
+    topBar->setGeometry(0, 0, width, 30);
+    topBar->setTitle(windowName);
+    topBar->show();
 
+    trackedWindows.insert(xorgWindowId, QWindow::fromWinId(xorgWindowId));
     windowTopBars.insert(xorgWindowId, topBar);
     trackedContainers.insert(xorgWindowId, containerWidget);
 
-    x11Window->requestActivate();
-    topBar->updatePosition();
+    appendLog(QString("INFO: Successfully created and embedded X11 window: %1").arg(xorgWindowId));
 }
 
 

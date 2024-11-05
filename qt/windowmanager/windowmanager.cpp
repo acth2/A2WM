@@ -74,84 +74,101 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-QString WindowManager::getWindowName(Window window) {
-    Atom nameAtom = XInternAtom(display, "WM_NAME", true);
-    Atom type;
-    int format;
-    unsigned long nItems, bytesAfter;
-    unsigned char *prop = nullptr;
-
-    if (XGetWindowProperty(display, window, nameAtom, 0, (~0L), False, AnyPropertyType,
-                           &type, &format, &nItems, &bytesAfter, &prop) == Success) {
-        QString windowName = QString::fromUtf8(reinterpret_cast<char*>(prop));
-        XFree(prop);
-        return windowName;
-    }
-    return QString();
-}
-
-bool WindowManager::isGraphicalWindow(Window window) {
-    XWindowAttributes attr;
-    if (XGetWindowAttributes(display, window, &attr) == 0) return false;
-
-    bool meetsCriteria = (attr.map_state == IsViewable && attr.width > 1 && attr.height > 1);
-
-    if (meetsCriteria && !trackedWindowIds.contains(window)) {
-        trackedWindowIds.insert(window);
-        return true;
-    }
-
-    return false;
-}
-
-
+QSet<WId> trackedWindows;
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
-    Window root = QX11Info::appRootWindow();
-    Window parent;
-    Window* children;
-    unsigned int nChildren;
-
-    if (XQueryTree(display, root, &root, &parent, &children, &nChildren) == 0) {
-        qWarning() << "Failed to query window tree.";
+    if (!xDisplay) {
+        appendLog("ERR: Failed to open X Display ..");
         return;
     }
 
-    QSet<WId> currentWindowIds;
+    Window windowRoot = DefaultRootWindow(xDisplay);
+    Window parent, *children = nullptr;
+    unsigned int nChildren;
 
-    for (unsigned int i = 0; i < nChildren; ++i) {
-        Window child = children[i];
-        QString windowName = getWindowName(child);
+    if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
+        for (unsigned int i = 0; i < nChildren; i++) {
+            Window child = children[i];
 
-        if (windowName == "A2WM") {
-            continue;
+            if (trackedWindows.contains(child)) {
+                appendLog("INFO: Window already tracked, skipping: " + QString::number(child));
+                continue;
+            }
+
+            XWindowAttributes attributes;
+            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
+                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
+                continue;
+            }
+
+            Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+            Atom hiddenState = XInternAtom(xDisplay, "_NET_WM_STATE_HIDDEN", False);
+            Atom actualType;
+            int format;
+            unsigned long nItems, bytesAfter;
+            unsigned char *prop = nullptr;
+
+            if (XGetWindowProperty(xDisplay, child, netWmState, 0, (~0L), False, XA_ATOM,
+                                   &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
+                bool isHidden = false;
+                Atom *atoms = reinterpret_cast<Atom*>(prop);
+                for (unsigned long j = 0; j < nItems; j++) {
+                    if (atoms[j] == hiddenState) {
+                        isHidden = true;
+                        break;
+                    }
+                }
+                XFree(prop);
+
+                if (isHidden) {
+                    appendLog("INFO: Skipping hidden/minimized window: " + QString::number(child));
+                    continue;
+                }
+            }
+
+            char *windowNameCStr = nullptr;
+            if (XFetchName(xDisplay, child, &windowNameCStr) > 0 && windowNameCStr) {
+                QString name(windowNameCStr);
+                XFree(windowNameCStr);
+
+                if (name.isEmpty() || name == "A2WM") {
+                    appendLog("INFO: Skipping No-Name or A2WM window: " + QString::number(child));
+                    continue;
+                }
+
+                Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
+                if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, (~0L), False, XA_ATOM,
+                                       &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
+                    Atom *types = reinterpret_cast<Atom*>(prop);
+                    bool isNormal = false;
+                    for (unsigned long j = 0; j < nItems; j++) {
+                        if (types[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False)) {
+                            isNormal = true;
+                            break;
+                        }
+                    }
+                    XFree(prop);
+
+                    if (!isNormal) {
+                        appendLog("INFO: Skipping non-normal window type: " + QString::number(child));
+                        continue;
+                    }
+                }
+
+                if (whitelist.contains(name)) {
+                    appendLog("INFO: Whitelisted window detected: " + QString::number(child));
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                }
+                
+                createAndTrackWindow(child, name, attributes.width, attributes.height);
+                trackedWindows.insert(child);
+            }
         }
-
-        if (windowName.isEmpty()) {
-            continue;
-        }
-
-        int width = 500;
-        int height = 500;
-
-        if (isGraphicalWindow(child)) {
-            currentWindowIds.insert(child);
-            createAndTrackWindow(child, windowName, width, height);
-        }
+        XFree(children);
+    } else {
+        appendLog("ERR: Failed to query window tree");
     }
-
-    for (auto it = trackedWindowIds.begin(); it != trackedWindowIds.end();) {
-        if (!currentWindowIds.contains(*it)) {
-            closeWindow(*it);
-            it = trackedWindowIds.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    if (children) XFree(children);
 }
-
 
 void WindowManager::setSupportingWMCheck() {
     xDisplay = XOpenDisplay(nullptr);

@@ -42,6 +42,7 @@ WindowManager::WindowManager(QWidget *parent)
     setSupportingWMCheck();
 
     QScreen *screen = QApplication::primaryScreen();
+    display = QX11Info::display();
     if (screen) {
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);

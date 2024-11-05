@@ -218,6 +218,26 @@ void WindowManager::trackWindowEvents(Window xorgWindowId) {
     }
 }
 
+void WindowManager::handleWindowVisibilityChange(Window window, bool isVisible) {
+    if (trackedWindows.contains(window)) {
+        if (isVisible) {
+            qDebug() << "Window reappeared:" << window;
+            if (!windowTopBars.contains(window)) {
+                int width = 0, height = 0;
+                XWindowAttributes attributes;
+                if (XGetWindowAttributes(xDisplay, window, &attributes)) {
+                    width = attributes.width;
+                    height = attributes.height;
+                }
+                QString windowName = getWindowName(xDisplay, window);
+                createAndTrackWindow(window, windowName, width, height);
+            }
+        } else {
+            qDebug() << "Window hidden:" << window;
+        }
+    }
+}
+
 void WindowManager::processX11Events() {
     XEvent event;
     if (xDisplay) {
@@ -314,11 +334,24 @@ void WindowManager::processX11Events() {
                 }
             }
         }
+        XEvent visibilityEvent;
+        while (XPending(xDisplay) > 0) {
+            XNextEvent(xDisplay, &visibilityEvent);
+            switch (visibilityEvent.type) {
+                case MapNotify:
+                    handleWindowVisibilityChange(visibilityEvent.xmap.window, true);
+                    break;
+                case UnmapNotify:
+                    handleWindowVisibilityChange(visibilityEvent.xunmap.window, false);
+                    break;
+                default:
+                    break;
+            }
+        }
     } else {
         appendLog("ERR: Failed to open X Display ..");
     }
 }
-
 
 void WindowManager::toggleConsole() {
     isConsoleVisible = !isConsoleVisible;

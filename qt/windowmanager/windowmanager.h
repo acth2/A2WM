@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QStringList>
+#include <QX11Info>
 #include "taskbar.h"
 #include "konami_code_handler.h"
 #include "userinteractright.h"
@@ -89,9 +90,9 @@ private:
     QMap<WId, QWidget*> trackedContainers;
     QString nameExtractor;
 
-    QString getWindowName(Display* display, Window window);
-    bool isGraphicalWindow(Display* display, Window window, int& width, int& height);
-    void handleWindowVisibilityChange(Window window, bool isVisible);
+    bool isGraphicalWindow(Window window);
+    QString getWindowName(Window window);
+    Display* display;
 };
 
 #endif // WINDOWMANAGER_H

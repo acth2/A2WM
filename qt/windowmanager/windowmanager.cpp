@@ -119,7 +119,7 @@ void WindowManager::listExistingWindows() {
         int width = 0;
         int height = 0;
 
-        if (isGraphicalWindow(child, width, height)) {
+        if (isGraphicalWindow(child)) {
             createAndTrackWindow(child, windowName, width, height);
         }
     }

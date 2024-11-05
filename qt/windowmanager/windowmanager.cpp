@@ -92,16 +92,42 @@ QString WindowManager::getWindowName(Display* display, Window window) {
     return windowName;
 }
 
+
 bool WindowManager::isGraphicalWindow(Display* display, Window window, int& width, int& height) {
     XWindowAttributes attributes;
-    if (XGetWindowAttributes(display, window, &attributes)) {
-        if (attributes.map_state == IsViewable) {
-            width = attributes.width;
-            height = attributes.height;
-            return true;
+    if (!XGetWindowAttributes(display, window, &attributes)) {
+        return false;
+    }
+
+    if (attributes.map_state != IsViewable || attributes.override_redirect) {
+        return false;
+    }
+
+    
+    if (attributes.width < 100 || attributes.height < 100) {
+        return false;
+    }
+
+    int screenWidth = DisplayWidth(display, DefaultScreen(display));
+    int screenHeight = DisplayHeight(display, DefaultScreen(display));
+    if (attributes.x >= screenWidth || attributes.y >= screenHeight ||
+        attributes.x + attributes.width <= 0 || attributes.y + attributes.height <= 0) {
+        return false;
+    }
+
+    XClassHint classHint;
+    if (XGetClassHint(display, window, &classHint)) {
+        QString className = QString::fromUtf8(classHint.res_class);
+        XFree(classHint.res_name);
+        XFree(classHint.res_class);
+
+        if (className.isEmpty()) {
+            return false;
         }
     }
-    return false;
+    width = attributes.width;
+    height = attributes.height;
+    return true;
 }
 
 Display *xDisplay;

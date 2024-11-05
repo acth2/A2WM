@@ -73,101 +73,58 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-QString WindowManager::getWindowName(Display* display, Window window) {
-    Atom nameAtom = XInternAtom(display, "WM_NAME", True);
-    if (nameAtom == None) return "";
-
-    Atom actualType;
-    int actualFormat;
-    unsigned long numItems, bytesAfter;
+QString WindowManager::getWindowName(Window window) {
+    Atom nameAtom = XInternAtom(display, "WM_NAME", true);
+    Atom type;
+    int format;
+    unsigned long nItems, bytesAfter;
     unsigned char *prop = nullptr;
 
-    int status = XGetWindowProperty(display, window, nameAtom, 0, 1024, False, AnyPropertyType,
-                                    &actualType, &actualFormat, &numItems, &bytesAfter, &prop);
-
-    QString windowName;
-    if (status == Success && prop) {
-        windowName = QString::fromUtf8(reinterpret_cast<char*>(prop));
+    if (XGetWindowProperty(display, window, nameAtom, 0, (~0L), False, AnyPropertyType,
+                           &type, &format, &nItems, &bytesAfter, &prop) == Success) {
+        QString windowName = QString::fromUtf8(reinterpret_cast<char*>(prop));
         XFree(prop);
+        return windowName;
     }
-    return windowName;
+    return QString();
 }
 
+bool WindowManager::isGraphicalWindow(Window window) {
+    XWindowAttributes attr;
+    if (XGetWindowAttributes(display, window, &attr) == 0) return false;
 
-bool WindowManager::isGraphicalWindow(Display* display, Window window, int& width, int& height) {
-    XWindowAttributes attributes;
-    if (!XGetWindowAttributes(display, window, &attributes)) {
-        return false;
-    }
-
-    if (attributes.map_state != IsViewable || attributes.override_redirect) {
-        return false;
-    }
-
-    
-    if (attributes.width < 100 || attributes.height < 100) {
-        return false;
-    }
-
-    int screenWidth = DisplayWidth(display, DefaultScreen(display));
-    int screenHeight = DisplayHeight(display, DefaultScreen(display));
-    if (attributes.x >= screenWidth || attributes.y >= screenHeight ||
-        attributes.x + attributes.width <= 0 || attributes.y + attributes.height <= 0) {
-        return false;
-    }
-
-    XClassHint classHint;
-    if (XGetClassHint(display, window, &classHint)) {
-        QString className = QString::fromUtf8(classHint.res_class);
-        XFree(classHint.res_name);
-        XFree(classHint.res_class);
-
-        if (className.isEmpty()) {
-            return false;
-        }
-    }
-    width = attributes.width;
-    height = attributes.height;
-    return true;
+    return (attr.map_state == IsViewable && attr.width > 1 && attr.height > 1);
 }
 
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
-    Display* display = XOpenDisplay(nullptr);
-    if (!display) {
-        qWarning() << "Cannot open display";
-        return;
-    }
-
-    Window rootWindow = DefaultRootWindow(display);
+    Window root = QX11Info::appRootWindow();
     Window parent;
-    Window *children;
-    unsigned int numChildren;
+    Window* children;
+    unsigned int nChildren;
 
-    if (XQueryTree(display, rootWindow, &rootWindow, &parent, &children, &numChildren) == 0) {
-        qWarning() << "Failed to query the window tree";
-        XCloseDisplay(display);
+    if (XQueryTree(display, root, &root, &parent, &children, &nChildren) == 0) {
+        qWarning() << "Failed to query window tree.";
         return;
     }
 
-    for (unsigned int i = 0; i < numChildren; i++) {
-        QString windowName = getWindowName(display, children[i]);
+    for (unsigned int i = 0; i < nChildren; ++i) {
+        Window child = children[i];
+        QString windowName = getWindowName(child);
 
         if (windowName == "A2WM") {
-            qDebug() << "Skipping window named 'A2WM'";
             continue;
         }
 
-        int width = 0, height = 0;
-        if (isGraphicalWindow(display, children[i], width, height)) {
-            createAndTrackWindow(children[i], windowName, width, height);
-        } else {
-            qDebug() << "Non-graphical or hidden window:" << windowName;
+        int width = 0;
+        int height = 0;
+
+        if (isGraphicalWindow(child, width, height)) {
+            createAndTrackWindow(child, windowName, width, height);
         }
     }
 
     if (children) XFree(children);
-    XCloseDisplay(display);
 }
 
 

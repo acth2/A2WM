@@ -344,6 +344,7 @@ void WindowManager::toggleConsole() {
 
 void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
+
     Display* display = QX11Info::display();
     if (!display) {
         appendLog("ERR: Could not obtain X11 display.");
@@ -360,7 +361,6 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
         appendLog("INFO: Window is not graphical.");
         return;
     }
-
     XMapWindow(display, xorgWindowId);
 
     QWidget* containerWidget = new QWidget(this);
@@ -369,7 +369,6 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     containerWidget->setAttribute(Qt::WA_DeleteOnClose);
 
     XReparentWindow(display, xorgWindowId, containerWidget->winId(), 0, 30);
-
     containerWidget->show();
 
     TopBar* topBar = new TopBar(containerWidget);

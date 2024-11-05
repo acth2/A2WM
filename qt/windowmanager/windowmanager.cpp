@@ -187,7 +187,7 @@ void WindowManager::handleWindowVisibilityChange(Window window, bool isVisible) 
                     width = attributes.width;
                     height = attributes.height;
                 }
-                QString windowName = getWindowName(xDisplay, window);
+                QString windowName = getWindowName(window);
                 createAndTrackWindow(window, windowName, width, height);
             }
         } else {

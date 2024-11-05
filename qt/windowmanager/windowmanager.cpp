@@ -43,7 +43,6 @@ WindowManager::WindowManager(QWidget *parent)
     setSupportingWMCheck();
 
     QScreen *screen = QApplication::primaryScreen();
-    display = QX11Info::display();
     if (screen) {
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);
@@ -180,7 +179,8 @@ void WindowManager::listExistingWindows() {
                 }
                 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
-                trackedWindows.insert(child);
+                WId convertedChild = static_cast<WId>(child);
+                trackedWindows.insert(convertedChild);
             }
         }
         XFree(children);

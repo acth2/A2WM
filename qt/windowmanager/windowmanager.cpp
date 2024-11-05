@@ -130,8 +130,8 @@ void WindowManager::listExistingWindows() {
             continue;
         }
 
-        int width = 0;
-        int height = 0;
+        int width = 500;
+        int height = 500;
 
         if (isGraphicalWindow(child)) {
             currentWindowIds.insert(child);

@@ -70,7 +70,6 @@ private:
     UserInteractRight *userInteractRightWidget;
 
     void listExistingWindows();
-    QMap<WId, QWindow*> trackedWindows;
     QMap<QWindow*, TaskBar*> windowTaskbars;
     QTimer *windowCheckTimer;
     QTimer *resizeWindowCubesTimer;

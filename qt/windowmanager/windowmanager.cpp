@@ -91,9 +91,18 @@ QString WindowManager::getWindowName(Window window) {
 
 bool WindowManager::isGraphicalWindow(Window window) {
     XWindowAttributes attr;
-    
-    return (attr.map_state == IsViewable && attr.width > 1 && attr.height > 1);
+    if (XGetWindowAttributes(display, window, &attr) == 0) return false;
+
+    bool meetsCriteria = (attr.map_state == IsViewable && attr.width > 1 && attr.height > 1);
+
+    if (meetsCriteria && !trackedWindowIds.contains(window)) {
+        trackedWindowIds.insert(window);
+        return true;
+    }
+
+    return false;
 }
+
 
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
@@ -107,6 +116,8 @@ void WindowManager::listExistingWindows() {
         return;
     }
 
+    QSet<WId> currentWindowIds;
+
     for (unsigned int i = 0; i < nChildren; ++i) {
         Window child = children[i];
         QString windowName = getWindowName(child);
@@ -115,15 +126,21 @@ void WindowManager::listExistingWindows() {
             continue;
         }
 
-        if(windowName.isEmpty()) {
-            continue;
-        }
-
         int width = 0;
         int height = 0;
 
         if (isGraphicalWindow(child)) {
+            currentWindowIds.insert(child);
             createAndTrackWindow(child, windowName, width, height);
+        }
+    }
+
+    for (auto it = trackedWindowIds.begin(); it != trackedWindowIds.end();) {
+        if (!currentWindowIds.contains(*it)) {
+            closeWindow(*it);
+            it = trackedWindowIds.erase(it);
+        } else {
+            ++it;
         }
     }
 

@@ -94,6 +94,7 @@ private:
     void handleWindowVisibilityChange(Window window, bool isVisible);
     QString getWindowName(Window window);
     Display* display;
+    QSet<WId> trackedWindowIds;
 };
 
 #endif // WINDOWMANAGER_H

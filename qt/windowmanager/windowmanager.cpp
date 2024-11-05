@@ -126,6 +126,10 @@ void WindowManager::listExistingWindows() {
             continue;
         }
 
+        if (windowName.isEmpty()) {
+            continue;
+        }
+
         int width = 0;
         int height = 0;
 

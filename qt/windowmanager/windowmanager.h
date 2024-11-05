@@ -90,7 +90,8 @@ private:
     QMap<WId, QWidget*> trackedContainers;
     QString nameExtractor;
 
-    bool isGraphicalWindow(Window window);
+    bool isGraphicalWindow(Display* display, Window window, int& width, int& height);
+    void handleWindowVisibilityChange(Window window, bool isVisible);
     QString getWindowName(Window window);
     Display* display;
 };

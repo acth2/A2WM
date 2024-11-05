@@ -6,7 +6,7 @@ CONFIG += release
 CONFIG += no_accessibility
 CONFIG += no_pro
 CONFIG += c++17
-QT += core gui widgets
+QT += core gui widgets x11extras
 
 LIBS += -lX11
 SOURCES += main.cpp \

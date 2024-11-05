@@ -72,23 +72,26 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
-QSet<QString> whitelist;
-void WindowManager::loadWhitelist() {
-    QFile file("/usr/cydra/settings/whitelist");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        appendLog("ERR: Failed to open whitelist file.");
-        return;
-    }
+QString getWindowName(Display* display, Window window) {
+    Atom nameAtom = XInternAtom(display, "WM_NAME", True);
+    if (nameAtom == None) return "";
 
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine().trimmed();
-        if (!line.isEmpty()) {
-            whitelist.insert(line);
-        }
+    Atom actualType;
+    int actualFormat;
+    unsigned long numItems, bytesAfter;
+    unsigned char *prop = nullptr;
+
+    int status = XGetWindowProperty(display, window, nameAtom, 0, 1024, False, AnyPropertyType,
+                                    &actualType, &actualFormat, &numItems, &bytesAfter, &prop);
+
+    QString windowName;
+    if (status == Success && prop) {
+        windowName = QString::fromUtf8(reinterpret_cast<char*>(prop));
+        XFree(prop);
     }
-    file.close();
+    return windowName;
 }
+
 
 QSet<WId> trackedWindows;
 Display *xDisplay;

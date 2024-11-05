@@ -89,8 +89,7 @@ private:
     QMap<WId, QWidget*> trackedContainers;
     QString nameExtractor;
 
-    QMap<QString, QSize> existingWindows;
-    void loadWhitelist();
+    QString getWindowName(Display* display, Window window);
 };
 
 #endif // WINDOWMANAGER_H

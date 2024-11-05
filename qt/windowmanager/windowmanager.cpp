@@ -74,6 +74,24 @@ WindowManager::WindowManager(QWidget *parent)
     showFullScreen();
 }
 
+QSet<QString> whitelist;
+void WindowManager::loadWhitelist() {
+    QFile file("/usr/cydra/settings/whitelist");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        appendLog("ERR: Failed to open whitelist file.");
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (!line.isEmpty()) {
+            whitelist.insert(line);
+        }
+    }
+    file.close();
+}
+
 QSet<WId> trackedWindows;
 Display *xDisplay;
 void WindowManager::listExistingWindows() {
@@ -158,6 +176,7 @@ void WindowManager::listExistingWindows() {
                 if (whitelist.contains(name)) {
                     appendLog("INFO: Whitelisted window detected: " + QString::number(child));
                     createAndTrackWindow(child, name, attributes.width, attributes.height);
+                    continue;
                 }
                 
                 createAndTrackWindow(child, name, attributes.width, attributes.height);
@@ -191,6 +210,7 @@ void WindowManager::setSupportingWMCheck() {
 void WindowManager::checkForNewWindows() {
     xDisplay = XOpenDisplay(nullptr);
     if (xDisplay) {
+        loadWhitelist();
         listExistingWindows();
         processX11Events(); 
         cleanUpClosedWindows();
@@ -215,26 +235,6 @@ void WindowManager::trackWindowEvents(Window xorgWindowId) {
         XSelectInput(xDisplay, xorgWindowId, StructureNotifyMask);
     } else {
         appendLog("ERR: Failed to open X Display ..");
-    }
-}
-
-void WindowManager::handleWindowVisibilityChange(Window window, bool isVisible) {
-    if (trackedWindows.contains(window)) {
-        if (isVisible) {
-            qDebug() << "Window reappeared:" << window;
-            if (!windowTopBars.contains(window)) {
-                int width = 0, height = 0;
-                XWindowAttributes attributes;
-                if (XGetWindowAttributes(xDisplay, window, &attributes)) {
-                    width = attributes.width;
-                    height = attributes.height;
-                }
-                QString windowName = getWindowName(window);
-                createAndTrackWindow(window, windowName, width, height);
-            }
-        } else {
-            qDebug() << "Window hidden:" << window;
-        }
     }
 }
 
@@ -332,20 +332,6 @@ void WindowManager::processX11Events() {
                         }
                     }
                 }
-            }
-        }
-        XEvent visibilityEvent;
-        while (XPending(xDisplay) > 0) {
-            XNextEvent(xDisplay, &visibilityEvent);
-            switch (visibilityEvent.type) {
-                case MapNotify:
-                    handleWindowVisibilityChange(visibilityEvent.xmap.window, true);
-                    break;
-                case UnmapNotify:
-                    handleWindowVisibilityChange(visibilityEvent.xunmap.window, false);
-                    break;
-                default:
-                    break;
             }
         }
     } else {

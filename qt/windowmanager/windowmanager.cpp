@@ -138,6 +138,7 @@ void WindowManager::listExistingWindows() {
         if (windowName.find("Qt Selection") != std::string::npos) {
             continue;
         }
+        
 
         XWindowAttributes attrs;
         if (XGetWindowAttributes(display, child, &attrs)) {

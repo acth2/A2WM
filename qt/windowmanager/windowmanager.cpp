@@ -138,6 +138,16 @@ void WindowManager::listExistingWindows() {
         if (windowName.find("Qt Selection") != std::string::npos) {
             continue;
         }
+
+        if (windowName.find("Configure") != std::string::npos) {
+            XWindowAttributes attrs2;
+            if (XGetWindowAttributes(display, child, &attrs2)) {
+                int width = attrs2.width;
+                int height = attrs2.height;
+
+                createAndTrackWindow(static_cast<WId>(child), QString::fromStdString(windowName), width, height);
+            }
+        }
         
 
         XWindowAttributes attrs;

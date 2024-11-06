@@ -48,6 +48,7 @@ private slots:
     void toggleMaximizeRestore();
     void minimizeWindow();
     void moveMinimizedWindow(bool moveRight);
+    void test();
 
 private:
     QLabel *titleLabel;
@@ -81,7 +82,6 @@ private:
 
     QString origTitle;
     QTimer *test;
-    void test();
 };
 
 #endif // TOPBAR_H

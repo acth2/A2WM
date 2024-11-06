@@ -73,13 +73,6 @@ private:
     QMap<WId, QWindow*> trackedWindows;
     QMap<QWindow*, TaskBar*> windowTaskbars;
     QTimer *windowCheckTimer;
-    QTimer *resizeWindowCubesTimer;
-    struct TrackingSquares {
-        QLabel *leftSquare;
-        QLabel *rightSquare;
-        QLabel *bottomSquare;
-    };
-    QMap<WId, TrackingSquares> windowSquares;
     bool resizeMode;
     QPoint lastMousePosition;
 

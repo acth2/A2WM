@@ -127,6 +127,10 @@ void WindowManager::listExistingWindows() {
             }
         }
 
+        if (windowName == "A2WM") {
+            continue;
+        }
+
         XWindowAttributes attrs;
         if (XGetWindowAttributes(display, child, &attrs)) {
             int width = attrs.width;

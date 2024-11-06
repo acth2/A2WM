@@ -92,7 +92,6 @@ void WindowManager::loadWhitelist() {
 }
 
 Display *xDisplay;
-using WId = unsigned long;
 void WindowManager::listExistingWindows() {
     Display* display = XOpenDisplay(nullptr);
     if (!display) {

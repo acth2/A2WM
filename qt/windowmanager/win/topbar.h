@@ -80,6 +80,7 @@ private:
     QSize originalTopBarSize;
 
     QString origTitle;
+    QTimer test;
 };
 
 #endif // TOPBAR_H

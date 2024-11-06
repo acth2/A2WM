@@ -173,10 +173,10 @@ void WindowManager::listExistingWindows() {
 
                 if (whitelist.contains(name)) {
                     appendLog("INFO: Whitelisted window detected: " + QString::number(child));
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                    createAndTrackWindow(child, name, attributes.width, attributes.height, true);
                 }
                 
-                createAndTrackWindow(child, name, attributes.width, attributes.height);
+                createAndTrackWindow(child, name, attributes.width, attributes.height, false);
             }
         }
         XFree(children);
@@ -342,7 +342,7 @@ void WindowManager::toggleConsole() {
     appendLog("Welcome into the DEBUG window (Where my nightmare comes true), Press ESC to exit it");
 }
 
-void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
+void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height, bool backupWindow) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
@@ -372,7 +372,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     QVBoxLayout *layout = new QVBoxLayout(containerWidget);
     layout->addWidget(windowWidget);
 
-    TopBar *topBar = new TopBar(x11Window, this);
+    TopBar *topBar = new TopBar(x11Window, this, backupWindow);
     if (!topBar) {
         appendLog("ERR: Failed to create TopBar.");
         return;

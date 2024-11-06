@@ -131,7 +131,7 @@ void WindowManager::listExistingWindows() {
             continue;
         }
 
-        if (windowName.isEmpty()) {
+        if (windowName.empty()) {
             continue;
         }
 

@@ -131,6 +131,10 @@ void WindowManager::listExistingWindows() {
             continue;
         }
 
+        if (windowName.isEmpty()) {
+            continue;
+        }
+
         XWindowAttributes attrs;
         if (XGetWindowAttributes(display, child, &attrs)) {
             int width = attrs.width;

@@ -206,6 +206,14 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
     
     setLayout(layout);
     updatePosition();
+
+    test = new QTimer(this);
+    connect(test, &QTimer::timeout, this, &TopBar::test);
+    test->start(50);
+}
+
+void TopBar::test() {
+    trackedWindow->setVisible(true);
 }
 
 void TopBar::minimizeWindow() {

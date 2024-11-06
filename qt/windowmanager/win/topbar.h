@@ -81,6 +81,7 @@ private:
 
     QString origTitle;
     QTimer test;
+    void test();
 };
 
 #endif // TOPBAR_H

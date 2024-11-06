@@ -213,7 +213,7 @@ TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
 }
 
 void TopBar::test2() {
-    trackedWindow->setVisible(true);
+    updatePosition();
 }
 
 void TopBar::minimizeWindow() {

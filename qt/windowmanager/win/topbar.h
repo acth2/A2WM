@@ -80,7 +80,7 @@ private:
     QSize originalTopBarSize;
 
     QString origTitle;
-    QTimer test;
+    QTimer *test;
     void test();
 };
 

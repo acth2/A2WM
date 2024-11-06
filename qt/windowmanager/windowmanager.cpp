@@ -146,6 +146,7 @@ void WindowManager::listExistingWindows() {
                 int height = attrs2.height;
 
                 createAndTrackWindow(static_cast<WId>(child), QString::fromStdString(windowName), width, height);
+                continue;
             }
         }
         

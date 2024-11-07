@@ -300,15 +300,13 @@ bool TopBar::eventFilter(QObject *obj, QEvent *event) {
 
 void TopBar::updatePosition() {
     if (trackedWindow) {
-        if (!backupWindow) {
-            if (isMinimized) {
-                return;
-            }
-            QRect windowGeometry = trackedWindow->geometry();
-            int topbarHeight = 36;
-            setGeometry(windowGeometry.x(), windowGeometry.y() - topbarHeight, windowGeometry.width(), topbarHeight);
-            show();
+        if (isMinimized) {
+            return;
         }
+        QRect windowGeometry = trackedWindow->geometry();
+        int topbarHeight = 36;
+        setGeometry(windowGeometry.x(), windowGeometry.y() - topbarHeight, windowGeometry.width(), topbarHeight);
+        show();
     }
 }
 

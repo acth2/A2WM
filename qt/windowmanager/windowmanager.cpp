@@ -118,14 +118,13 @@ void WindowManager::listExistingWindows() {
         int width = attributes.width;
         int height = attributes.height;
         bool trackingEligible = true;
-        bool backupWindow = false;
 
         if (windowName == "A2WM") {
             trackingEligible = false;
         }
 
         if (trackingEligible) {
-            createAndTrackWindow(newWindow, windowName, width, height, backupWindow);
+            createAndTrackWindow(newWindow, windowName, width, height);
         }
     }
     else if (event.type == MapRequest) {
@@ -292,7 +291,7 @@ void WindowManager::toggleConsole() {
     appendLog("Welcome into the DEBUG window (Where my nightmare comes true), Press ESC to exit it");
 }
 
-void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height, bool backupWindow) {
+void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, int width, int height) {
     appendLog(QString("INFO: Creating and tracking window: %1").arg(xorgWindowId));
 
     QWindow *x11Window = QWindow::fromWinId(xorgWindowId);
@@ -322,7 +321,7 @@ void WindowManager::createAndTrackWindow(WId xorgWindowId, QString windowName, i
     QVBoxLayout *layout = new QVBoxLayout(containerWidget);
     layout->addWidget(windowWidget);
 
-    TopBar *topBar = new TopBar(x11Window, this, backupWindow);
+    TopBar *topBar = new TopBar(x11Window, this);
     if (!topBar) {
         appendLog("ERR: Failed to create TopBar.");
         return;

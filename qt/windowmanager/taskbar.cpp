@@ -80,6 +80,10 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popup->setFixedSize(500, 500);
     popupCenter->setFixedSize(380, 375);
     popupCenter->setWindowTitle("A2WM");
+    popup->setWindowTitle("A2WM");
+    popupExtension->setWindowTitle("A2WM");
+    userLogo->setWindowTitle("A2WM");
+    username->setWindowTitle("A2WM");
     popupExtension->setFixedSize(125, 425);
     username->setFont(font);
     if (isDarkMode) {

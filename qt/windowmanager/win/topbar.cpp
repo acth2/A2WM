@@ -16,7 +16,7 @@
 #include <QFocusEvent>
 #include <QWidget>
 
-TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, bool backupWindow, QWidget *parent)
+TopBar::TopBar(QWindow *parentWindow, WindowManager *manager, QWidget *parent)
     : QWidget(parent), trackedWindow(parentWindow), isDragging(false) {
 
     if (QFile::exists("/usr/cydra/settings/darkmode")) {
@@ -303,23 +303,6 @@ void TopBar::updatePosition() {
         if (!backupWindow) {
             if (isMinimized) {
                 return;
-            }
-            QRect windowGeometry = trackedWindow->geometry();
-            int topbarHeight = 36;
-            setGeometry(windowGeometry.x(), windowGeometry.y() - topbarHeight, windowGeometry.width(), topbarHeight);
-            show();
-        } else {
-            QString titleToMatch = titleLabel->text();
-            QList<QScreen*> screens = QGuiApplication::screens();
-            for (QScreen* screen : screens) {
-                for (QWindow* window : screen->virtualSiblings()) {
-                    if (window->title() == titleToMatch) {
-                        trackedWindow = window;
-                        qDebug() << "Tracked window found with title:" << titleToMatch;
-                        break;
-                    }
-                }
-                if (trackedWindow) break;
             }
             QRect windowGeometry = trackedWindow->geometry();
             int topbarHeight = 36;

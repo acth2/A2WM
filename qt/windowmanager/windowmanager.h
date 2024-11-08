@@ -18,7 +18,6 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QStringList>
-#include <QX11Info>
 #include "taskbar.h"
 #include "konami_code_handler.h"
 #include "userinteractright.h"
@@ -58,7 +57,6 @@ private slots:
     void toggleConsole();
     void processX11Events();
     void cleanUpClosedWindows();
-    void loadWhitelist();
 
 private:
 
@@ -90,6 +88,9 @@ private:
     QRect *windowGeometry;
     QMap<WId, QWidget*> trackedContainers;
     QString nameExtractor;
+
+    QMap<QString, QSize> existingWindows;
+    QList<QString> loadApplicationList(const QString &filePath);
 };
 
 #endif // WINDOWMANAGER_H

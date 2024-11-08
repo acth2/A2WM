@@ -28,7 +28,6 @@
 
 #undef KeyPress
 namespace fs = std::filesystem;
-Display *xDisplay = nullptr;
 
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
@@ -47,14 +46,6 @@ WindowManager::WindowManager(QWidget *parent)
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);
     }
-
-    xDisplay = XOpenDisplay(nullptr);
-    if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
-        return;
-    }
-    Window root = DefaultRootWindow(xDisplay);
-    XSelectInput(xDisplay, root, SubstructureNotifyMask | SubstructureRedirectMask);
 
     logLabel = new QLabel(this);
     logLabel->setStyleSheet("QLabel { color : white; background-color : rgba(0, 0, 0, 150); }");
@@ -75,63 +66,124 @@ WindowManager::WindowManager(QWidget *parent)
     userInteractRightWidget = nullptr;
         
     windowCheckTimer = new QTimer(this);
-    connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::processX11Events);
+    connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
     windowCheckTimer->start(50);
 
     showFullScreen();
 }
 
-QSet<QString> whitelist;
-void WindowManager::loadWhitelist() {
-    QFile file("/usr/cydra/settings/whitelist");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        appendLog("ERR: Failed to open whitelist file.");
+Display *xDisplay;
+void WindowManager::listExistingWindows() {
+    if (!xDisplay) {
+        appendLog("ERR: Failed to open X Display ..");
         return;
     }
+    
+    Window windowRoot = DefaultRootWindow(xDisplay);
+    Window parent, *children = nullptr;
+    unsigned int nChildren;
 
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine().trimmed();
-        if (!line.isEmpty()) {
-            whitelist.insert(line);
-        }
-    }
-    file.close();
-}
+    Window currentWindow;
+    int revert_to;
+    XGetInputFocus(xDisplay, &currentWindow, &revert_to);
+    
+    char *currentWindowNameChar = nullptr;
+    XFetchName(xDisplay, currentWindow, &currentWindowNameChar);
+    QString currentWindowName(currentWindowNameChar);
+    XFree(currentWindowNameChar);
 
-QSet<WId> trackedWindows;
-void WindowManager::listExistingWindows() {
-    while (XPending(xDisplay)) {
-        XEvent event;
-        XNextEvent(xDisplay, &event);
+    bool currentHasUpperCase = currentWindowName.contains(QRegExp("[A-Z]"));
 
-        if (event.type == CreateNotify) {
-            XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
-
-            Window newWindow = createEvent->window;
+    if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
+        for (unsigned int i = 0; i < nChildren; i++) {
+            Window child = children[i];
             XWindowAttributes attributes;
-            XGetWindowAttributes(xDisplay, newWindow, &attributes);
 
-            XTextProperty windowNameProperty;
-            QString windowName;
-            if (XGetWMName(xDisplay, newWindow, &windowNameProperty) && windowNameProperty.value) {
-                windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
-                XFree(windowNameProperty.value);
+            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
+                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
+                continue;
             }
 
-            int width = attributes.width;
-            int height = attributes.height;
+            char *windowName = nullptr;
+            if (XFetchName(xDisplay, child, &windowName) && windowName) {
+                QString name(windowName);
+                XFree(windowName);
 
-            bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM";
+                if (name.isEmpty()) {
+                    appendLog("INFO: Skipping No-Name window: " + QString::number(child));
+                    continue;
+                }
 
-            if (trackingEligible) {
-                createAndTrackWindow(newWindow, windowName, width, height);
+                if (name == "A2WM") {
+                    appendLog("INFO: Skipping A2WM windows: " + QString::number(child));
+                    continue;
+                }
+
+                if (name == "Krusader") {
+                    createAndTrackWindow(child, name, attributes.width, attributes.height);
+                    continue;
+                }
+
+                if (name.toLower() == name && existingWindows.contains(name.toUpper())) {
+                    appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
+                    continue;
+                }
+
+                QSize newSize(attributes.width, attributes.height);
+                
+                if (existingWindows.contains(name)) {
+                    if (existingWindows[name] != newSize) {
+                        appendLog("INFO: Skipping window with the same name but different size: " + name);
+                        continue;
+                    }
+                } else {
+                    existingWindows.insert(name, newSize);
+                    appendLog("Tracking new window: " + name + " with size: " + QString::number(newSize.width()) + "x" + QString::number(newSize.height()));
+                }
+
+                existingWindows.insert(name.toUpper(), QSize(0, 0));
+
+                if (trackedWindows.contains(child)) {
+                    appendLog("INFO: Window already tracked: " + QString::number(child));
+                    continue;
+                }
+
+                appendLog("INFO: Detected new window (WM_NAME): " + name + ", ID: " + QString::number(child));
+                
+                Atom windowTypeAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
+                Atom actualType;
+                int format;
+                unsigned long nItems, bytesAfter;
+                unsigned char *prop = nullptr;
+
+                if (XGetWindowProperty(xDisplay, child, windowTypeAtom, 0, 1024, False,
+                    AnyPropertyType, &actualType, &format, &nItems, &bytesAfter, &prop) == Success) {
+    
+                    bool isMenu = false;
+                    if (nItems > 0) {
+                        for (unsigned long j = 0; j < nItems; ++j) {
+                            Atom type = static_cast<Atom>(prop[j]);
+                            if (type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_MENU", False) ||
+                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False) ||
+                                type == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False)) {
+                                isMenu = true;
+                                appendLog("INFO: Detected menu window type: " + QString::number(child));
+                                break;
+                            }
+                        }
+                    }
+                    XFree(prop);
+
+                    if (isMenu) {
+                        appendLog("INFO: Skipping menu window: " + QString::number(child));
+                        continue;
+                    }
+                }
+
+                createAndTrackWindow(child, name, attributes.width, attributes.height);
             }
         }
-        else if (event.type == MapRequest) {
-            XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
-            XMapWindow(xDisplay, mapRequestEvent->window);
-        }
+        XFree(children);
     }
 }
 
@@ -154,9 +206,24 @@ void WindowManager::setSupportingWMCheck() {
 }
 
 void WindowManager::checkForNewWindows() {
-    loadWhitelist();
-    processX11Events();
-    cleanUpClosedWindows();
+    xDisplay = XOpenDisplay(nullptr);
+    if (xDisplay) {
+        listExistingWindows();
+        processX11Events(); 
+        cleanUpClosedWindows();
+        
+        Window activeWindow;
+        int revert;
+        XGetInputFocus(xDisplay, &activeWindow, &revert);
+
+        if (!trackedWindows.contains(activeWindow)) {
+            appendLog("INFO: Focusing back to Qt window");
+            this->activateWindow();
+        }
+        XCloseDisplay(xDisplay);
+    } else {
+        appendLog("ERR: Failed to open X Display ..");
+    }
 }
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
@@ -169,50 +236,106 @@ void WindowManager::trackWindowEvents(Window xorgWindowId) {
 }
 
 void WindowManager::processX11Events() {
-    if (!xDisplay) {
-        appendLog("ERR: X Display is not open.");
-        return;
-    }
+    XEvent event;
+    if (xDisplay) {
+        while (XPending(xDisplay)) {
+            XNextEvent(xDisplay, &event);
 
-    if (XPending(xDisplay) > 0) {
-        XEvent event;
-        XNextEvent(xDisplay, &event);
+            if (event.type == ConfigureNotify) {
+                XConfigureEvent xce = event.xconfigure;
 
-        switch (event.type) {
-            case CreateNotify: {
-                XCreateWindowEvent* createEvent = reinterpret_cast<XCreateWindowEvent*>(&event);
-                Window newWindow = createEvent->window;
+                if (trackedWindows.contains(xce.window)) {
+                    QWindow *window = trackedWindows.value(xce.window);
+                    QRect windowGeometry = window->geometry();
 
-                XTextProperty windowNameProperty;
-                QString windowName;
-                if (XGetWMName(xDisplay, newWindow, &windowNameProperty) && windowNameProperty.value) {
-                    windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
-                    XFree(windowNameProperty.value);
+                    appendLog(QString("INFO: Window resized/moved: (%1, %2), Size: (%3x%4)")
+                        .arg(xce.x).arg(xce.y)
+                        .arg(xce.width).arg(xce.height));
+
+                    updateTaskbarPosition(window);
                 }
-
-                if (!windowName.isEmpty() && !whitelist.contains(windowName) && windowName != "A2WM") {
-                    XWindowAttributes attributes;
-                    XGetWindowAttributes(xDisplay, newWindow, &attributes);
-                    createAndTrackWindow(newWindow, windowName, attributes.width, attributes.height);
-                }
-                break;
             }
-            case DestroyNotify: {
-                Window closedWindow = event.xdestroywindow.window;
-                if (trackedWindows.contains(closedWindow)) {
-                    trackedWindows.remove(closedWindow);
-                    appendLog("INFO: Cleaned up closed window.");
+
+            if (event.type == PropertyNotify) {
+                XPropertyEvent *propEvent = (XPropertyEvent *)&event;
+
+                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_STATE", False)) {
+                    if (trackedWindows.contains(propEvent->window)) {
+                        QWindow *window = trackedWindows.value(propEvent->window);
+                        QWidget *container = trackedContainers.value(propEvent->window);
+
+                        Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
+                        Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+
+                        Atom actualType;
+                        int actualFormat;
+                        unsigned long nItems, bytesAfter;
+                        unsigned char *prop = nullptr;
+
+                        int status = XGetWindowProperty(xDisplay, propEvent->window, netWmState, 0, (~0L), False, XA_ATOM, 
+                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
+
+                        if (status == Success && prop) {
+                            Atom *atoms = (Atom *)prop;
+                            bool isFullscreen = false;
+
+                            for (unsigned long i = 0; i < nItems; ++i) {
+                                if (atoms[i] == fullscreenAtom) {
+                                    isFullscreen = true;
+                                    break;
+                                }
+                            }
+
+                            XFree(prop);
+
+                            if (isFullscreen) {
+                                appendLog("INFO: Window is fullscreen, adjusting container size.");
+                                QScreen *screen = QApplication::primaryScreen();
+                                QRect screenGeometry = screen->geometry();
+                                container->setGeometry(screenGeometry);
+                            } else {
+                                appendLog("INFO: Window exited fullscreen, restoring container size.");
+                                container->setGeometry(window->geometry());
+                            }
+                        }
+                    }
                 }
-                break;
-            }
-            case MapRequest: {
-                XMapRequestEvent* mapRequestEvent = reinterpret_cast<XMapRequestEvent*>(&event);
-                XMapWindow(xDisplay, mapRequestEvent->window);
-                break;
+
+                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False)) {
+                    if (trackedWindows.contains(propEvent->window)) {
+                        QWindow *window = trackedWindows.value(propEvent->window);
+                        QWidget *container = trackedContainers.value(propEvent->window);
+
+                        Atom opacityAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False);
+                        unsigned long opacityValue = 0xffffffff;
+
+                        Atom actualType;
+                        int actualFormat;
+                        unsigned long nItems, bytesAfter;
+                        unsigned char *prop = nullptr;
+
+                        int status = XGetWindowProperty(xDisplay, propEvent->window, opacityAtom, 0, (~0L), False, XA_CARDINAL,
+                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
+
+                        if (status == Success && prop) {
+                            opacityValue = *(unsigned long *)prop;
+                            XFree(prop);
+
+                            qreal opacity = static_cast<qreal>(opacityValue) / 0xffffffff;
+
+                            appendLog(QString("INFO: Window opacity changed: %1").arg(opacity));
+
+                            container->setWindowOpacity(opacity);
+                        }
+                    }
+                }
             }
         }
+    } else {
+        appendLog("ERR: Failed to open X Display ..");
     }
 }
+
 
 void WindowManager::toggleConsole() {
     isConsoleVisible = !isConsoleVisible;
@@ -379,19 +502,28 @@ bool WindowManager::event(QEvent *qtEvent) {
     return QWidget::event(qtEvent);
 }
 
-
 void WindowManager::cleanUpClosedWindows() {
-    QSet<WId> windowsToRemove;
-    for (WId windowId : trackedWindows.keys()) {
+    QList<WId> windowsToRemove;
+    for (auto xorgWindowId : trackedWindows.keys()) {
         XWindowAttributes attributes;
-        if (XGetWindowAttributes(xDisplay, windowId, &attributes) == 0 || attributes.map_state == IsUnmapped) {
-            windowsToRemove.insert(windowId);
+        int status = XGetWindowAttributes(xDisplay, xorgWindowId, &attributes);
+
+        if (status == 0 || attributes.map_state == IsUnmapped) {
+            windowsToRemove.append(xorgWindowId);
         }
     }
 
-    for (WId windowId : windowsToRemove) {
-        delete trackedWindows.take(windowId);
-        appendLog("INFO: Cleaned up closed window.");
+    for (auto xorgWindowId : windowsToRemove) {
+        QWindow *window = trackedWindows.value(xorgWindowId);
+        trackedWindows.remove(xorgWindowId);
+
+        if (windowTopBars.contains(xorgWindowId)) {
+            TopBar *topBar = windowTopBars.value(xorgWindowId);
+            topBar->hide();
+            topBar->deleteLater();
+            windowTopBars.remove(xorgWindowId);
+        }
+
     }
 }
 

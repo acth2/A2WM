@@ -29,6 +29,7 @@
 #undef KeyPress
 namespace fs = std::filesystem;
 
+Display *xDisplay;
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
       isConsoleVisible(false),
@@ -46,6 +47,14 @@ WindowManager::WindowManager(QWidget *parent)
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);
     }
+
+    xDisplay = XOpenDisplay(nullptr);
+    if (!xDisplay) {
+        appendLog("ERR: Failed to open X Display ..");
+        return;
+    }
+    Window root = DefaultRootWindow(xDisplay);
+    XSelectInput(xDisplay, root, SubstructureNotifyMask | SubstructureRedirectMask);
 
     logLabel = new QLabel(this);
     logLabel->setStyleSheet("QLabel { color : white; background-color : rgba(0, 0, 0, 150); }");
@@ -89,100 +98,40 @@ void WindowManager::loadWhitelist() {
     }
     file.close();
 }
-
 QSet<WId> trackedWindows;
-Display *xDisplay;
 void WindowManager::listExistingWindows() {
-    if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
-        return;
-    }
+    while (XPending(xDisplay)) {
+        XEvent event;
+        XNextEvent(xDisplay, &event);
 
-    Window windowRoot = DefaultRootWindow(xDisplay);
-    Window parent, *children = nullptr;
-    unsigned int nChildren;
+        if (event.type == CreateNotify) {
+            XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
 
-    if (XQueryTree(xDisplay, windowRoot, &windowRoot, &parent, &children, &nChildren)) {
-        for (unsigned int i = 0; i < nChildren; i++) {
-            Window child = children[i];
-
-            if (trackedWindows.contains(child)) {
-                appendLog("INFO: Window already tracked, skipping: " + QString::number(child));
-                continue;
-            }
-
+            Window newWindow = createEvent->window;
             XWindowAttributes attributes;
-            if (XGetWindowAttributes(xDisplay, child, &attributes) == 0 || attributes.map_state != IsViewable) {
-                appendLog("INFO: Skipping non-viewable or unmapped window: " + QString::number(child));
-                continue;
+            XGetWindowAttributes(xDisplay, newWindow, &attributes);
+
+            XTextProperty windowNameProperty;
+            QString windowName;
+            if (XGetWMName(xDisplay, newWindow, &windowNameProperty) && windowNameProperty.value) {
+                windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
+                XFree(windowNameProperty.value);
             }
 
-            Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
-            Atom hiddenState = XInternAtom(xDisplay, "_NET_WM_STATE_HIDDEN", False);
-            Atom actualType;
-            int format;
-            unsigned long nItems, bytesAfter;
-            unsigned char *prop = nullptr;
+            int width = attributes.width;
+            int height = attributes.height;
 
-            if (XGetWindowProperty(xDisplay, child, netWmState, 0, (~0L), False, XA_ATOM,
-                                   &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
-                bool isHidden = false;
-                Atom *atoms = reinterpret_cast<Atom*>(prop);
-                for (unsigned long j = 0; j < nItems; j++) {
-                    if (atoms[j] == hiddenState) {
-                        isHidden = true;
-                        break;
-                    }
-                }
-                XFree(prop);
+            bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM";
 
-                if (isHidden) {
-                    appendLog("INFO: Skipping hidden/minimized window: " + QString::number(child));
-                    continue;
-                }
-            }
-
-            char *windowNameCStr = nullptr;
-            if (XFetchName(xDisplay, child, &windowNameCStr) > 0 && windowNameCStr) {
-                QString name(windowNameCStr);
-                XFree(windowNameCStr);
-
-                if (name.isEmpty() || name == "A2WM") {
-                    appendLog("INFO: Skipping No-Name or A2WM window: " + QString::number(child));
-                    continue;
-                }
-
-                Atom netWmWindowType = XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE", False);
-                if (XGetWindowProperty(xDisplay, child, netWmWindowType, 0, (~0L), False, XA_ATOM,
-                                       &actualType, &format, &nItems, &bytesAfter, &prop) == Success && prop) {
-                    Atom *types = reinterpret_cast<Atom*>(prop);
-                    bool isNormal = false;
-                    for (unsigned long j = 0; j < nItems; j++) {
-                        if (types[j] == XInternAtom(xDisplay, "_NET_WM_WINDOW_TYPE_NORMAL", False)) {
-                            isNormal = true;
-                            break;
-                        }
-                    }
-                    XFree(prop);
-
-                    if (!isNormal) {
-                        appendLog("INFO: Skipping non-normal window type: " + QString::number(child));
-                        continue;
-                    }
-                }
-
-                if (whitelist.contains(name)) {
-                    appendLog("INFO: Whitelisted window detected: " + QString::number(child));
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                }
-                
-                createAndTrackWindow(child, name, attributes.width, attributes.height);
-                trackedWindows.insert(child);
+            if (trackingEligible) {
+                createAndTrackWindow(newWindow, windowName, width, height);
+                trackedWindows.insert(newWindow);
             }
         }
-        XFree(children);
-    } else {
-        appendLog("ERR: Failed to query window tree");
+        else if (event.type == MapRequest) {
+            XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
+            XMapWindow(xDisplay, mapRequestEvent->window);
+        }
     }
 }
 
@@ -205,26 +154,25 @@ void WindowManager::setSupportingWMCheck() {
 }
 
 void WindowManager::checkForNewWindows() {
-    xDisplay = XOpenDisplay(nullptr);
-    if (xDisplay) {
-        loadWhitelist();
-        listExistingWindows();
-        processX11Events(); 
-        cleanUpClosedWindows();
-        
-        Window activeWindow;
-        int revert;
-        XGetInputFocus(xDisplay, &activeWindow, &revert);
+    if (!xDisplay) {
+        appendLog("ERR: X Display is not open.");
+        return;
+    }
 
-        if (!trackedWindows.contains(activeWindow)) {
-            appendLog("INFO: Focusing back to Qt window");
-            this->activateWindow();
-        }
-        XCloseDisplay(xDisplay);
-    } else {
-        appendLog("ERR: Failed to open X Display ..");
+    loadWhitelist();
+    listExistingWindows();
+    processX11Events();
+    cleanUpClosedWindows();
+
+    Window activeWindow;
+    int revert;
+    XGetInputFocus(xDisplay, &activeWindow, &revert);
+    if (!trackedWindows.contains(activeWindow)) {
+        appendLog("INFO: Focusing back to Qt window");
+        this->activateWindow();
     }
 }
+
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
     xDisplay = XOpenDisplay(nullptr);
@@ -254,6 +202,12 @@ void WindowManager::processX11Events() {
 
                     updateTaskbarPosition(window);
                 }
+            }
+
+            if (event.type == DestroyNotify) {
+                Window closedWindow = event.xdestroywindow.window;
+                trackedWindows.remove(closedWindow);
+                appendLog("INFO: Window closed and removed from tracking.");
             }
 
             if (event.type == PropertyNotify) {
@@ -503,27 +457,17 @@ bool WindowManager::event(QEvent *qtEvent) {
 }
 
 void WindowManager::cleanUpClosedWindows() {
-    QList<WId> windowsToRemove;
-    for (auto xorgWindowId : trackedWindows.keys()) {
+    QSet<WId> windowsToRemove;
+    for (WId windowId : trackedWindows) {
         XWindowAttributes attributes;
-        int status = XGetWindowAttributes(xDisplay, xorgWindowId, &attributes);
-
-        if (status == 0 || attributes.map_state == IsUnmapped) {
-            windowsToRemove.append(xorgWindowId);
+        if (XGetWindowAttributes(xDisplay, windowId, &attributes) == 0 || attributes.map_state == IsUnmapped) {
+            windowsToRemove.insert(windowId);
         }
     }
 
-    for (auto xorgWindowId : windowsToRemove) {
-        QWindow *window = trackedWindows.value(xorgWindowId);
-        trackedWindows.remove(xorgWindowId);
-
-        if (windowTopBars.contains(xorgWindowId)) {
-            TopBar *topBar = windowTopBars.value(xorgWindowId);
-            topBar->hide();
-            topBar->deleteLater();
-            windowTopBars.remove(xorgWindowId);
-        }
-
+    for (WId windowId : windowsToRemove) {
+        trackedWindows.remove(windowId);
+        appendLog("INFO: Cleaned up closed window.");
     }
 }
 

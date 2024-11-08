@@ -77,7 +77,6 @@ private:
     QPoint lastMousePosition;
 
     void setupCloseButton(QWindow *window);
-    void setSupportingWMCheck();
 
 
     QRect *windowGeometry;

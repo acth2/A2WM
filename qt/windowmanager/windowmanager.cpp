@@ -29,6 +29,7 @@
 #undef KeyPress
 namespace fs = std::filesystem;
 
+Display *xDisplay;
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
       isConsoleVisible(false),
@@ -64,6 +65,14 @@ WindowManager::WindowManager(QWidget *parent)
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 
     userInteractRightWidget = nullptr;
+
+    xDisplay = XOpenDisplay(nullptr);
+    if (!xDisplay) {
+        appendLog("ERR: Failed to open X Display ..");
+        return;
+    }
+    Window root = DefaultRootWindow(xDisplay);
+    XSelectInput(xDisplay, root, SubstructureNotifyMask | SubstructureRedirectMask);
         
     windowCheckTimer = new QTimer(this);
     connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
@@ -91,89 +100,54 @@ void WindowManager::loadWhitelist() {
 }
 
 QSet<WId> trackedWindows;
-Display *xDisplay;
-void WindowManager::listExistingWindows() {
-    Display* display = XOpenDisplay(nullptr);
-    Window root = DefaultRootWindow(display);
-
-    XSelectInput(display, root, SubstructureNotifyMask | SubstructureRedirectMask);
-
-    XEvent event;
-    XNextEvent(display, &event);
-
-    if (event.type == CreateNotify) {
-        XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
-
-        Window newWindow = createEvent->window;
-        XWindowAttributes attributes;
-        XGetWindowAttributes(display, newWindow, &attributes);
-
-        XTextProperty windowNameProperty;
-        QString windowName;
-        if (XGetWMName(display, newWindow, &windowNameProperty) && windowNameProperty.value) {
-            windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
-            XFree(windowNameProperty.value);
-        }
-
-        int width = attributes.width;
-        int height = attributes.height;
-        bool trackingEligible = true;
-
-        if (windowName == "A2WM") {
-            trackingEligible = false;
-        }
-
-        if (trackingEligible) {
-            createAndTrackWindow(newWindow, windowName, width, height);
-        }
-    }
-    else if (event.type == MapRequest) {
-        XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
-        XMapWindow(display, mapRequestEvent->window);
-    }
-    XCloseDisplay(display);
-}
-
-void WindowManager::setSupportingWMCheck() {
-    xDisplay = XOpenDisplay(nullptr);
+void WindowManager::checkForNewWindows() {
     if (!xDisplay) {
-        appendLog("ERR: Failed to open X Display ..");
+        appendLog("ERR: X Display is not open.");
         return;
     }
 
-    Window supportingWindow = XCreateSimpleWindow(xDisplay, DefaultRootWindow(xDisplay), 0, 0, 1, 1, 0, 0, 0);
-    
-    Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
-    Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
-    XChangeProperty(xDisplay, DefaultRootWindow(xDisplay), netSupportingWMCheck, XA_WINDOW, 32, PropModeReplace, (unsigned char *)&supportingWindow, 1);
-    
-    XMapWindow(xDisplay, supportingWindow);
-    XFlush(xDisplay);
-    XCloseDisplay(xDisplay);
-}
+    while (XPending(xDisplay)) {
+        XEvent event;
+        XNextEvent(xDisplay, &event);
 
-void WindowManager::checkForNewWindows() {
-    xDisplay = XOpenDisplay(nullptr);
-    if (xDisplay) {
-        loadWhitelist();
-        listExistingWindows();
-        processX11Events(); 
-        cleanUpClosedWindows();
-        
-        Window activeWindow;
-        int revert;
-        XGetInputFocus(xDisplay, &activeWindow, &revert);
+        if (event.type == CreateNotify) {
+            XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
+            Window newWindow = createEvent->window;
 
-        if (!trackedWindows.contains(activeWindow)) {
-            appendLog("INFO: Focusing back to Qt window");
-            this->activateWindow();
+            XWindowAttributes attributes;
+            XGetWindowAttributes(xDisplay, newWindow, &attributes);
+
+            XTextProperty windowNameProperty;
+            QString windowName;
+            if (XGetWMName(xDisplay, newWindow, &windowNameProperty) && windowNameProperty.value) {
+                windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
+                XFree(windowNameProperty.value);
+            }
+
+            int width = attributes.width;
+            int height = attributes.height;
+
+            bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM";
+
+            if (trackingEligible) {
+                createAndTrackWindow(newWindow, windowName, width, height);
+                trackedWindows.insert(newWindow);
+            }
         }
-        XCloseDisplay(xDisplay);
-    } else {
-        appendLog("ERR: Failed to open X Display ..");
+        else if (event.type == MapRequest) {
+            XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
+            XMapWindow(xDisplay, mapRequestEvent->window);
+        }
+    }
+
+    Window activeWindow;
+    int revert;
+    XGetInputFocus(xDisplay, &activeWindow, &revert);
+    if (!trackedWindows.contains(activeWindow)) {
+        appendLog("INFO: Focusing back to Qt window");
+        this->activateWindow();
     }
 }
-
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
     xDisplay = XOpenDisplay(nullptr);
     if (xDisplay) {

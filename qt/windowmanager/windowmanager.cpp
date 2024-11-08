@@ -75,7 +75,7 @@ WindowManager::WindowManager(QWidget *parent)
     userInteractRightWidget = nullptr;
         
     windowCheckTimer = new QTimer(this);
-    connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
+    connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::processX11Events);
     windowCheckTimer->start(50);
 
     showFullScreen();

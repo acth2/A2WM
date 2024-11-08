@@ -457,7 +457,9 @@ bool WindowManager::event(QEvent *qtEvent) {
 
 void WindowManager::cleanUpClosedWindows() {
     QSet<WId> windowsToRemove;
-    for (WId windowId : trackedWindows) {
+    for (QWindow* window : trackedWindows) {
+        WId windowId = window->winId();
+
         XWindowAttributes attributes;
         if (XGetWindowAttributes(xDisplay, windowId, &attributes) == 0 || attributes.map_state == IsUnmapped) {
             windowsToRemove.insert(windowId);

@@ -210,7 +210,7 @@ void WindowManager::processX11Events() {
 
                 int width = attributes.width;
                 int height = attributes.height;
-                bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM";
+                bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM" && !windowName.isEmpty();
 
                 if (trackingEligible) {
                     createAndTrackWindow(newWindow, windowName, width, height);

@@ -154,25 +154,10 @@ void WindowManager::setSupportingWMCheck() {
 }
 
 void WindowManager::checkForNewWindows() {
-    if (!xDisplay) {
-        appendLog("ERR: X Display is not open.");
-        return;
-    }
-
     loadWhitelist();
-    listExistingWindows();
     processX11Events();
     cleanUpClosedWindows();
-
-    Window activeWindow;
-    int revert;
-    XGetInputFocus(xDisplay, &activeWindow, &revert);
-    if (!trackedWindows.contains(activeWindow)) {
-        appendLog("INFO: Focusing back to Qt window");
-        this->activateWindow();
-    }
 }
-
 
 void WindowManager::trackWindowEvents(Window xorgWindowId) {
     xDisplay = XOpenDisplay(nullptr);
@@ -189,17 +174,14 @@ void WindowManager::processX11Events() {
         return;
     }
 
-    while (XPending(xDisplay)) {
+    if (XPending(xDisplay) > 0) {
         XEvent event;
         XNextEvent(xDisplay, &event);
 
         switch (event.type) {
             case CreateNotify: {
-                XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
+                XCreateWindowEvent* createEvent = reinterpret_cast<XCreateWindowEvent*>(&event);
                 Window newWindow = createEvent->window;
-                
-                XWindowAttributes attributes;
-                XGetWindowAttributes(xDisplay, newWindow, &attributes);
 
                 XTextProperty windowNameProperty;
                 QString windowName;
@@ -208,27 +190,23 @@ void WindowManager::processX11Events() {
                     XFree(windowNameProperty.value);
                 }
 
-                int width = attributes.width;
-                int height = attributes.height;
-                bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM" && !windowName.isEmpty();
-
-                if (trackingEligible) {
-                    createAndTrackWindow(newWindow, windowName, width, height);
+                if (!windowName.isEmpty() && !whitelist.contains(windowName) && windowName != "A2WM") {
+                    XWindowAttributes attributes;
+                    XGetWindowAttributes(xDisplay, newWindow, &attributes);
+                    createAndTrackWindow(newWindow, windowName, attributes.width, attributes.height);
                 }
                 break;
             }
             case DestroyNotify: {
                 Window closedWindow = event.xdestroywindow.window;
-                auto it = std::find_if(trackedWindows.begin(), trackedWindows.end(),
-                                       [closedWindow](QWindow* w) { return w->winId() == closedWindow; });
-                if (it != trackedWindows.end()) {
-                    trackedWindows.erase(it);
+                if (trackedWindows.contains(closedWindow)) {
+                    trackedWindows.remove(closedWindow);
                     appendLog("INFO: Cleaned up closed window.");
                 }
                 break;
             }
             case MapRequest: {
-                XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
+                XMapRequestEvent* mapRequestEvent = reinterpret_cast<XMapRequestEvent*>(&event);
                 XMapWindow(xDisplay, mapRequestEvent->window);
                 break;
             }
@@ -401,11 +379,10 @@ bool WindowManager::event(QEvent *qtEvent) {
     return QWidget::event(qtEvent);
 }
 
+
 void WindowManager::cleanUpClosedWindows() {
     QSet<WId> windowsToRemove;
-    for (QWindow* window : trackedWindows) {
-        WId windowId = window->winId();
-
+    for (WId windowId : trackedWindows.keys()) {
         XWindowAttributes attributes;
         if (XGetWindowAttributes(xDisplay, windowId, &attributes) == 0 || attributes.map_state == IsUnmapped) {
             windowsToRemove.insert(windowId);
@@ -413,12 +390,8 @@ void WindowManager::cleanUpClosedWindows() {
     }
 
     for (WId windowId : windowsToRemove) {
-        auto it = std::find_if(trackedWindows.begin(), trackedWindows.end(),
-                               [windowId](QWindow* w) { return w->winId() == windowId; });
-        if (it != trackedWindows.end()) {
-            trackedWindows.erase(it);
-            appendLog("INFO: Cleaned up closed window.");
-        }
+        delete trackedWindows.take(windowId);
+        appendLog("INFO: Cleaned up closed window.");
     }
 }
 

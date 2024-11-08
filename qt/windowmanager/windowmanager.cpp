@@ -28,8 +28,8 @@
 
 #undef KeyPress
 namespace fs = std::filesystem;
+Display *xDisplay = nullptr;
 
-Display *xDisplay;
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
       isConsoleVisible(false),
@@ -98,6 +98,7 @@ void WindowManager::loadWhitelist() {
     }
     file.close();
 }
+
 QSet<WId> trackedWindows;
 void WindowManager::listExistingWindows() {
     while (XPending(xDisplay)) {
@@ -183,112 +184,58 @@ void WindowManager::trackWindowEvents(Window xorgWindowId) {
 }
 
 void WindowManager::processX11Events() {
-    XEvent event;
-    if (xDisplay) {
-        while (XPending(xDisplay)) {
-            XNextEvent(xDisplay, &event);
+    if (!xDisplay) {
+        appendLog("ERR: X Display is not open.");
+        return;
+    }
 
-            if (event.type == ConfigureNotify) {
-                XConfigureEvent xce = event.xconfigure;
+    if (XPending(xDisplay) > 0) {
+        XEvent event;
+        XNextEvent(xDisplay, &event);
 
-                if (trackedWindows.contains(xce.window)) {
-                    QWindow *window = trackedWindows.value(xce.window);
-                    QRect windowGeometry = window->geometry();
+        switch (event.type) {
+            case CreateNotify: {
+                XCreateWindowEvent* createEvent = (XCreateWindowEvent*)&event;
+                Window newWindow = createEvent->window;
+                
+                XWindowAttributes attributes;
+                XGetWindowAttributes(xDisplay, newWindow, &attributes);
 
-                    appendLog(QString("INFO: Window resized/moved: (%1, %2), Size: (%3x%4)")
-                        .arg(xce.x).arg(xce.y)
-                        .arg(xce.width).arg(xce.height));
-
-                    updateTaskbarPosition(window);
+                XTextProperty windowNameProperty;
+                QString windowName;
+                if (XGetWMName(xDisplay, newWindow, &windowNameProperty) && windowNameProperty.value) {
+                    windowName = QString::fromUtf8(reinterpret_cast<const char*>(windowNameProperty.value));
+                    XFree(windowNameProperty.value);
                 }
-            }
 
-            if (event.type == DestroyNotify) {
+                int width = attributes.width;
+                int height = attributes.height;
+                bool trackingEligible = !whitelist.contains(windowName) && windowName != "A2WM";
+
+                if (trackingEligible) {
+                    createAndTrackWindow(newWindow, windowName, width, height);
+                    trackedWindows.insert(newWindow);
+                }
+                break;
+            }
+            case DestroyNotify: {
                 Window closedWindow = event.xdestroywindow.window;
-                trackedWindows.remove(closedWindow);
-                appendLog("INFO: Window closed and removed from tracking.");
+                auto it = std::find_if(trackedWindows.begin(), trackedWindows.end(),
+                                       [closedWindow](QWindow* w) { return w->winId() == closedWindow; });
+                if (it != trackedWindows.end()) {
+                    trackedWindows.erase(it);
+                    appendLog("INFO: Cleaned up closed window.");
+                }
+                break;
             }
-
-            if (event.type == PropertyNotify) {
-                XPropertyEvent *propEvent = (XPropertyEvent *)&event;
-
-                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_STATE", False)) {
-                    if (trackedWindows.contains(propEvent->window)) {
-                        QWindow *window = trackedWindows.value(propEvent->window);
-                        QWidget *container = trackedContainers.value(propEvent->window);
-
-                        Atom fullscreenAtom = XInternAtom(xDisplay, "_NET_WM_STATE_FULLSCREEN", False);
-                        Atom netWmState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
-
-                        Atom actualType;
-                        int actualFormat;
-                        unsigned long nItems, bytesAfter;
-                        unsigned char *prop = nullptr;
-
-                        int status = XGetWindowProperty(xDisplay, propEvent->window, netWmState, 0, (~0L), False, XA_ATOM, 
-                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
-
-                        if (status == Success && prop) {
-                            Atom *atoms = (Atom *)prop;
-                            bool isFullscreen = false;
-
-                            for (unsigned long i = 0; i < nItems; ++i) {
-                                if (atoms[i] == fullscreenAtom) {
-                                    isFullscreen = true;
-                                    break;
-                                }
-                            }
-
-                            XFree(prop);
-
-                            if (isFullscreen) {
-                                appendLog("INFO: Window is fullscreen, adjusting container size.");
-                                QScreen *screen = QApplication::primaryScreen();
-                                QRect screenGeometry = screen->geometry();
-                                container->setGeometry(screenGeometry);
-                            } else {
-                                appendLog("INFO: Window exited fullscreen, restoring container size.");
-                                container->setGeometry(window->geometry());
-                            }
-                        }
-                    }
-                }
-
-                if (propEvent->atom == XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False)) {
-                    if (trackedWindows.contains(propEvent->window)) {
-                        QWindow *window = trackedWindows.value(propEvent->window);
-                        QWidget *container = trackedContainers.value(propEvent->window);
-
-                        Atom opacityAtom = XInternAtom(xDisplay, "_NET_WM_WINDOW_OPACITY", False);
-                        unsigned long opacityValue = 0xffffffff;
-
-                        Atom actualType;
-                        int actualFormat;
-                        unsigned long nItems, bytesAfter;
-                        unsigned char *prop = nullptr;
-
-                        int status = XGetWindowProperty(xDisplay, propEvent->window, opacityAtom, 0, (~0L), False, XA_CARDINAL,
-                                                        &actualType, &actualFormat, &nItems, &bytesAfter, &prop);
-
-                        if (status == Success && prop) {
-                            opacityValue = *(unsigned long *)prop;
-                            XFree(prop);
-
-                            qreal opacity = static_cast<qreal>(opacityValue) / 0xffffffff;
-
-                            appendLog(QString("INFO: Window opacity changed: %1").arg(opacity));
-
-                            container->setWindowOpacity(opacity);
-                        }
-                    }
-                }
+            case MapRequest: {
+                XMapRequestEvent* mapRequestEvent = (XMapRequestEvent*)&event;
+                XMapWindow(xDisplay, mapRequestEvent->window);
+                break;
             }
         }
-    } else {
-        appendLog("ERR: Failed to open X Display ..");
     }
 }
-
 
 void WindowManager::toggleConsole() {
     isConsoleVisible = !isConsoleVisible;
@@ -467,10 +414,15 @@ void WindowManager::cleanUpClosedWindows() {
     }
 
     for (WId windowId : windowsToRemove) {
-        trackedWindows.remove(windowId);
-        appendLog("INFO: Cleaned up closed window.");
+        auto it = std::find_if(trackedWindows.begin(), trackedWindows.end(),
+                               [windowId](QWindow* w) { return w->winId() == windowId; });
+        if (it != trackedWindows.end()) {
+            trackedWindows.erase(it);
+            appendLog("INFO: Cleaned up closed window.");
+        }
     }
 }
+
 
 void WindowManager::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape && logLabel->isVisible()) {

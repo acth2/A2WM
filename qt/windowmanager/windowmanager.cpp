@@ -125,7 +125,6 @@ void WindowManager::listExistingWindows() {
 
             if (trackingEligible) {
                 createAndTrackWindow(newWindow, windowName, width, height);
-                trackedWindows.insert(newWindow);
             }
         }
         else if (event.type == MapRequest) {

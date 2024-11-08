@@ -214,7 +214,6 @@ void WindowManager::processX11Events() {
 
                 if (trackingEligible) {
                     createAndTrackWindow(newWindow, windowName, width, height);
-                    trackedWindows.insert(newWindow);
                 }
                 break;
             }

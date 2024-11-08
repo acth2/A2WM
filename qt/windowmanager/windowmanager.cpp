@@ -189,7 +189,7 @@ void WindowManager::processX11Events() {
         return;
     }
 
-    if (XPending(xDisplay) > 0) {
+    while (XPending(xDisplay)) {
         XEvent event;
         XNextEvent(xDisplay, &event);
 
@@ -421,7 +421,6 @@ void WindowManager::cleanUpClosedWindows() {
         }
     }
 }
-
 
 void WindowManager::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape && logLabel->isVisible()) {

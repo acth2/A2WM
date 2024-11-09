@@ -36,7 +36,7 @@ WindowManager::WindowManager(QWidget *parent)
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
     setAttribute(Qt::WA_TranslucentBackground);
 
     setSupportingWMCheck();
@@ -64,11 +64,6 @@ WindowManager::WindowManager(QWidget *parent)
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
 
     userInteractRightWidget = nullptr;
-        
-    windowCheckTimer = new QTimer(this);
-    connect(windowCheckTimer, &QTimer::timeout, this, &WindowManager::checkForNewWindows);
-    windowCheckTimer->start(50);
-
     showFullScreen();
 }
 
@@ -85,6 +80,11 @@ void WindowManager::setSupportingWMCheck() {
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
     XChangeProperty(xDisplay, DefaultRootWindow(xDisplay), netSupportingWMCheck, XA_WINDOW, 32, PropModeReplace, (unsigned char *)&supportingWindow, 1);
+    Atom netWMState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
+    Atom below = XInternAtom(xDisplay, "_NET_WM_STATE_BELOW", False);
+
+    XChangeProperty(xDisplay, supportingWindow, netWMState, XA_ATOM, 32,
+                    PropModeReplace, (unsigned char *)&below, 1);
     
     XMapWindow(xDisplay, supportingWindow);
     XFlush(xDisplay);

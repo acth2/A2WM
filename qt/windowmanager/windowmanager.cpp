@@ -143,7 +143,7 @@ void WindowManager::listExistingWindows() {
 
                         if (windowTopBars.contains(xorgWindowId)) {
                             TopBar *topBar = windowTopBars.value(xorgWindowId);
-                            topBar->move(0, 0);
+                            topBar->show();
                             updateTaskbarPosition(QWindow::fromWinId(xorgWindowId));
                         }
                     }
@@ -518,9 +518,7 @@ void WindowManager::cleanUpClosedWindows() {
 
         if (windowTopBars.contains(xorgWindowId)) {
             TopBar *topBar = windowTopBars.value(xorgWindowId);
-            //topBar->hide();
-            //topBar->deleteLater();
-            topBar->setGeometry(5000, 5000, topBar->width(), topBar->height());
+            topBar->hide();
         }
 
     }

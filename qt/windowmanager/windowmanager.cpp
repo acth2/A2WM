@@ -127,7 +127,26 @@ void WindowManager::listExistingWindows() {
                 existingWindows.insert(name.toUpper(), QSize(0, 0));
 
                 if (trackedWindows.contains(child)) {
-                    appendLog("INFO: Window already tracked: " + QString::number(child));
+                    QList<WId> windowsToRemove;
+                    for (auto xorgWindowId : trackedWindows.keys()) {
+                        XWindowAttributes attributes;
+                        int status = XGetWindowAttributes(xDisplay, xorgWindowId, &attributes);
+
+                        if (status == 0 || attributes.map_state == IsUnmapped) {
+                            windowsToRemove.append(xorgWindowId);
+                        }
+                    }
+                    
+                    for (auto xorgWindowId : windowsToRemove) {
+                        QWindow *window = trackedWindows.value(xorgWindowId);
+                        trackedWindows.remove(xorgWindowId);
+
+                        if (windowTopBars.contains(xorgWindowId)) {
+                            TopBar *topBar = windowTopBars.value(xorgWindowId);
+                            topBar->move(0, 0);
+                            updateTaskbarPosition(windowTopBars.value(xorgWindowId))
+                        }
+                    }
                     continue;
                 }
 

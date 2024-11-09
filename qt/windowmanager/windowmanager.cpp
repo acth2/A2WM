@@ -520,8 +520,7 @@ void WindowManager::cleanUpClosedWindows() {
             TopBar *topBar = windowTopBars.value(xorgWindowId);
             //topBar->hide();
             //topBar->deleteLater();
-            topBar->move(0, 5000);
-            windowTopBars.remove(xorgWindowId);
+            topBar->setGeometry(5000, 5000, topBar->width(), topBar->height());
         }
 
     }

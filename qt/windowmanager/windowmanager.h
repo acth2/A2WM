@@ -36,7 +36,6 @@ public:
     QMap<WId, TopBar*> windowTopBars;
     void closeWindow(WId xorgWindowId);
     void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
-    void createAndTrackWindow(WId xorgWindowId, QString windowName = "Unknown window", int width = 0, int height = 0);
 
 protected:
     bool event(QEvent *event) override;
@@ -47,16 +46,12 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
-    void updateTaskbarPosition(QWindow* window);
     void trackWindowEvents(Window xorgWindowId);
     void centerWindow(QWindow *window);
     void removeCloseButton(WId windowId);
 
 private slots:
-    void checkForNewWindows();
     void toggleConsole();
-    void processX11Events();
-    void cleanUpClosedWindows();
 
 private:
 

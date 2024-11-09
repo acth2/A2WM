@@ -119,26 +119,9 @@ void WindowManager::listExistingWindows() {
                     continue;
                 }
 
-                if (name == "Krusader") {
-                    createAndTrackWindow(child, name, attributes.width, attributes.height);
-                    continue;
-                }
-
                 if (name.toLower() == name && existingWindows.contains(name.toUpper())) {
                     appendLog("INFO: Skipping window with same name (case-sensitive): " + name);
                     continue;
-                }
-
-                QSize newSize(attributes.width, attributes.height);
-                
-                if (existingWindows.contains(name)) {
-                    if (existingWindows[name] != newSize) {
-                        appendLog("INFO: Skipping window with the same name but different size: " + name);
-                        continue;
-                    }
-                } else {
-                    existingWindows.insert(name, newSize);
-                    appendLog("Tracking new window: " + name + " with size: " + QString::number(newSize.width()) + "x" + QString::number(newSize.height()));
                 }
 
                 existingWindows.insert(name.toUpper(), QSize(0, 0));
@@ -174,13 +157,10 @@ void WindowManager::listExistingWindows() {
                     }
                     XFree(prop);
 
-                    if (isMenu) {
-                        appendLog("INFO: Skipping menu window: " + QString::number(child));
-                        continue;
+                    if (!isMenu) {
+                        createAndTrackWindow(child, name, attributes.width, attributes.height);
                     }
                 }
-
-                createAndTrackWindow(child, name, attributes.width, attributes.height);
             }
         }
         XFree(children);
@@ -519,8 +499,8 @@ void WindowManager::cleanUpClosedWindows() {
 
         if (windowTopBars.contains(xorgWindowId)) {
             TopBar *topBar = windowTopBars.value(xorgWindowId);
-            topBar->hide();
-            topBar->deleteLater();
+            //topBar->hide();
+            //topBar->deleteLater();
             windowTopBars.remove(xorgWindowId);
         }
 

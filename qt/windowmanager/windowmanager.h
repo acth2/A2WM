@@ -66,6 +66,7 @@ private:
 
     void setupCloseButton(QWindow *window);
     void setSupportingWMCheck();
+    bool resizeMode;
 
     QRect *windowGeometry;
 };

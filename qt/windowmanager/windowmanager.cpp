@@ -144,7 +144,7 @@ void WindowManager::listExistingWindows() {
                         if (windowTopBars.contains(xorgWindowId)) {
                             TopBar *topBar = windowTopBars.value(xorgWindowId);
                             topBar->move(0, 0);
-                            updateTaskbarPosition(windowTopBars.value(xorgWindowId).winId());
+                            updateTaskbarPosition(windowTopBars.value(xorgWindowId)->fromWinId(xorgWindowId));
                         }
                     }
                     continue;

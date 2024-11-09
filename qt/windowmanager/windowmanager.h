@@ -62,30 +62,12 @@ private:
     bool isConsoleVisible;
     UserInteractRight *userInteractRightWidget;
 
-    void listExistingWindows();
-    QMap<WId, QWindow*> trackedWindows;
-    QMap<QWindow*, TaskBar*> windowTaskbars;
-    QTimer *windowCheckTimer;
-    QTimer *resizeWindowCubesTimer;
-    struct TrackingSquares {
-        QLabel *leftSquare;
-        QLabel *rightSquare;
-        QLabel *bottomSquare;
-    };
-    QMap<WId, TrackingSquares> windowSquares;
-    bool resizeMode;
     QPoint lastMousePosition;
 
     void setupCloseButton(QWindow *window);
     void setSupportingWMCheck();
 
-
     QRect *windowGeometry;
-    QMap<WId, QWidget*> trackedContainers;
-    QString nameExtractor;
-
-    QMap<QString, QSize> existingWindows;
-    QList<QString> loadApplicationList(const QString &filePath);
 };
 
 #endif // WINDOWMANAGER_H

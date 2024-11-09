@@ -456,7 +456,7 @@ void TopBar::closeTrackedWindow() {
             }
         }
         trackedWindow->hide();
-        this->close();
+        //this->close();
     }
 }
 

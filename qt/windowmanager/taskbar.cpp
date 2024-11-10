@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QList>
+#include <QWindow>
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -135,7 +136,7 @@ void TaskBar::addWindowToTaskbar(QWindow *window) {
     if (!openWindows.contains(window)) {
         openWindows.append(window);
 
-        connect(window, &QObject::destroyed, this, [this, window]() {
+        connect(window, &QObject::destroyed, [this, window]() {
             openWindows.removeAll(window);
             updateTaskbarItems();
         });

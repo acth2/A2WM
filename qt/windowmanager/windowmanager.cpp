@@ -36,7 +36,7 @@ WindowManager::WindowManager(QWidget *parent)
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::WindowStaysOnBottomHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
     setSupportingWMCheck();
@@ -62,6 +62,20 @@ WindowManager::WindowManager(QWidget *parent)
 
     konamiCodeHandler = new KonamiCodeHandler(this);
     connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
+
+    QTimer *backgroundTimer = new QTimer(this);
+    connect(backgroundTimer, &QTimer::timeout, this, [this]() {
+        Display *display = XOpenDisplay(nullptr);
+        if (display) {
+            Window window = winId();
+            Atom netWMState = XInternAtom(display, "_NET_WM_STATE", False);
+            Atom below = XInternAtom(display, "_NET_WM_STATE_BELOW", False);
+            XChangeProperty(display, window, netWMState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&below, 1);
+            XFlush(display);
+            XCloseDisplay(display);
+        }
+    });
+    backgroundTimer->start(1000);
 
     userInteractRightWidget = nullptr;
     showFullScreen();

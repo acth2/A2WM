@@ -1,0 +1,14 @@
+<group>
+    <match>
+        <title>A2WM</title>
+    </match>
+    <rules>
+        <apply>
+            <option name="NoTitlebar">true</option>
+            <option name="NoBorder">true</option>
+            <option name="SkipTaskbar">true</option>
+            <option name="NoFocus">true</option>
+            <option name="NoRaise">true</option>
+        </apply>
+    </rules>
+</group>

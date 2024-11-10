@@ -22,6 +22,5 @@
 <h2>Dependencies:</h2>
 
 <p>Qt+5</p>
-<p>QTerminal (can still install the window manager)</p>
-<p>A2WMEdit (can still install the window manager)</p>
+<p>KWin</p>
 <p>Xorg / X11 (not wayland sry)</p>

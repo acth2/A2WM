@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QProcess>
+#include <QList>
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -27,6 +28,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
+QList<QWindow *> openWindows;
 TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_AlwaysShowToolTips, true);
     this->setWindowTitle("A2WM");
@@ -127,6 +129,36 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     adjustSizeToScreen();
     installEventFilter();
+}
+
+void TaskBar::addWindowToTaskbar(QWindow *window) {
+    if (!openWindows.contains(window)) {
+        openWindows.append(window);
+
+        connect(window, &QObject::destroyed, this, [this, window]() {
+            openWindows.removeAll(window);
+            updateTaskbarItems();
+        });
+
+        updateTaskbarItems();
+    }
+}
+
+void TaskBar::updateTaskbarItems() {
+    QLayoutItem *item;
+    while ((item = layout()->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+
+    for (QWindow *window : openWindows) {
+        QPushButton *windowButton = new QPushButton(window->title(), this);
+        connect(windowButton, &QPushButton::clicked, [=]() {
+            window->setVisibility(QWindow::Windowed);
+            window->requestActivate();
+        });
+        layout()->addWidget(windowButton);
+    }
 }
 
 void TaskBar::resizeEvent(QResizeEvent *event) {
@@ -492,6 +524,16 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
                     closePopup();
                     return true;
                 }
+            }
+        }
+    }
+
+    if (event->type() == QEvent::WindowStateChange) {
+        QWindow *window = qobject_cast<QWindow *>(object);
+        if (window) {
+            if (window->windowState() & Qt::WindowMinimized) {
+                addWindowToTaskbar(window);
+                return true;
             }
         }
     }

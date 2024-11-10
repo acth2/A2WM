@@ -36,7 +36,7 @@ WindowManager::WindowManager(QWidget *parent)
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
     setAttribute(Qt::WA_TranslucentBackground);
 
     setSupportingWMCheck();
@@ -85,7 +85,10 @@ void WindowManager::setSupportingWMCheck() {
 
     XChangeProperty(xDisplay, supportingWindow, netWMState, XA_ATOM, 32,
                     PropModeReplace, (unsigned char *)&below, 1);
-    
+
+    Atom netWMStateNf = XInternAtom(xDisplay, "_NET_WM_STATE_BELOW", False);
+    XChangeProperty(xDisplay, supportingWindow, netWMStateNf, XA_ATOM, 32, PropModeReplace, (unsigned char *)&below, 1);
+
     XMapWindow(xDisplay, supportingWindow);
     XFlush(xDisplay);
     XCloseDisplay(xDisplay);
@@ -133,6 +136,10 @@ void WindowManager::appendLog(const QString &message) {
 }
 
 bool WindowManager::event(QEvent *qtEvent) {
+    if (qtEvent->type() == QEvent::MouseButtonPress || qtEvent->type() == QEvent::MouseButtonRelease) {
+        return true;
+    }
+    
     if (qtEvent->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(qtEvent);
         konamiCodeHandler->handleKeyPress(keyEvent);

@@ -36,7 +36,7 @@ WindowManager::WindowManager(QWidget *parent)
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
     setSupportingWMCheck();

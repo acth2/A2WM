@@ -150,10 +150,6 @@ void WindowManager::appendLog(const QString &message) {
 }
 
 bool WindowManager::event(QEvent *qtEvent) {
-    if (qtEvent->type() == QEvent::MouseButtonPress || qtEvent->type() == QEvent::MouseButtonRelease) {
-        return true;
-    }
-    
     if (qtEvent->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(qtEvent);
         konamiCodeHandler->handleKeyPress(keyEvent);
@@ -165,12 +161,11 @@ bool WindowManager::event(QEvent *qtEvent) {
             }
             userInteractRightWidget->move(mouseEvent->globalPos());
             userInteractRightWidget->show();
-        } else if (mouseEvent->button() == Qt::LeftButton) {
-            if (!this->geometry().contains(mouseEvent->pos())) {
-                appendLog("INFO: Clicking outside Qt window, refocusing");
-                this->activateWindow();
-            }
         }
+    }
+
+    if (qtEvent->type() == QEvent::MouseButtonPress || qtEvent->type() == QEvent::MouseButtonRelease) {
+        return true;
     }
 
     return QWidget::event(qtEvent);

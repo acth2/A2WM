@@ -27,6 +27,7 @@
 #include <regex>
 #include <QRegularExpression>
 #include <QX11Info>
+#include <QWindowStateChangeEvent>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 

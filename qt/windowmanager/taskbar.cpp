@@ -26,6 +26,7 @@
 #include <string>
 #include <regex>
 #include <QRegularExpression>
+#include <QX11Info>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -52,6 +53,15 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     }
     startButton->setIconSize(QSize(32, 32));
     startButton->setStyleSheet("border: none;");
+
+    if (QX11Info::isPlatformX11()) {
+        Display* display = QX11Info::display();
+        Atom belowAtom = XInternAtom(display, "_NET_WM_STATE_BELOW", False);
+        Atom stateAtom = XInternAtom(display, "_NET_WM_STATE", False);
+
+        XChangeProperty(display, winId(), stateAtom, XA_ATOM, 32,
+                        PropModeReplace, reinterpret_cast<unsigned char*>(&belowAtom), 1);
+    }
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(startButton, 0, Qt::AlignLeft | Qt::AlignBottom);

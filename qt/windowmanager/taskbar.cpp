@@ -53,14 +53,19 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     }
     startButton->setIconSize(QSize(32, 32));
     startButton->setStyleSheet("border: none;");
-
+    
     if (QX11Info::isPlatformX11()) {
         Display* display = QX11Info::display();
+
         Atom belowAtom = XInternAtom(display, "_NET_WM_STATE_BELOW", False);
         Atom stateAtom = XInternAtom(display, "_NET_WM_STATE", False);
-
         XChangeProperty(display, winId(), stateAtom, XA_ATOM, 32,
                         PropModeReplace, reinterpret_cast<unsigned char*>(&belowAtom), 1);
+
+        Atom dockAtom = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", False);
+        Atom typeAtom = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+        XChangeProperty(display, winId(), typeAtom, XA_ATOM, 32,
+                        PropModeReplace, reinterpret_cast<unsigned char*>(&dockAtom), 1);
     }
 
     QHBoxLayout *layout = new QHBoxLayout(this);

@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=A2WM Taskbar implementation
+Comment=Make window maximisation not hide behind the A2WM Taskbar
+Type=Service
+X-KDE-ServiceTypes=KWin/Script

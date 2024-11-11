@@ -169,14 +169,15 @@ void TaskBar::updateTaskbarItems() {
 
     for (QWindow *window : openWindows) {
         QPushButton *windowButton = new QPushButton(window->title(), this);
+
         connect(windowButton, &QPushButton::clicked, [=]() {
-            window->setVisibility(QWindow::Windowed);
+            window->setWindowState(Qt::WindowNoState);
             window->requestActivate();
         });
+        
         layout()->addWidget(windowButton);
     }
 }
-
 void TaskBar::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     adjustSizeToScreen();
@@ -547,8 +548,16 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::WindowStateChange) {
         QWindow *window = qobject_cast<QWindow *>(object);
         if (window) {
-            if (window->windowState() & Qt::WindowMinimized) {
+            QWindowStateChangeEvent *stateEvent = static_cast<QWindowStateChangeEvent *>(event);
+            
+            if (stateEvent->oldState() != Qt::WindowMinimized &&
+                window->windowState() == Qt::WindowMinimized) {
                 addWindowToTaskbar(window);
+                updateTaskbarItems();
+                return true;
+            } else if (stateEvent->oldState() == Qt::WindowMinimized &&
+                       window->windowState() == Qt::WindowNoState) {
+                updateTaskbarItems();
                 return true;
             }
         }

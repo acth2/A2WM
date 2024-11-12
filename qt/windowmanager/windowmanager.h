@@ -6,7 +6,6 @@
 #include <fstream>
 #include <filesystem>
 #include <QtCore/qtextstream.h>
-#include "win/topbar.h"
 #include <QWidget>
 #include <QLabel>
 #include <QSet>
@@ -21,8 +20,6 @@
 #include "taskbar.h"
 #include "userinteractright.h"
 #include <X11/Xlib.h>
-
-class TopBar;
 
 class UserInteractRight;
 

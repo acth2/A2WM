@@ -11,14 +11,12 @@ QT += core gui widgets x11extras
 LIBS += -lX11
 SOURCES += main.cpp \
            windowmanager.cpp \
-           konami_code_handler.cpp \
            userinteractright.cpp \
            taskbar.cpp \
            win/topbar.cpp \
            win/MinimizedPosArray.cpp
            
 HEADERS += windowmanager.h \
-           konami_code_handler.h \
            userinteractright.h \
            taskbar.h \
            win/topbar.h \

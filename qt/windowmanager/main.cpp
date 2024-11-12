@@ -1,6 +1,5 @@
 #include "windowmanager.h"
 #include "taskbar.h"
-#include "utils/autoRefresh.h"
 #include <QApplication>
 #include <QScreen>
 #include <QFile>
@@ -28,6 +27,7 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(customLogOutput);
 
+    // Check if the window manager is booted with Xorg
     QString platform = QGuiApplication::platformName();
     if (!QX11Info::isPlatformX11()) {
         QMessageBox::critical(nullptr, "Error", "This window manager only works on X11/Xorg.\nPlease restart A2WM with X11\n\n[PRESS ENTER TO CONTINUE]");
@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     
     WindowManager manager;
     TaskBar taskBar;
-    
+
+    // Create the wallpaper
     QScreen *screen = QApplication::primaryScreen();
     if (screen) {
         QRect screenGeometry = screen->geometry();
@@ -45,7 +46,8 @@ int main(int argc, char *argv[]) {
 
     manager.setWindowTitle("A2WM");
     manager.showFullScreen();
-    
+
+    // Create the taskbar
     taskBar.show();
     return app.exec();
 }

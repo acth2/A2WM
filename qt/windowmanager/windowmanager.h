@@ -33,42 +33,21 @@ class WindowManager : public QWidget {
 public:
     explicit WindowManager(QWidget *parent = nullptr);
     void appendLog(const QString &message);
-    QMap<WId, TopBar*> windowTopBars;
-    void closeWindow(WId xorgWindowId);
-    void resizeTrackedWindow(WId xorgWindowId, int newWidth, int newHeight);
 
 protected:
     bool event(QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-    bool eventFilter(QObject *object, QEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
     void trackWindowEvents(Window xorgWindowId);
-    void centerWindow(QWindow *window);
-    void removeCloseButton(WId windowId);
-
-private slots:
-    void toggleConsole();
 
 private:
-
     QString backgroundImagePath;
-    QLabel *logLabel;
-    QSet<QString> loggedMessages;
-    KonamiCodeHandler *konamiCodeHandler;
-    bool isConsoleVisible;
     UserInteractRight *userInteractRightWidget;
 
     QPoint lastMousePosition;
-
-    void setupCloseButton(QWindow *window);
     void setSupportingWMCheck();
-    bool resizeMode;
 
-    QRect *windowGeometry;
 };
 
 #endif // WINDOWMANAGER_H

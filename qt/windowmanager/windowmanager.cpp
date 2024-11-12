@@ -48,7 +48,6 @@ WindowManager::WindowManager(QWidget *parent)
     }
     
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
     QWidget *desktopWidget = new QWidget();
     desktopWidget->setVisible(true);

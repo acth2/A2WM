@@ -132,14 +132,6 @@ bool WindowManager::event(QEvent *qtEvent) {
     return QWidget::event(qtEvent);
 }
 
-void WindowManager::keyPressEvent(QKeyEvent *event) {
-    if (event->key() == Qt::Key_Escape && logLabel->isVisible()) {
-        toggleConsole();
-    } else {
-        QWidget::keyPressEvent(event);
-    }
-}
-
 void WindowManager::closeEvent(QCloseEvent *event) {
     appendLog("Close attempt ignored");
     event->ignore();

@@ -114,7 +114,6 @@ void WindowManager::appendLog(const QString &message) {
 bool WindowManager::event(QEvent *qtEvent) {
     if (qtEvent->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(qtEvent);
-        konamiCodeHandler->handleKeyPress(keyEvent);
     } else if (qtEvent->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(qtEvent);
         if (mouseEvent->button() == Qt::RightButton) {

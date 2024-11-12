@@ -8,7 +8,7 @@ sudo make install
 
 Uninstallation:
 
-sudo rm -rf /usr/cydra              <-- All of yours settings
-sudo rm -f /usr/bin/a2wm            <-- The WindowManager
+sudo rm -rf /usr/cydra                                                <-- All of yours settings
+sudo rm -f /usr/bin/a2wm && sudo rm -f /usr/bin/start_a2wm            <-- The WindowManager
 
 /!\ STILL IN AN VERY EXPERIMENTAL VERSION /!\

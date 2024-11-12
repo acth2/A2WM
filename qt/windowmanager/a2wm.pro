@@ -13,13 +13,11 @@ SOURCES += main.cpp \
            windowmanager.cpp \
            userinteractright.cpp \
            taskbar.cpp \
-           win/topbar.cpp \
            win/MinimizedPosArray.cpp
            
 HEADERS += windowmanager.h \
            userinteractright.h \
            taskbar.h \
-           win/topbar.h \
            win/MinimizedPosArray.h \
            utils/ClickableLabel.h 
 

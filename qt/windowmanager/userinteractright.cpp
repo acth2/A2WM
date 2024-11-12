@@ -10,6 +10,7 @@
 #include <QScreen>
 #include <QWindow>
 
+// The constructor for the right interaction when clicking the wall paper
 UserInteractRight::UserInteractRight(QWidget *parent) 
     : QWidget(parent), isDarkMode(false) {
 
@@ -17,9 +18,7 @@ UserInteractRight::UserInteractRight(QWidget *parent)
     setAttribute(Qt::WA_TranslucentBackground);
 
     setupUI();
-
     setFixedSize(200, 250);
-
     setWindowTitle("A2WM");
 
     if (QFile::exists("/usr/cydra/settings/darkmode")) {
@@ -32,6 +31,7 @@ UserInteractRight::UserInteractRight(QWidget *parent)
 }
 
 void UserInteractRight::setupUI() {
+    // The files CPMB# needs to be updated by restarting
     button1 = new QPushButton(readFileContents("/usr/cydra/info/CPMB1").trimmed(), this);
     button2 = new QPushButton(readFileContents("/usr/cydra/info/CPMB2").trimmed(), this);
     button3 = new QPushButton(readFileContents("/usr/cydra/info/CPMB3").trimmed(), this);
@@ -119,6 +119,7 @@ void UserInteractRight::applyStyles() {
 }
 
 void UserInteractRight::mousePressEvent(QMouseEvent *event) {
+    // if re clicking an new userinteract right while another one is already active just put the popup in the middle of the cursor
     if (event->button() == Qt::RightButton) {
         QPoint cursorPos = event->globalPos();
         move(cursorPos.x() - width() / 2, cursorPos.y() - height() / 2);
@@ -129,6 +130,7 @@ void UserInteractRight::mousePressEvent(QMouseEvent *event) {
 }
 
 void UserInteractRight::mouseReleaseEvent(QMouseEvent *event) {
+    // close the popup if clicked somewhere than in himself
     if (event->button() == Qt::RightButton) {
         closeIfClickedOutside(event);
     }
@@ -136,6 +138,7 @@ void UserInteractRight::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void UserInteractRight::paintEvent(QPaintEvent *event) {
+    // paint the popup cube
     QPainter painter(this);
 
     painter.setPen(QPen(Qt::black, 2)); 
@@ -150,6 +153,7 @@ void UserInteractRight::paintEvent(QPaintEvent *event) {
 }
 
 void UserInteractRight::button1Clicked() {
+    // read the file CPBA1 and execute the command in it
     QProcess *xtermProcess = new QProcess(this);
 
     QString program = readFileContents("/usr/cydra/info/CPBA1").trimmed();
@@ -164,6 +168,7 @@ void UserInteractRight::button1Clicked() {
 }
 
 void UserInteractRight::button2Clicked() {
+    // read the file CPBA2 and execute the command in it
     QProcess *xtermProcess2 = new QProcess(this);
 
     QString program2 = readFileContents("/usr/cydra/info/CPBA2").trimmed();
@@ -178,6 +183,7 @@ void UserInteractRight::button2Clicked() {
 }
 
 void UserInteractRight::button3Clicked() {
+    // read the file CPBA3 and execute the command in it
     QProcess *xtermProcess2 = new QProcess(this);
 
     QString program2 = readFileContents("/usr/cydra/info/CPBA3").trimmed();

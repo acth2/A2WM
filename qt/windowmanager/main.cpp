@@ -13,7 +13,7 @@
 
 QFile logFile;
 
-void customLogOutput(QtMsgType type, const QString &msg) {
+void customLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QTextStream out(&logFile);
     out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ")
         << msg << Qt::endl;

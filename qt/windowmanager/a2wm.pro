@@ -26,3 +26,11 @@ DESTDIR = src
 INSTALLS += target
 target.path = /usr/bin
 target.files = $$DESTDIR/a2wm
+
+QMAKE_POST_LINK += mkdir -p /usr/cydra/info /usr/cydra/settings /usr/cydra/logs /usr/cydra/icons /usr/cydra/backgrounds; \
+                   touch /usr/cydra/logs/a2wm.log; \
+                   chmod 777 /usr/cydra/logs/a2wm.log; \
+                   cp -r win/cydra.png /usr/cydra; \
+                   cp -r win/cydradm.png /usr/cydra; \
+                   cp -r win/power.png /usr/cydra/icons; \
+                   cp -r win/usrLogo.png /usr/cydra/icons

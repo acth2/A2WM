@@ -35,7 +35,6 @@ public:
 
 protected:
     bool event(QEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void trackWindowEvents(Window xorgWindowId);

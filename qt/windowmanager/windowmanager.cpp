@@ -33,7 +33,6 @@ namespace fs = std::filesystem;
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
       userInteractRightWidget(nullptr),
-      resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::WindowStaysOnBottomHint);

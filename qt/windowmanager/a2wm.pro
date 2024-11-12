@@ -12,13 +12,11 @@ LIBS += -lX11
 SOURCES += main.cpp \
            windowmanager.cpp \
            userinteractright.cpp \
-           taskbar.cpp \
-           win/MinimizedPosArray.cpp
+           taskbar.cpp
            
 HEADERS += windowmanager.h \
            userinteractright.h \
            taskbar.h \
-           win/MinimizedPosArray.h \
            utils/ClickableLabel.h 
 
 DESTDIR = src

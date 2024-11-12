@@ -29,9 +29,9 @@
 #undef KeyPress
 namespace fs = std::filesystem;
 
+// Main window manager constructor
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
-      isConsoleVisible(false),
       userInteractRightWidget(nullptr),
       resizeMode(false),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
@@ -46,12 +46,7 @@ WindowManager::WindowManager(QWidget *parent)
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);
     }
-
-    logLabel = new QLabel(this);
-    logLabel->setStyleSheet("QLabel { color : white; background-color : rgba(0, 0, 0, 150); }");
-    logLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
-    logLabel->setVisible(false);
-
+    
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(logLabel);
     layout->setContentsMargins(10, 10, 10, 10);
@@ -60,9 +55,7 @@ WindowManager::WindowManager(QWidget *parent)
     layout->addWidget(desktopWidget);
     setLayout(layout);
 
-    konamiCodeHandler = new KonamiCodeHandler(this);
-    connect(konamiCodeHandler, &KonamiCodeHandler::konamiCodeEntered, this, &WindowManager::toggleConsole);
-
+    // Make sure the background is always behind all other windows
     QTimer *backgroundTimer = new QTimer(this);
     connect(backgroundTimer, &QTimer::timeout, this, [this]() {
         Display *display = XOpenDisplay(nullptr);
@@ -108,44 +101,14 @@ void WindowManager::setSupportingWMCheck() {
     XCloseDisplay(xDisplay);
 }
 
-void WindowManager::toggleConsole() {
-    isConsoleVisible = !isConsoleVisible;
-    logLabel->setVisible(isConsoleVisible);
-    appendLog("Welcome into the DEBUG window (Where my nightmare comes true), Press ESC to exit it");
-}
-
-void WindowManager::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton && resizeMode) {
-        resizeMode = false;
-    }
-    return QWidget::mouseReleaseEvent(event);
-}
-
-bool WindowManager::eventFilter(QObject *object, QEvent *event) {
-    return QWidget::eventFilter(object, event);
-}
-
-void WindowManager::mouseMoveEvent(QMouseEvent *event) {
-    QWidget::mouseMoveEvent(event);
-}
-
-void WindowManager::resizeEvent(QResizeEvent *event) {
-    QWidget::resizeEvent(event);
-}
-
 void WindowManager::appendLog(const QString &message) {
-    QFile logFile("/usr/cydra/logs/cwm.log");
+    //Function that write a message in the /usr/cydra/logs/a2wm.log file
+    QFile logFile("/usr/cydra/logs/a2wm.log");
     if (logFile.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&logFile);
         out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ") 
             << message << endl;
         logFile.close();
-    }
-
-    if (!loggedMessages.contains(message)) {
-        loggedMessages.insert(message);
-        QString currentText = logLabel->text();
-        logLabel->setText(currentText + "\n" + message);
     }
 }
 
@@ -164,6 +127,7 @@ bool WindowManager::event(QEvent *qtEvent) {
         }
     }
 
+    // Skip every other action to make the background non-interactive (expect the right click interaction)
     if (qtEvent->type() == QEvent::MouseButtonPress || qtEvent->type() == QEvent::MouseButtonRelease) {
         return true;
     }

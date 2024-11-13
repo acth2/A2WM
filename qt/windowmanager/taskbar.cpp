@@ -534,34 +534,38 @@ void TaskBar::installEventFilter() {
 }
 
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {
-    if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
-            if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
-                if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
-                    closePopup();
-                    return true;
-                }
-            }
-        }
-    }
-
     if (event->type() == QEvent::WindowStateChange) {
         QWindow *window = qobject_cast<QWindow *>(object);
         if (window) {
             QWindowStateChangeEvent *stateEvent = static_cast<QWindowStateChangeEvent *>(event);
-            
-            if (stateEvent->oldState() != Qt::WindowMinimized &&
-                window->windowState() == Qt::WindowMinimized) {
+
+            if (stateEvent->oldState() != Qt::WindowMinimized && window->windowState() == Qt::WindowMinimized) {
                 addWindowToTaskbar(window);
                 updateTaskbarItems();
                 return true;
-            } else if (stateEvent->oldState() == Qt::WindowMinimized &&
-                       window->windowState() == Qt::WindowNoState) {
+            } else if (stateEvent->oldState() == Qt::WindowMinimized && window->windowState() == Qt::WindowNoState) {
                 updateTaskbarItems();
                 return true;
             }
         }
     }
+
+    if (event->type() == QEvent::Hide) {
+        QWindow *window = qobject_cast<QWindow *>(object);
+        if (window && !openWindows.contains(window)) {
+            addWindowToTaskbar(window);
+            updateTaskbarItems();
+            return true;
+        }
+    }
+
+    if (event->type() == QEvent::Show) {
+        QWindow *window = qobject_cast<QWindow *>(object);
+        if (window && openWindows.contains(window)) {
+            updateTaskbarItems();
+            return true;
+        }
+    }
+
     return QWidget::eventFilter(object, event);
 }

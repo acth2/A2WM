@@ -9,8 +9,6 @@
 #include <QMessageBox>
 #include <QGuiApplication>
 #include <QX11Info>
-#include <QProcess>
-#include <QWidget>
 #include <cstdlib>
 
 QFile logFile;
@@ -47,15 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Starting kwin_x11
-    QProcess *kwinProcess = new QProcess(this);
-    QString kwin = "kwin_x11 --replace";
-    QStringList arguments2;
-
-    kwinProcess->start(kwin, arguments2);
-
-    connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
-        qDebug() << "Error occurred:" << error;
-    });
+    std::system("kwin_x11 --replace &");
     
     manager.setWindowTitle("A2WM");
     manager.showFullScreen();

@@ -10,6 +10,7 @@
 #include <QGuiApplication>
 #include <QX11Info>
 #include <QProcess>
+#include <QWidget>
 #include <cstdlib>
 
 QFile logFile;

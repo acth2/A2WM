@@ -43,9 +43,6 @@ int main(int argc, char *argv[]) {
         QRect screenGeometry = screen->geometry();
         manager.setGeometry(screenGeometry);
     }
-
-    // Starting kwin_x11
-    std::system("kwin_x11 --replace &");
     
     manager.setWindowTitle("A2WM");
     manager.showFullScreen();

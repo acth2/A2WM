@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QGuiApplication>
 #include <QX11Info>
+#include <QProcess>
 #include <cstdlib>
 
 QFile logFile;

@@ -148,44 +148,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     installEventFilter();
 }
 
-void TaskBar::addWindowToTaskbar(QWindow *window) {
-    if (window && !openWindows.contains(window)) {
-        qDebug() << "Adding window to taskbar: " << window->title();
-        openWindows.append(window);
-
-        connect(window, &QWindow::windowTitleChanged, [this, window]() {
-            updateTaskbarItems();
-        });
-
-        connect(window, &QObject::destroyed, [this, window]() {
-            openWindows.removeAll(window);
-            updateTaskbarItems();
-        });
-
-        updateTaskbarItems();
-    }
-}
-
-void TaskBar::updateTaskbarItems() {
-    QLayout *currentLayout = layout();
-    QLayoutItem *item;
-    while ((item = currentLayout->takeAt(1)) != nullptr) {
-        delete item->widget();
-        delete item;
-    }
-
-    for (QWindow *window : openWindows) {
-        QPushButton *windowButton = new QPushButton(window->title(), this);
-        connect(windowButton, &QPushButton::clicked, [=]() {
-            if (window->windowState() == Qt::WindowMinimized) {
-                window->setWindowState(Qt::WindowNoState);
-            }
-            window->requestActivate();
-        });
-        currentLayout->addWidget(windowButton);
-    }
-}
-
 void TaskBar::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     adjustSizeToScreen();
@@ -550,13 +512,6 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
                     return true;
                 }
             }
-        }
-    }
-
-    if (event->type() == QEvent::WindowStateChange) {
-        QWindow *window = qobject_cast<QWindow *>(obj);
-        if (window && window->windowState() == Qt::WindowMinimized) {
-            addWindowToTaskbar(window);
         }
     }
 

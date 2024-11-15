@@ -548,20 +548,14 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
             }
         }
     }
-
+    
     if (event->type() == QEvent::WindowStateChange) {
         QWindow *window = qobject_cast<QWindow *>(object);
         if (window) {
             QWindowStateChangeEvent *stateEvent = static_cast<QWindowStateChangeEvent *>(event);
             if (stateEvent->oldState() != Qt::WindowMinimized &&
                 window->windowState() == Qt::WindowMinimized) {
-                
                 addWindowToTaskbar(window);
-                updateTaskbarItems();
-                return true;
-            } else if (stateEvent->oldState() == Qt::WindowMinimized &&
-                       window->windowState() == Qt::WindowNoState) {
-                
                 updateTaskbarItems();
                 return true;
             }

@@ -80,6 +80,16 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFont font(fontFamilies.at(0));
     font.setPixelSize(25);
+    timeLabel = new QLabel(this);
+    timeLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    timeLabel->setStyleSheet("color: #fff; font-size: 16px; font-weight: bold;");
+
+    timeTimer = new QTimer(this);
+    connect(timeTimer, &QTimer::timeout, this, &TaskBar::updateTime);
+    timeTimer->start(1000);
+
+    layout->addWidget(timeLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    layout->setContentsMargins(5, 5, 5, 5);
 
     popup = new QLabel(nullptr);
     popupCenter = new QLabel(nullptr);
@@ -491,6 +501,12 @@ void TaskBar::showPowerMenu() {
 
         powerMenuVisible = true;
     }
+}
+
+void TaskBar::updateTime() {
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString timeString = currentDateTime.toString("yyyy-MM-dd HH:mm:ss");
+    timeLabel->setText(timeString);
 }
 
 void TaskBar::closePowerMenu() {

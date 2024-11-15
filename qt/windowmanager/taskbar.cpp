@@ -149,7 +149,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 }
 
 void TaskBar::addWindowToTaskbar(QWindow *window) {
-    if (!openWindows.contains(window)) {
+    if (window && !openWindows.contains(window)) {
+        qDebug() << "Adding window to taskbar: " << window->title();
         openWindows.append(window);
 
         connect(window, &QWindow::windowTitleChanged, [this, window]() {
@@ -164,6 +165,7 @@ void TaskBar::addWindowToTaskbar(QWindow *window) {
         updateTaskbarItems();
     }
 }
+
 
 void TaskBar::updateTaskbarItems() {
     QLayoutItem *item;
@@ -536,6 +538,7 @@ void TaskBar::closePowerMenu() {
 void TaskBar::installEventFilter() {
     qApp->installEventFilter(this);
 }
+
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
@@ -548,18 +551,21 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
             }
         }
     }
-    
+
     if (event->type() == QEvent::WindowStateChange) {
         QWindow *window = qobject_cast<QWindow *>(object);
         if (window) {
             QWindowStateChangeEvent *stateEvent = static_cast<QWindowStateChangeEvent *>(event);
             if (stateEvent->oldState() != Qt::WindowMinimized &&
                 window->windowState() == Qt::WindowMinimized) {
+                qDebug() << "Detected minimized window: " << window->title();
                 addWindowToTaskbar(window);
                 updateTaskbarItems();
                 return true;
             }
         }
     }
+
     return QWidget::eventFilter(object, event);
 }
+

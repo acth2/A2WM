@@ -52,7 +52,6 @@ private:
     void onLabelClicked(const QString &labelText);
     void onLabelClickedExec(const QString &execCommand);
 
-    QLabel *timeLabel;
     QTimer *timeTimer;
     QLabel *dateLabel;
     QWidget *timeDateContainer;

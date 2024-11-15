@@ -28,6 +28,7 @@
 #include <QRegularExpression>
 #include <QX11Info>
 #include <QWindowStateChangeEvent>
+#include <QDateTime>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
@@ -517,11 +518,6 @@ void TaskBar::closePowerMenu() {
 
 void TaskBar::installEventFilter() {
     qApp->installEventFilter(this);
-    if (QX11Info::isPlatformX11()) {
-        QTimer *windowCheckTimer = new QTimer(this);
-        connect(windowCheckTimer, &QTimer::timeout, this, &TaskBar::updateMinimizedWindows);
-        windowCheckTimer->start(1000);
-    }
 }
 
 bool TaskBar::eventFilter(QObject *object, QEvent *event) {

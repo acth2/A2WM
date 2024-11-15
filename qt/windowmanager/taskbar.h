@@ -11,6 +11,8 @@
 #include <QDialog>
 #include <QEvent>
 #include <cstdlib>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
 
 class TaskBar : public QWidget {
     Q_OBJECT

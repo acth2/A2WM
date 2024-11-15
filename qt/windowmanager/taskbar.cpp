@@ -78,6 +78,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     setLayout(layout);
 
+    timeLabel = new QLabel(this);
+    dateLabel = new QLabel(this);
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFont font(fontFamilies.at(0));

@@ -50,6 +50,10 @@ private:
 
     void onLabelClicked(const QString &labelText);
     void onLabelClickedExec(const QString &execCommand);
+
+    void updateMinimizedWindows();
+    void addMinimizedWindow();
+    void restoreMinimizedWindow();
 };
 
 #endif // TASKBAR_H

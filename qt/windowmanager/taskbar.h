@@ -50,9 +50,6 @@ private:
 
     void onLabelClicked(const QString &labelText);
     void onLabelClickedExec(const QString &execCommand);
-
-    void addWindowToTaskbar(QWindow *window);
-    void updateTaskbarItems();
 };
 
 #endif // TASKBAR_H

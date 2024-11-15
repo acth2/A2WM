@@ -84,8 +84,6 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     QFont font(fontFamilies.at(0));
     font.setPixelSize(25);
     
-    QFont timeFont = timeLabel->font();
-    timeFont.setPointSize(12);
     timeDateLayout->addWidget(dateLabel);
 
     timeDateContainer = new QWidget(this);

@@ -10,9 +10,8 @@
 #include <QKeyEvent>
 #include <QDialog>
 #include <QEvent>
+#include <QHash>
 #include <cstdlib>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
 
 class TaskBar : public QWidget {
     Q_OBJECT
@@ -54,8 +53,12 @@ private:
     void onLabelClickedExec(const QString &execCommand);
 
     void updateMinimizedWindows();
-    void addMinimizedWindow(Window& window);
-    void restoreMinimizedWindow(Window window);
+    void addMinimizedWindow(QWindow *window);
+    void removeMinimizedWindow(QWindow *window);
+    void restoreWindow(QWindow *window);
+    QHash<QWindow *, QPushButton *> minimizedWindowButtons;
+    void onMinimizedWindowButtonClicked();
+
 };
 
 #endif // TASKBAR_H

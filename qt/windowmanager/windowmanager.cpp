@@ -72,9 +72,10 @@ WindowManager::WindowManager(QWidget *parent)
 
     // Start KWin
     QProcess *kwinProcess = new QProcess(this);
-    QString kwin = "kwin_x11 --replace &";
-    QStringList kwinArgs;
+    QString kwin = "kwin_x11";
+    QStringList << "--replace";
 
+    kwinProcess->start(kwin, kwinArgs);
     kwinProcess->start(kwin, kwinArgs);
         
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {

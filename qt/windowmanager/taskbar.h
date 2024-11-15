@@ -54,6 +54,7 @@ private:
 
     QLabel *timeLabel;
     QTimer *timeTimer;
+    void updateTime();
 };
 
 #endif // TASKBAR_H

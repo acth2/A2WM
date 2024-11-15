@@ -88,12 +88,18 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     QFont timeFont = timeLabel->font();
     timeFont.setPointSize(12);
     timeLabel->setFont(timeFont);
+    timeDateLayout->addWidget(dateLabel);
     
     timeTimer = new QTimer(this);
     connect(timeTimer, &QTimer::timeout, this, &TaskBar::updateTime);
     timeTimer->start(1000);
 
+    QFont slimFont("Arial", 10, QFont::Light);
+    timeLabel->setFont(slimFont);
+    dateLabel->setFont(slimFont);
+
     layout->addWidget(timeLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
+    layout->addWidget(timeDateContainer, 0, Qt::AlignRight | Qt::AlignVCenter);
     layout->setContentsMargins(5, 5, 5, 5);
 
     popup = new QLabel(nullptr);
@@ -511,7 +517,9 @@ void TaskBar::showPowerMenu() {
 void TaskBar::updateTime() {
         QLocale french(QLocale::French);
         QString currentTime = french.toString(QTime::currentTime(), "hh:mm");
+        QString currentDate = french.toString(QDate::currentDate(), "dddd dd MMMM yyyy");
         timeLabel->setText(currentTime);
+        dateLabel->setText(currentDate);
 }
 
 void TaskBar::closePowerMenu() {

@@ -103,11 +103,15 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     timeLabel->setFont(slimFont);
     dateLabel->setFont(slimFont);
 
-    layout->addWidget(timeLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
-    layout->addWidget(dateLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
+    layout->addWidget(timeLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+    layout->addWidget(dateLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
     layout->addWidget(timeDateContainer, 0, Qt::AlignRight | Qt::AlignVCenter);
-    layout->setContentsMargins(5, 5, 5, 5);
-
+    layout->setContentsMargins(10, 0, 10, 0);
+    timeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    dateLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    timeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    dateLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    
     popup = new QLabel(nullptr);
     popupCenter = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);

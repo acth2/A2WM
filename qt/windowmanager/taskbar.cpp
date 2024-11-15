@@ -85,11 +85,15 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     timeLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     timeLabel->setStyleSheet("color: #fff; font-size: 16px; font-weight: bold;");
 
+    QFont timeFont = timeLabel->font();
+    timeFont.setPointSize(12);
+    timeLabel->setFont(timeFont);
+    
     timeTimer = new QTimer(this);
     connect(timeTimer, &QTimer::timeout, this, &TaskBar::updateTime);
     timeTimer->start(1000);
 
-    layout->addWidget(timeLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    layout->addWidget(timeLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
     layout->setContentsMargins(5, 5, 5, 5);
 
     popup = new QLabel(nullptr);

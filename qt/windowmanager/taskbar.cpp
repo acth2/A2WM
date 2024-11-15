@@ -509,9 +509,9 @@ void TaskBar::showPowerMenu() {
 }
 
 void TaskBar::updateTime() {
-    QDateTime currentDateTime = QDateTime::currentDateTime();
-    QString timeString = currentDateTime.toString("yyyy-MM-dd HH:mm:ss");
-    timeLabel->setText(timeString);
+        QLocale french(QLocale::French);
+        QString currentTime = french.toString(QTime::currentTime(), "hh:mm");
+        timeLabel->setText(currentTime);
 }
 
 void TaskBar::closePowerMenu() {

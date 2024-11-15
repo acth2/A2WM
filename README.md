@@ -12,14 +12,15 @@
 <p>✔️ Terminal</p>
 <p>✔️ Graphical applications detection</p>
 <p>✔️ TaskBar Menu</p>
-<p>❌ Settings application</p>
+<p>✔️ Settings application</p>
 <p>❌ Desktop Icons</p>
-<p>❌ Windows container live adapter</p>
-<p>❌ Themes manager</p>
+<p>✔️ Windows container live adapter</p>
+<p>✔️ Themes manager</p>
 <p>❌ Full customisation</p>
 
 <h2>Dependencies:</h2>
 
+<p>XTerm (recommended for having an terminal)</p>
 <p>Qt+5</p>
 <p>KWin</p>
 <p>Xorg / X11 (not wayland sry)</p>

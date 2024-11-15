@@ -111,6 +111,8 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     dateLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     timeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     dateLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    startButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    layout->addWidget(startButton, 0, Qt::AlignLeft);
     
     popup = new QLabel(nullptr);
     popupCenter = new QLabel(nullptr);

@@ -78,19 +78,14 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
 
     setLayout(layout);
 
-    timeLabel = new QLabel(this);
     dateLabel = new QLabel(this);
     int fontId = QFontDatabase::addApplicationFont("/usr/cydra/fonts/segoe-ui-semibold.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFont font(fontFamilies.at(0));
     font.setPixelSize(25);
-    timeLabel = new QLabel(this);
-    timeLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    timeLabel->setStyleSheet("color: #fff; font-size: 16px; font-weight: bold;");
-
+    
     QFont timeFont = timeLabel->font();
     timeFont.setPointSize(12);
-    timeLabel->setFont(timeFont);
     timeDateLayout->addWidget(dateLabel);
 
     timeDateContainer = new QWidget(this);
@@ -100,20 +95,12 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     timeTimer->start(1000);
 
     QFont slimFont("Arial", 10, QFont::Light);
-    timeLabel->setFont(slimFont);
     dateLabel->setFont(slimFont);
 
-    layout->addWidget(timeLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
-    layout->addWidget(dateLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+    layout->addWidget(dateLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
     layout->addWidget(timeDateContainer, 0, Qt::AlignRight | Qt::AlignVCenter);
-    layout->setContentsMargins(10, 0, 10, 0);
-    timeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    dateLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    timeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    dateLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    startButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    layout->addWidget(startButton, 0, Qt::AlignLeft);
-    
+    layout->setContentsMargins(5, 5, 5, 5);
+
     popup = new QLabel(nullptr);
     popupCenter = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
@@ -528,9 +515,7 @@ void TaskBar::showPowerMenu() {
 
 void TaskBar::updateTime() {
         QLocale french(QLocale::French);
-        QString currentTime = french.toString(QTime::currentTime(), "hh:mm");
         QString currentDate = french.toString(QDate::currentDate(), "dddd dd MMMM yyyy");
-        timeLabel->setText(currentTime);
         dateLabel->setText(currentDate);
 }
 
@@ -559,4 +544,3 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
 
     return QWidget::eventFilter(object, event);
 }
-

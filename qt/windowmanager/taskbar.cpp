@@ -104,6 +104,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     dateLabel->setFont(slimFont);
 
     layout->addWidget(timeLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
+    layout->addWidget(dateLabel, 1, Qt::AlignRight | Qt::AlignVCenter);
     layout->addWidget(timeDateContainer, 0, Qt::AlignRight | Qt::AlignVCenter);
     layout->setContentsMargins(5, 5, 5, 5);
 

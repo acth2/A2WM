@@ -78,6 +78,7 @@ WindowManager::WindowManager(QWidget *parent)
 
     kwinProcess->start(kwin, kwinArgs);
     kwinProcess->start(kwin, kwinArgs);
+    kwinProcess->start(kwin, kwinArgs);
         
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;

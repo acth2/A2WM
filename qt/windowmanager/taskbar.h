@@ -55,7 +55,7 @@ private:
     QLabel *timeLabel;
     QTimer *timeTimer;
     QLabel *dateLabel;
-    QWidget *timeDateContainer; 
+    QWidget *timeDateContainer;
     void updateTime();
 };
 

@@ -69,20 +69,6 @@ WindowManager::WindowManager(QWidget *parent)
 
     userInteractRightWidget = nullptr;
     showFullScreen();
-
-    // Start KWin
-    QProcess *kwinProcess = new QProcess(this);
-    QString kwin = "kwin_x11";
-    QStringList kwinArgs;
-    kwinArgs << "--replace";
-
-    kwinProcess->start(kwin, kwinArgs);
-    kwinProcess->start(kwin, kwinArgs);
-    kwinProcess->start(kwin, kwinArgs);
-        
-    connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
-        qDebug() << "Error occurred:" << error;
-    });
 }
 
 Display *xDisplay;

@@ -71,6 +71,7 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
                         PropModeReplace, reinterpret_cast<unsigned char*>(&dockAtom), 1);
     }
 
+    QVBoxLayout *timeDateLayout = new QVBoxLayout(timeDateContainer);
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(startButton, 0, Qt::AlignLeft | Qt::AlignBottom);
     layout->setContentsMargins(5, 5, 5, 5);

@@ -89,6 +89,9 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     timeFont.setPointSize(12);
     timeLabel->setFont(timeFont);
     timeDateLayout->addWidget(dateLabel);
+
+    timeDateContainer = new QWidget(this);
+    QVBoxLayout *timeDateLayout = new QVBoxLayout(timeDateContainer);
     
     timeTimer = new QTimer(this);
     connect(timeTimer, &QTimer::timeout, this, &TaskBar::updateTime);

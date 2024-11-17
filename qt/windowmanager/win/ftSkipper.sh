@@ -1,5 +1,4 @@
 #!/bin/bash
-
 refresh_rate=$(xrandr | grep '*' | awk '{print $2}' | tr -d '+*')
 
 if [[ -z "$refresh_rate" || "$refresh_rate" -le 0 ]]; then
@@ -7,13 +6,13 @@ if [[ -z "$refresh_rate" || "$refresh_rate" -le 0 ]]; then
     refresh_rate=60
 fi
 
-delay=$(awk "BEGIN {print 1000000 / $refresh_rate}")
+delay=$(awk "BEGIN {print 1/$refresh_rate}")
 
 echo "Detected refresh rate: ${refresh_rate} Hz"
-echo "Adjusting loop to run every ${delay} microseconds."
+echo "Adjusting loop to run every ${delay} seconds."
 
 # Main loop
 while true; do
     xdotool mousemove_relative --sync 0 0
-    usleep "$delay"
+    sleep "$delay"
 done

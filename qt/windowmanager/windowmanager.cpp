@@ -86,7 +86,7 @@ WindowManager::WindowManager(QWidget *parent)
 
     // frame trotting disabler
     QProcess *antiFrameTrottngProcess = new QProcess(this);
-    QString ft = "xdotool keydown Pause";
+    QString ft = "xdotool keyup Pause";
     QStringList ftArgs;
     ftArgs << "";
 

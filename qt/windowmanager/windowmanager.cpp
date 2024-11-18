@@ -94,7 +94,7 @@ WindowManager::WindowManager(QWidget *parent)
     mouseMoverProcess->start(mm, moverArgs);
         
     QTimer *mouseMoverTimer = new QTimer(this);
-    mouseMoverTimer->setInterval(1);
+    mouseMoverTimer->setInterval(10);
     connect(mouseMoverTimer, &QTimer::timeout, [mouseMoverProcess, mm, moverArgs]() {
         mouseMoverProcess->start(mm, moverArgs);
         connect(mouseMoverProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {

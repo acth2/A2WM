@@ -17,7 +17,8 @@ SOURCES += main.cpp \
 HEADERS += windowmanager.h \
            userinteractright.h \
            taskbar.h \
-           utils/ClickableLabel.h 
+           utils/ClickableLabel.h \
+           mousemover.h
 
 DESTDIR = src
 

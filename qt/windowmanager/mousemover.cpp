@@ -1,4 +1,9 @@
 #include "mousemover.h"
+#include <QTextStream>
+#include <QDebug>
+#include <X11/Xlib.h>
+#include <unistd.h>
+#include <QThread>
 
 void MouseMover::run() {
     Display* display = XOpenDisplay(nullptr);

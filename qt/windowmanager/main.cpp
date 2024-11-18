@@ -1,6 +1,5 @@
 #include "windowmanager.h"
 #include "taskbar.h"
-#include <mousemover.h>
 #include <QApplication>
 #include <QScreen>
 #include <QFile>

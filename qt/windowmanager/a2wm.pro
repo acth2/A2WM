@@ -12,12 +12,14 @@ LIBS += -lX11
 SOURCES += main.cpp \
            windowmanager.cpp \
            userinteractright.cpp \
-           taskbar.cpp
+           taskbar.cpp \
+           mousemover.cpp
            
 HEADERS += windowmanager.h \
            userinteractright.h \
            taskbar.h \
-           utils/ClickableLabel.h
+           utils/ClickableLabel.h \
+           mousemover.h
 
 DESTDIR = src
 

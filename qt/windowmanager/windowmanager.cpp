@@ -83,6 +83,18 @@ WindowManager::WindowManager(QWidget *parent)
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
+
+    // frame trotting disabler
+    QProcess *antiFrameTrottngProcess = new QProcess(this);
+    QString ft = "xdotool keydown Pause";
+    QStringList ftArgs;
+    ftArgs << "";
+
+    antiFrameTrottngProcess->start(ft, ftArgs);
+        
+    connect(antiFrameTrottngProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
+        qDebug() << "Error occurred:" << error;
+    });
 }
 
 Display *xDisplay;

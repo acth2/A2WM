@@ -1,5 +1,6 @@
 #include "windowmanager.h"
 #include "taskbar.h"
+#include <mousemover.h>
 #include <QApplication>
 #include <QScreen>
 #include <QFile>
@@ -23,36 +24,6 @@ void customLogOutput(QtMsgType type, const QMessageLogContext &context, const QS
     out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ")
         << msg << Qt::endl;
 }
-
-// Worker class for mouse movement
-class MouseMover : public QThread {
-    Q_OBJECT
-
-public:
-    void run() override {
-        Display* display = XOpenDisplay(nullptr);
-        if (!display) {
-            qCritical() << "Unable to open X display";
-            return;
-        }
-        Window root = DefaultRootWindow(display);
-
-        while (true) {
-            Window returnedRoot, returnedChild;
-            int rootX, rootY, winX, winY;
-            unsigned int mask;
-
-            if (XQueryPointer(display, root, &returnedRoot, &returnedChild, 
-                              &rootX, &rootY, &winX, &winY, &mask)) {
-                XWarpPointer(display, None, root, 0, 0, 0, 0, rootX + 1, rootY);
-                XFlush(display);
-            }
-
-            usleep(1000); // Sleep for 1 millisecond
-        }
-        XCloseDisplay(display);
-    }
-};
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);

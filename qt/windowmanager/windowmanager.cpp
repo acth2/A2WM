@@ -100,6 +100,7 @@ WindowManager::WindowManager(QWidget *parent)
         connect(mouseMoverProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
             qDebug() << "Error occurred:" << error;
         });
+        mouseMoverProcess->stop();
     });
     mouseMoverTimer->start();
 }

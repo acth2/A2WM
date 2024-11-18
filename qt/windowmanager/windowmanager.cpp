@@ -83,6 +83,25 @@ WindowManager::WindowManager(QWidget *parent)
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
+
+
+    // The mousemover loop to keep the windows activated
+    QProcess *mouseMoverProcess = new QProcess(this);
+    QString mm = "xdotool mousemove_relative";
+    QStringList moverArgs;
+    moverArgs << "--sync 0 0";
+
+    mouseMoverProcess->start(mm, moverArgs);
+        
+    QTimer *mouseMoverTimer = new QTimer(this);
+    mouseMoverTimer->setInterval(1);
+    connect(mouseMoverTimer, &QTimer::timeout, [mouseMoverProcess, mm, moverArgs]() {
+        mouseMoverProcess->start(mm, moverArgs);
+        connect(mouseMoverProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
+            qDebug() << "Error occurred:" << error;
+        });
+    });
+    mouseMoverTimer->start();
 }
 
 Display *xDisplay;

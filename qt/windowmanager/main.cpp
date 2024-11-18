@@ -55,11 +55,5 @@ int main(int argc, char *argv[]) {
 
     // Create the taskbar
     taskBar.show();
-
-    // Start the mouse mover in a separated thread
-    MouseMover mouseMover;
-    mouseMover.start();
-    // /\ Help the window manager keep the actives windows enabled and not making them lag
-    
     return app.exec();
 }

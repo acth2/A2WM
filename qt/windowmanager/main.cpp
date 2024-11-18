@@ -10,6 +10,7 @@
 #include <QGuiApplication>
 #include <QX11Info>
 #include <QThread>
+#include <QDebug>
 #include <cstdlib>
 #include <X11/Xlib.h>
 

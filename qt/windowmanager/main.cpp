@@ -1,5 +1,6 @@
 #include "windowmanager.h"
 #include "taskbar.h"
+#include "mousemover.h"
 #include <QApplication>
 #include <QScreen>
 #include <QFile>
@@ -12,6 +13,7 @@
 #include <QThread>
 #include <QDebug>
 #include <cstdlib>
+#include <unistd.h>
 #include <X11/Xlib.h>
 
 QFile logFile;

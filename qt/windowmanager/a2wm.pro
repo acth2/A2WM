@@ -9,6 +9,7 @@ CONFIG += c++17
 QT += core gui widgets x11extras
 
 LIBS += -lX11
+LIBS += -lXtst
 SOURCES += main.cpp \
            windowmanager.cpp \
            userinteractright.cpp \

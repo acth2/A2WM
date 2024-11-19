@@ -96,7 +96,6 @@ WindowManager::WindowManager(QWidget *parent)
     KeyCode keycode = XKeysymToKeycode(xDisplay, XK_Pause);
     if (!keycode) {
         qDebug() << "Failed to get the KEYCODE of XK_Pause";
-        return -1;
     }
 
     XTestFakeKeyEvent(xDisplay, keycode, True, CurrentTime);

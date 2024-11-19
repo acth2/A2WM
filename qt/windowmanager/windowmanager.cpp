@@ -24,6 +24,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
 
 #undef KeyPress
 namespace fs = std::filesystem;
@@ -84,17 +86,15 @@ WindowManager::WindowManager(QWidget *parent)
         qDebug() << "Error occurred:" << error;
     });
 
-    // frame trotting disabler
-    QProcess *antiFrameTrottngProcess = new QProcess(this);
-    QString ft = "xdotool keyup Pause";
-    QStringList ftArgs;
-    ftArgs << "";
+    KeyCode keycode = XKeysymToKeycode(display, XK_Pause);
+    if (!keycode) {
+        qDebug() << "Failed to get the KEYCODE of XK_Pause" << error;
+        return -1;
+    }
 
-    antiFrameTrottngProcess->start(ft, ftArgs);
-        
-    connect(antiFrameTrottngProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
-        qDebug() << "Error occurred:" << error;
-    });
+    XTestFakeKeyEvent(display, keycode, True, CurrentTime);
+    XFlush(display);
+    XCloseDisplay(display);
 }
 
 Display *xDisplay;

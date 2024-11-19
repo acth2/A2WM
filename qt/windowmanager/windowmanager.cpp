@@ -31,6 +31,7 @@
 namespace fs = std::filesystem;
 
 // Main window manager constructor
+Display *xDisplay;
 WindowManager::WindowManager(QWidget *parent)
     : QWidget(parent),
       userInteractRightWidget(nullptr),
@@ -85,19 +86,24 @@ WindowManager::WindowManager(QWidget *parent)
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
+        
+    xDisplay = XOpenDisplay(nullptr);
+    if (!xDisplay) {
+        appendLog("ERR: Failed to open X Display ..");
+        return;
+    }
 
-    KeyCode keycode = XKeysymToKeycode(display, XK_Pause);
+    KeyCode keycode = XKeysymToKeycode(xDisplay, XK_Pause);
     if (!keycode) {
-        qDebug() << "Failed to get the KEYCODE of XK_Pause" << error;
+        qDebug() << "Failed to get the KEYCODE of XK_Pause";
         return -1;
     }
 
-    XTestFakeKeyEvent(display, keycode, True, CurrentTime);
-    XFlush(display);
-    XCloseDisplay(display);
+    XTestFakeKeyEvent(xDisplay, keycode, True, CurrentTime);
+    XFlush(xDisplay);
+    XCloseDisplay(xDisplay);
 }
 
-Display *xDisplay;
 void WindowManager::setSupportingWMCheck() {
     xDisplay = XOpenDisplay(nullptr);
     if (!xDisplay) {

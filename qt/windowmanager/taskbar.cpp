@@ -346,6 +346,7 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         std::cout << "Stored Exec: " << exec.toStdString() << '\n';
     }
 }
+
 void TaskBar::showPopup() {
     if (isPopupVisible) {
         closePopup();
@@ -354,7 +355,7 @@ void TaskBar::showPopup() {
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
 
-        QRect taskbarGeometry = geometry();
+        QRect taskbarGeometry = geometry();  // This will give the position and size of the TaskBar
         popup->move(taskbarGeometry.left(), taskbarGeometry.top() - popup->height());
         
         // Adjust positions of other elements relative to the popup

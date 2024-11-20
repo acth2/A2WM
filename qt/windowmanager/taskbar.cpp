@@ -355,12 +355,15 @@ void TaskBar::showPopup() {
         QString directoryText = getFormattedDirectories();
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
-
-        popup->move(0, height() * 5.7);
-        userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
-        popupCenter->move(37, popup->y() + 75);
-        popupExtension->move(435, 275);
+        
+        QScreen *screen = QApplication::primaryScreen();
+        QRect screenGeometry = screen->geometry();
+        
+        popup->move(0, screenGeometry.height() + 40;
+        //userLogo->move(175, popup->y() * 0.75);
+        //username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
+        //popupCenter->move(37, popup->y() + 75);
+        //popupExtension->move(435, 275);
 
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);

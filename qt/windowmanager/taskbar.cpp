@@ -359,10 +359,17 @@ void TaskBar::showPopup() {
         popup->move(taskbarGeometry.left(), taskbarGeometry.top() - popup->height());
         
         // Adjust positions of other elements relative to the popup
-        userLogo->move(popup->x() + 175, popup->y() + 75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(popup->x() + 37, popup->y() + 75);
-        popupExtension->move(popup->x() + 435, popup->y() + 275);
+        int userLogoX = popup->x() + 175;
+        int userLogoY = popup->y() + 75;
+        userLogo->move(userLogoX, userLogoY);
+        int usernameX = userLogoX - username->width() - 5;
+        int usernameY = userLogoY + userLogo->height() - username->height() * 2;
+        username->move(usernameX, usernameY);
+        popupCenter->move(popup->x() + 37, popup->y() + 75);
+        int popupExtensionX = popup->x() + popupWidth - popupExtension->width() / 2;
+        int popupExtensionY = popup->y();
+        popupExtension->move(popupExtensionX, popupExtensionY);
 
         // Setting the flags
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);

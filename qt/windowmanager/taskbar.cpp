@@ -346,7 +346,6 @@ void TaskBar::onLabelClicked(const QString &labelText) {
         std::cout << "Stored Exec: " << exec.toStdString() << '\n';
     }
 }
-
 void TaskBar::showPopup() {
     if (isPopupVisible) {
         closePopup();
@@ -355,21 +354,30 @@ void TaskBar::showPopup() {
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
 
-        popup->move(0, height() + 40);
-        userLogo->move(175, popup->y() * 0.75);
+        QRect taskbarGeometry = geometry();
+        popup->move(taskbarGeometry.left(), taskbarGeometry.top() - popup->height());
+        
+        // Adjust positions of other elements relative to the popup
+        userLogo->move(popup->x() + 175, popup->y() + 75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
-        popupCenter->move(37, popup->y() + 75);
-        popupExtension->move(435, 275);
+        popupCenter->move(popup->x() + 37, popup->y() + 75);
+        popupExtension->move(popup->x() + 435, popup->y() + 275);
+
+        // Setting the flags
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
+        // Making the importance tree
         popup->raise();
         popupExtension->raise();
         popupCenter->raise();
         userLogo->raise();
         username->raise();
+
+        // Show the elements
         popup->show();
         userLogo->show();
         popupCenter->show();

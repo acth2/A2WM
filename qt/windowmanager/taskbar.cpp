@@ -359,9 +359,12 @@ void TaskBar::showPopup() {
         popup->move(taskbarGeometry.left(), taskbarGeometry.top() - popup->height());
         
         // Adjust positions of other elements relative to the popup
-        popupCenter->move(popup->x() + 37, popup->y() + 75);
+        int popupWidth = popup->width();
+        int popupHeight = popup->height();
         int userLogoX = popup->x() + 175;
         int userLogoY = popup->y() + 75;
+        
+        popupCenter->move(popup->x() + 37, popup->y() + 75);
         userLogo->move(userLogoX, userLogoY);
         int usernameX = userLogoX - username->width() - 5;
         int usernameY = userLogoY + userLogo->height() - username->height() * 2;

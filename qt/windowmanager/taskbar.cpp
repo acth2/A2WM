@@ -359,7 +359,7 @@ void TaskBar::showPopup() {
         QScreen *screen = QApplication::primaryScreen();
         QRect screenGeometry = screen->geometry();
         
-        popup->move(0, screenGeometry.height() + 40;
+        popup->move(screenGeometry.height() + 40, 0);
         //userLogo->move(175, popup->y() * 0.75);
         //username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         //popupCenter->move(37, popup->y() + 75);

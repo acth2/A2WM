@@ -1,6 +1,7 @@
 #include "taskbar.h"
 #include "utils/ClickableLabel.h"
 #include <QtCore/qtextstream.h>
+#include <QDesktopWidget>
 #include <QApplication>
 #include <QMessageBox>
 #include <QScreen>

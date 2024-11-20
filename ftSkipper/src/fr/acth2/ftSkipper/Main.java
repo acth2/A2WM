@@ -21,7 +21,6 @@ public class Main extends Thread {
             PointerInfo a = MouseInfo.getPointerInfo();
             Point b = a.getLocation();
             bot.mouseMove((int) b.getX(), (int) b.getY());
-            System.out.println("OHH JE MARCHE");
         }
     }
 }

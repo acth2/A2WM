@@ -1,0 +1,4 @@
+#!/bin/bash
+while true; do
+    xdotool mousemove_relative --sync 0 0
+done

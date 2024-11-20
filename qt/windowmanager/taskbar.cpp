@@ -355,21 +355,29 @@ void TaskBar::showPopup() {
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
 
-        popup->move(0, height() * 5.7);
-        userLogo->move(175, popup->y() * 0.75);
+        QRect screenGeometry = QApplication::primaryScreen()->geometry();
+        
+        int taskBarHeight = height();
+        int taskBarWidth = screenGeometry.width();
+        
+        popup->move(taskBarWidth - popup->width(), screenGeometry.height() - taskBarHeight - popup->height());
+        userLogo->move(popup->x() - userLogo->width() - 10, popup->y() + popup->height() - userLogo->height() - 10);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
-        popupCenter->move(37, popup->y() + 75);
-        popupExtension->move(435, 275);
+        popupCenter->move(popup->x() + 37, popup->y() + popup->height() + 10);
+        popupExtension->move(popup->x() + 435, popup->y() + 275);
+       
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
         popup->raise();
         popupExtension->raise();
         popupCenter->raise();
         userLogo->raise();
         username->raise();
+        
         popup->show();
         userLogo->show();
         popupCenter->show();

@@ -355,40 +355,42 @@ void TaskBar::showPopup() {
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
 
-        QRect taskbarGeometry = geometry();  // This will give the position and size of the TaskBar
-        popup->move(taskbarGeometry.left(), taskbarGeometry.top() - popup->height());
-        
-        // Adjust positions of other elements relative to the popup
+        // Screen size
+        QRect screenGeometry = QApplication::desktop()->screenGeometry();
+
+        // Calculating the position
         int popupWidth = popup->width();
         int popupHeight = popup->height();
-        int userLogoX = popup->x() + 175;
-        int userLogoY = popup->y() + 75;
-        
-        popupCenter->move(popup->x() + 37, popup->y() + 75);
-        userLogo->move(userLogoX, userLogoY);
-        int usernameX = userLogoX - username->width() - 5;
-        int usernameY = userLogoY + userLogo->height() - username->height() * 2;
-        username->move(usernameX, usernameY);
-        popupCenter->move(popup->x() + 37, popup->y() + 75);
-        int popupExtensionX = popup->x() + popupWidth - popupExtension->width() / 2;
-        int popupExtensionY = popup->y();
-        popupExtension->move(popupExtensionX, popupExtensionY + popup->height() * 2);
+        int screenWidth = screenGeometry.width();
+        int screenHeight = screenGeometry.height();
 
-        // Setting the flags
+        // Responsivity variables
+        int xPos = screenWidth * 0.25;  // 25% from left
+        int yPos = screenHeight * 0.10; // 10% from top
+
+        popup->move(xPos, yPos);
+        
+        // Positioning
+        userLogo->move(xPos + 175, yPos + 50);
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
+        popupCenter->move(xPos + 37, yPos + 75);
+        popupExtension->move(xPos + 435, yPos + 275);
+
+        // Set windows rules
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
-        // Making the importance tree
+        // Make the importance tree
         popup->raise();
         popupExtension->raise();
         popupCenter->raise();
         userLogo->raise();
         username->raise();
 
-        // Show the elements
+        // Show the widgets
         popup->show();
         userLogo->show();
         popupCenter->show();

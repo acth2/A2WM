@@ -1,7 +1,6 @@
 #include "taskbar.h"
 #include "utils/ClickableLabel.h"
 #include <QtCore/qtextstream.h>
-#include <QDesktopWidget>
 #include <QApplication>
 #include <QMessageBox>
 #include <QScreen>
@@ -355,35 +354,22 @@ void TaskBar::showPopup() {
         QString directoryText = getFormattedDirectories();
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
-        QRect screenGeometry = QApplication::desktop()->screenGeometry();
 
-        int popupWidth = popup->width();
-        int popupHeight = popup->height();
-        int screenWidth = screenGeometry.width();
-        int screenHeight = screenGeometry.height();
-
-        int xPos = 10;
-        int yPos = screenHeight - popupHeight - 10;
-
-        popup->move(xPos, yPos);
-
-        userLogo->move(xPos + 175, yPos + 50);
+        popup->move(0, height() * 5.7);
+        userLogo->move(175, popup->y() * 0.75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
-        popupCenter->move(xPos + 37, yPos + 75);
-        popupExtension->move(xPos + 435, yPos + 275);
-
+        popupCenter->move(37, popup->y() + 75);
+        popupExtension->move(435, 275);
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-
         popup->raise();
         popupExtension->raise();
         popupCenter->raise();
         userLogo->raise();
         username->raise();
-
         popup->show();
         userLogo->show();
         popupCenter->show();
@@ -393,7 +379,6 @@ void TaskBar::showPopup() {
         isPopupVisible = true;
     }
 }
-
 
 void TaskBar::closePopup() {
     popup->hide();

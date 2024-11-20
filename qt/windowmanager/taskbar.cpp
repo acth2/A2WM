@@ -355,7 +355,7 @@ void TaskBar::showPopup() {
         popupExtension->setText(directoryText);
         popupExtension->setWordWrap(true);
 
-        popup->move(0, height() * 5.7);
+        popup->move(0, height() + 40);
         userLogo->move(175, popup->y() * 0.75);
         username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(37, popup->y() + 75);

@@ -359,7 +359,7 @@ void TaskBar::showPopup() {
         QRect screenGeometry = screen->geometry();
 
         setFixedSize(screenGeometry.width(), 40);
-        popup->move(0, screenGeometry.height() - popup->height());
+        popup->move(0, screenGeometry.height() - popup->height() - 40);
         
         //userLogo->move(175, popup->y() * 0.75);
         //username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);

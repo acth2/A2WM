@@ -108,24 +108,19 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popup->setWindowTitle("A2WM");
     popupExtension->setWindowTitle("A2WM");
     popupExtension->setFixedSize(125, 425);
-    username->setFont(font);
     if (isDarkMode) {
         popup->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
         popupCenter->setStyleSheet("background-color: #1F1F1F; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #333333; border: 1px solid #000000;");
-        username->setStyleSheet("background-color: #333333");
     } else {
         popup->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
         popupCenter->setStyleSheet("background-color: #989494; border: 1px solid #000000;");
         popupExtension->setStyleSheet("background-color: #fff; border: 1px solid #000000;");
-        username->setStyleSheet("background-color: #fff");
     }
     
     popup->hide();
     popupCenter->hide();
     popupExtension->hide();
-    userLogo->hide();
-    username->hide();
 
     powerButton = new QPushButton(popup);
     powerButton->setIcon(QIcon("/usr/cydra/icons/power.png"));
@@ -367,10 +362,8 @@ void TaskBar::showPopup() {
 
 void TaskBar::closePopup() {
     popup->hide();
-    userLogo->hide();
     popupExtension->hide();
     popupCenter->hide();
-    username->hide();
     isPopupVisible = false;
 }
 
@@ -516,11 +509,9 @@ bool TaskBar::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (popup->isVisible() && !popup->geometry().contains(mouseEvent->globalPos())) {
-            if (!userLogo->geometry().contains(mouseEvent->globalPos())) {
-                if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
-                    closePopup();
-                    return true;
-                }
+            if (!popupExtension->geometry().contains(mouseEvent->globalPos())) {
+                closePopup();
+                return true;
             }
         }
     }

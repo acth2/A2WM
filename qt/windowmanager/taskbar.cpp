@@ -102,26 +102,11 @@ TaskBar::TaskBar(QWidget *parent) : QWidget(parent) {
     popup = new QLabel(nullptr);
     popupCenter = new QLabel(nullptr);
     popupExtension = new QLabel(nullptr);
-    username = new QLabel(nullptr);
-    userLogo = new QPushButton(nullptr);
-    username->setText(usernameString);
-    userLogo->setIconSize(QSize(126, 126));
-    userLogo->setStyleSheet("background-color: transparent; border: none;");
-    userLogo->setIcon(QIcon("/usr/cydra/icons/usrLogo.png")); 
-    userLogo->setStyleSheet(
-        "border: none;"
-        "background: none;"
-        "outline: none;"
-        "box-shadow: none;"
-    );
-    userLogo->setFlat(true);
     popup->setFixedSize(500, 500);
     popupCenter->setFixedSize(380, 375);
     popupCenter->setWindowTitle("A2WM");
     popup->setWindowTitle("A2WM");
     popupExtension->setWindowTitle("A2WM");
-    userLogo->setWindowTitle("A2WM");
-    username->setWindowTitle("A2WM");
     popupExtension->setFixedSize(125, 425);
     username->setFont(font);
     if (isDarkMode) {
@@ -361,27 +346,19 @@ void TaskBar::showPopup() {
         setFixedSize(screenGeometry.width(), 40);
         popup->move(0, screenGeometry.height() - popup->height() - 40);
         
-        userLogo->move(175, popup->y() * 0.75);
-        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(37, popup->y() + 75);
         popupExtension->move(popup->width() - popupExtension->width() / 2, popup->height() + popup->height() / 6);
 
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-        userLogo->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupCenter->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-        username->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
         popup->raise();
         popupExtension->raise();
         popupCenter->raise();
-        userLogo->raise();
-        username->raise();
 
         popup->show();
-        userLogo->show();
         popupCenter->show();
-        username->show();
         popupExtension->show();
 
         isPopupVisible = true;

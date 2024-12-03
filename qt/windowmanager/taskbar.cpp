@@ -361,8 +361,8 @@ void TaskBar::showPopup() {
         setFixedSize(screenGeometry.width(), 40);
         popup->move(0, screenGeometry.height() - popup->height() - 40);
         
-        //userLogo->move(175, popup->y() * 0.75);
-        //username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
+        userLogo->move(175, popup->y() * 0.75);
+        username->move(userLogo->x() - username->width() - 5, userLogo->y() + userLogo->height() - username->height() * 2);
         popupCenter->move(37, popup->y() + 75);
         popupExtension->move(popup->width() - popupExtension->width() / 2, popup->height() + popup->height() / 6);
 

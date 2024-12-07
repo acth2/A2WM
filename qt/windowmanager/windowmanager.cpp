@@ -68,7 +68,7 @@ WindowManager::WindowManager(QWidget *parent)
             XCloseDisplay(display);
         }
     });
-    backgroundTimer->start(1000);
+    backgroundTimer->start(500);
 
     userInteractRightWidget = nullptr;
     showFullScreen();

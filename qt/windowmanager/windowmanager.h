@@ -42,6 +42,7 @@ private:
 
     QPoint lastMousePosition;
     void setSupportingWMCheck();
+    void simulateUserInteraction();
 
 };
 

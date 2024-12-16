@@ -86,6 +86,12 @@ WindowManager::WindowManager(QWidget *parent)
     connect(kwinProcess, &QProcess::errorOccurred, [](QProcess::ProcessError error) {
         qDebug() << "Error occurred:" << error;
     });
+
+    // Constantly keep the user interactions distracted to avoid suroptimizations:
+
+    QTimer *interactionTimer = new QTimer(this);
+    connect(interactionTimer, &QTimer::timeout, this, &WindowManager::simulateUserInteraction);
+    interactionTimer->start(2000);
         
     xDisplay = XOpenDisplay(nullptr);
     if (!xDisplay) {
@@ -101,6 +107,36 @@ WindowManager::WindowManager(QWidget *parent)
     XTestFakeKeyEvent(xDisplay, keycode, True, CurrentTime);
     XFlush(xDisplay);
     XCloseDisplay(xDisplay);
+}
+
+void WindowManager::simulateUserInteraction() {
+    Display *display = XOpenDisplay(nullptr);
+    if (!display) {
+        appendLog("ERR: Failed to open X Display for fake interaction.");
+        return;
+    }
+
+    // Simulate a key press and release for the "Control" key
+    KeyCode keycode = XKeysymToKeycode(display, XK_Control_L);
+    if (keycode) {
+        XTestFakeKeyEvent(display, keycode, True, CurrentTime); // Press key
+        XTestFakeKeyEvent(display, keycode, False, CurrentTime); // Release key
+    } else {
+        appendLog("ERR: Failed to get KeyCode for simulated key press.");
+    }
+
+    // imulate a mouse movement to the same position
+    Window root = DefaultRootWindow(display);
+    int rootX, rootY, winX, winY;
+    unsigned int mask;
+    Window child, rootReturn;
+
+    if (XQueryPointer(display, root, &rootReturn, &child, &rootX, &rootY, &winX, &winY, &mask)) {
+        XTestFakeMotionEvent(display, -1, rootX, rootY, CurrentTime);
+    }
+
+    XFlush(display);
+    XCloseDisplay(display);
 }
 
 void WindowManager::setSupportingWMCheck() {

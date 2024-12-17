@@ -125,7 +125,7 @@ void WindowManager::simulateUserInteraction() {
         appendLog("ERR: Failed to get KeyCode for simulated key press.");
     }
 
-    // imulate a mouse movement to the same position
+    // Simulate a mouse movement to the same position
     Window root = DefaultRootWindow(display);
     int rootX, rootY, winX, winY;
     unsigned int mask;

@@ -10,10 +10,10 @@
 <p>✔️ Terminal</p>
 <p>✔️ Graphical applications detection</p>
 <p>✔️ TaskBar Menu</p>
-<p>✔️ Settings application</p>
+<p>🟠 Settings application</p>
 <p>❌ Desktop Icons</p>
 <p>✔️ Windows container live adapter</p>
-<p>✔️ Themes manager</p>
+<p>🟠 Themes manager</p>
 <p>❌ Full customisation</p>
 
 <h2>Dependencies:</h2>

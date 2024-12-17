@@ -18,7 +18,9 @@
 
 <h2>Dependencies:</h2>
 
-<p>XTerm (recommended for having an terminal)</p>
 <p>Qt 5</p>
 <p>KWin</p>
 <p>Xorg / X11 (not wayland sry)</p>
+
+<h2>Optionals:</h2>
+<p>XTerm (or any terminals that works)</p>

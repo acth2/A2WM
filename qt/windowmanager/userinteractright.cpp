@@ -10,6 +10,10 @@
 #include <QScreen>
 #include <QWindow>
 
+// --------------------
+// Warning this class is most likely change in the future
+// --------------------
+
 // The constructor for the right interaction when clicking the wall paper
 UserInteractRight::UserInteractRight(QWidget *parent) 
     : QWidget(parent), isDarkMode(false) {
@@ -39,6 +43,7 @@ void UserInteractRight::setupUI() {
 
     textLabel->setAlignment(Qt::AlignCenter);
 
+    // Setting up the layout
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(textLabel);
     layout->addWidget(button1);
@@ -48,12 +53,14 @@ void UserInteractRight::setupUI() {
     layout->setContentsMargins(15, 15, 15, 15);
     setLayout(layout);
 
+    // Connecting the button with their interactions
     connect(button1, &QPushButton::clicked, this, &UserInteractRight::button1Clicked);
     connect(button2, &QPushButton::clicked, this, &UserInteractRight::button2Clicked);
     connect(button3, &QPushButton::clicked, this, &UserInteractRight::button3Clicked);
 }
 
 void UserInteractRight::applyStyles() {
+    // Setting up the style WARNING: this will be changed to be fully customizable
     QString buttonStyle;
     QString labelStyle;
 
@@ -138,7 +145,7 @@ void UserInteractRight::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void UserInteractRight::paintEvent(QPaintEvent *event) {
-    // paint the popup cube
+    // paint the popup square
     QPainter painter(this);
 
     painter.setPen(QPen(Qt::black, 2)); 
@@ -152,8 +159,11 @@ void UserInteractRight::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
 }
 
+// WARNING: This section with change really soon to make it fully customizable
+
 void UserInteractRight::button1Clicked() {
     // read the file CPBA1 and execute the command in it
+    // CPBA1 stands for CydraProgramButtonAction1
     QProcess *xtermProcess = new QProcess(this);
 
     QString program = readFileContents("/usr/cydra/info/CPBA1").trimmed();
@@ -169,6 +179,7 @@ void UserInteractRight::button1Clicked() {
 
 void UserInteractRight::button2Clicked() {
     // read the file CPBA2 and execute the command in it
+    // CPBA1 stands for CydraProgramButtonAction2
     QProcess *xtermProcess2 = new QProcess(this);
 
     QString program2 = readFileContents("/usr/cydra/info/CPBA2").trimmed();
@@ -184,6 +195,7 @@ void UserInteractRight::button2Clicked() {
 
 void UserInteractRight::button3Clicked() {
     // read the file CPBA3 and execute the command in it
+    // CPBA1 stands for CydraProgramButtonAction3
     QProcess *xtermProcess2 = new QProcess(this);
 
     QString program2 = readFileContents("/usr/cydra/info/CPBA3").trimmed();

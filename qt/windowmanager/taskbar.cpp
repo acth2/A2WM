@@ -342,7 +342,7 @@ void TaskBar::showPopup() {
         popup->move(0, screenGeometry.height() - popup->height() - 40);
         
         popupCenter->move(37, popup->y() + 75);
-        popupExtension->move(popup->width() - popupExtension->width() / 2, popup->height() + popup->height() / 8);
+        popupExtension->move(popup->width() - popupExtension->width() / 2, popup->height() + popup->height() / 8.5);
 
         popup->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         popupExtension->setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);

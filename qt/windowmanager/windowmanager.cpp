@@ -140,6 +140,7 @@ void WindowManager::simulateUserInteraction() {
 }
 
 void WindowManager::setSupportingWMCheck() {
+    // Creating an invisible window that get the usage of helping commands determining the window manager
     xDisplay = XOpenDisplay(nullptr);
     if (!xDisplay) {
         appendLog("ERR: Failed to open X Display ..");
@@ -151,8 +152,8 @@ void WindowManager::setSupportingWMCheck() {
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);
     XChangeProperty(xDisplay, DefaultRootWindow(xDisplay), netSupportingWMCheck, XA_WINDOW, 32, PropModeReplace, (unsigned char *)&supportingWindow, 1);
-    Atom netWMState = XInternAtom(xDisplay, "_NET_WM_STATE", False);
-    Atom below = XInternAtom(xDisplay, "_NET_WM_STATE_BELOW", False);
+    Atom netWMState = XInternAtom(xDisplay, "_NET_WM_STATE", True);
+    Atom below = XInternAtom(xDisplay, "_NET_WM_STATE_BELOW", Tue);
 
     XChangeProperty(xDisplay, supportingWindow, netWMState, XA_ATOM, 32,
                     PropModeReplace, (unsigned char *)&below, 1);

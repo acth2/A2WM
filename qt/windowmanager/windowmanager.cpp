@@ -148,6 +148,11 @@ void WindowManager::setSupportingWMCheck() {
     }
 
     Window supportingWindow = XCreateSimpleWindow(xDisplay, DefaultRootWindow(xDisplay), 0, 0, 1, 1, 0, 0, 0);
+    if (!supportingWindow) {
+        appendLog("ERR: Failed to create supporting window ..");
+        return;
+    }
+
     
     Atom netSupportingWMCheck = XInternAtom(xDisplay, "_NET_SUPPORTING_WM_CHECK", False);
     Atom windowId = XInternAtom(xDisplay, "WM_WINDOW", False);

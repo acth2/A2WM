@@ -37,23 +37,24 @@ WindowManager::WindowManager(QWidget *parent)
       userInteractRightWidget(nullptr),
       backgroundImagePath("/usr/cydra/backgrounds/current.png") {
 
+    setSupportingWMCheck();
+
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus | Qt::WindowStaysOnBottomHint);
     setAttribute(Qt::WA_TranslucentBackground);
-
-    setSupportingWMCheck();
+    
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setContentsMargins(10, 10, 10, 10);
+        
+    QWidget *desktopWidget = new QWidget();
+    desktopWidget->setVisible(true);
+    layout->addWidget(desktopWidget);
+    setLayout(layout);
 
     QScreen *screen = QApplication::primaryScreen();
     if (screen) {
         QRect screenGeometry = screen->geometry();
         setGeometry(screenGeometry);
     }
-    
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(10, 10, 10, 10);
-    QWidget *desktopWidget = new QWidget();
-    desktopWidget->setVisible(true);
-    layout->addWidget(desktopWidget);
-    setLayout(layout);
 
     // Make sure the background is always behind all other windows
     QTimer *backgroundTimer = new QTimer(this);

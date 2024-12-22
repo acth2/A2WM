@@ -167,16 +167,16 @@ void WindowManager::setSupportingWMCheck() {
 }
 
 void WindowManager::appendLog(const QString &message) {
-    //Function that write a message in the /usr/cydra/logs/a2wm.log file
     QFile logFile("/usr/cydra/logs/a2wm.log");
-    if (logFile.open(QIODevice::Append | QIODevice::Text)) {
-        QTextStream out(&logFile);
-        out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ") 
-            << message << endl;
-        logFile.close();
+    if (!logFile.open(QIODevice::Append | QIODevice::Text)) {
+        qDebug() << "Failed to open log file for appending:" << logFile.errorString();
+        return;
     }
+    QTextStream out(&logFile);
+    out << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ") 
+        << message << endl;
+    logFile.close();
 }
-
 bool WindowManager::event(QEvent *qtEvent) {
     if (qtEvent->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(qtEvent);

@@ -18,7 +18,7 @@
 
 <h2>Dependencies:</h2>
 
-<p>Qt 5</p>
+<p>Qt 5.15.16-3 (with x11extras)</p>
 <p>KWin</p>
 <p>Xorg / X11 (not wayland sry)</p>
 

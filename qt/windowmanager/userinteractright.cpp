@@ -126,7 +126,7 @@ void UserInteractRight::applyStyles() {
 }
 
 void UserInteractRight::mousePressEvent(QMouseEvent *event) {
-    // if re clicking an new userinteract right while another one is already active just put the popup in the middle of the cursor
+    // if reclicking an new userinteract right while another one is already active just put the popup in the middle of the cursor
     if (event->button() == Qt::RightButton) {
         QPoint cursorPos = event->globalPos();
         move(cursorPos.x() - width() / 2, cursorPos.y() - height() / 2);

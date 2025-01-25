@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="a2wm:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/a2wm_jar</output-path>
+    <root id="archive" name="a2wm.jar">
+      <element id="module-output" name="a2wm" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/json_simple.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -6,11 +6,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
 public class BackgroundWindow extends JFrame {
 
     public BackgroundWindow() {
         setUndecorated(true);
+
         setAlwaysOnTop(true);
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -25,6 +29,11 @@ public class BackgroundWindow extends JFrame {
 
         initComponents();
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+            }
+        });
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -43,15 +52,16 @@ public class BackgroundWindow extends JFrame {
         setLayout(new BorderLayout());
 
         SettingsManager settings = SettingsManager.getInstance();
-        String imagePath = settings.get("backgroundPath", "/usr/cydra/backgrounds/current.png");
+        String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
 
-        ImageIcon backgroundImage = new ImageIcon(imagePath);
-
-        if (backgroundImage.getIconWidth() == -1) {
-            System.err.println("Image not found at: " + imagePath);
+        File imageFile = new File(imagePath);
+        if (!imageFile.exists()) {
+            System.err.println("Image file does not exist at: " + imagePath);
             getContentPane().setBackground(Color.BLACK);
             return;
         }
+
+        ImageIcon backgroundImage = new ImageIcon(imagePath);
 
         Image scaledImage = backgroundImage.getImage().getScaledInstance(
                 Toolkit.getDefaultToolkit().getScreenSize().width,

@@ -1,5 +1,7 @@
 package fr.acth2.a2wm.backend.taskbar;
 
+import fr.acth2.a2wm.utils.fonts.FontManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -8,7 +10,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class TaskbarWindow extends JFrame {
-    private JPanel rootPanel;
     private JLabel timeLabel;
     private JLabel dateLabel;
     private JPanel timeDatePanel;
@@ -16,15 +17,13 @@ public class TaskbarWindow extends JFrame {
 
     public TaskbarWindow() {
         super("Taskbar");
-        setContentPane(rootPanel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setUndecorated(true);
         setAlwaysOnTop(true);
 
         initializeWindow();
-
-        initClock();
+        initTimer();
         setVisible(true);
     }
 
@@ -34,9 +33,41 @@ public class TaskbarWindow extends JFrame {
         int height = 32;
 
         setSize(width, height);
+
         setLocation(0, screenSize.height - height);
+
+        JPanel rootPanel = new JPanel(new BorderLayout());
+        rootPanel.setBackground(Color.DARK_GRAY);
+
+        timeDatePanel = new JPanel();
+        timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
+        timeDatePanel.setOpaque(false);
+
+        Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
+        Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.PLAIN, 12);
+
+        timeLabel = new JLabel("00:00:00");
+        timeLabel.setFont(timeFont);
+        timeLabel.setForeground(Color.WHITE);
+        timeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        dateLabel = new JLabel("01/01/2025");
+        dateLabel.setFont(dateFont);
+        dateLabel.setForeground(Color.WHITE);
+        dateLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        timeDatePanel.add(Box.createVerticalGlue());
+        timeDatePanel.add(timeLabel);
+        timeDatePanel.add(dateLabel);
+        timeDatePanel.add(Box.createVerticalGlue());
+
+        timeDatePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+        rootPanel.add(timeDatePanel, BorderLayout.EAST);
+
+        setContentPane(rootPanel);
     }
-    private void initClock() {
+
+    private void initTimer() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         timeFormat.setTimeZone(TimeZone.getDefault());
 
@@ -44,6 +75,7 @@ public class TaskbarWindow extends JFrame {
         dateFormat.setTimeZone(TimeZone.getDefault());
 
         updateTime(timeFormat, dateFormat);
+        updateWindow();
 
         timer = new Timer(1000, e -> updateTime(timeFormat, dateFormat));
         timer.start();
@@ -63,7 +95,6 @@ public class TaskbarWindow extends JFrame {
         int height = 32;
 
         setSize(width, height);
-
         setLocation(0, screenSize.height - height);
         revalidate();
         repaint();
@@ -73,8 +104,5 @@ public class TaskbarWindow extends JFrame {
 
     public void setTaskbarLabel(String text) {
         timeLabel.setText(text);
-    }
-
-    private void createUIComponents() {
     }
 }

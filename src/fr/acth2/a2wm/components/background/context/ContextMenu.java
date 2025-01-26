@@ -1,10 +1,14 @@
 package fr.acth2.a2wm.components.background.context;
 
+import fr.acth2.a2wm.utils.process.ProcessManager;
+import fr.acth2.a2wm.utils.settings.SettingsManager;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 public class ContextMenu extends JFrame {
     private JPanel panel1;
@@ -22,14 +26,15 @@ public class ContextMenu extends JFrame {
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                // nothing for now
             }
         });
 
         terminalButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                ProcessManager.startApplication(SettingsManager.getInstance().get("terminal", "xterm"));
+                dispose();
             }
         });
 

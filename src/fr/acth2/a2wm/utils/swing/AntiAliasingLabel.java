@@ -1,4 +1,4 @@
-package fr.acth2.a2wm.utils.labels;
+package fr.acth2.a2wm.utils.swing;
 
 import javax.swing.*;
 import java.awt.*;

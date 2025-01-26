@@ -1,7 +1,7 @@
 package fr.acth2.a2wm.components.taskbar;
 
 import fr.acth2.a2wm.utils.fonts.FontManager;
-import fr.acth2.a2wm.utils.labels.AntiAliasingLabel;
+import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 
 import javax.swing.*;
 import java.awt.*;

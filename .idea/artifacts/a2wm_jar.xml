@@ -6,6 +6,9 @@
       <element id="library" level="project" name="gson-2.11.0" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/json-simple-1.1.1.jar" path-in-jar="/" />
       <element id="library" level="project" name="json_simple" />
+      <element id="directory" name="fonts">
+        <element id="dir-copy" path="$PROJECT_DIR$/fonts" />
+      </element>
     </root>
   </artifact>
 </component>

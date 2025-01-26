@@ -8,7 +8,7 @@ import javax.swing.*;
 import static fr.acth2.a2wm.utils.References.*;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
-public class Main {
+public class Wrapper {
     public static void main(String[] args) {
         if(!isLinux()) {
             err("The window-manager is not compatible with non-unix os.");
@@ -20,7 +20,7 @@ public class Main {
         });
 
         SwingUtilities.invokeLater(() -> {
-            TaskbarWindow backgroundWindow = new TaskbarWindow();
+            TaskbarWindow taskbarWindow = new TaskbarWindow();
         });
     }
 }

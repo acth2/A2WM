@@ -33,7 +33,6 @@ public class TaskbarWindow extends JFrame {
         int height = 32;
 
         setSize(width, height);
-
         setLocation(0, screenSize.height - height);
 
         JPanel rootPanel = new JPanel(new BorderLayout());
@@ -46,14 +45,10 @@ public class TaskbarWindow extends JFrame {
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
         Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.PLAIN, 12);
 
-        timeLabel = new JLabel("00:00:00");
-        timeLabel.setFont(timeFont);
-        timeLabel.setForeground(Color.WHITE);
+        timeLabel = new AntiAliasingLabel("00:00:00", timeFont, Color.WHITE);
         timeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        dateLabel = new JLabel("01/01/2025");
-        dateLabel.setFont(dateFont);
-        dateLabel.setForeground(Color.WHITE);
+        dateLabel = new AntiAliasingLabel("01/01/2025", dateFont, Color.WHITE);
         dateLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         timeDatePanel.add(Box.createVerticalGlue());
@@ -89,15 +84,6 @@ public class TaskbarWindow extends JFrame {
         dateLabel.setText(currentDate);
     }
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-    }
-
     public void updateWindow() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screenSize.width;
@@ -113,5 +99,31 @@ public class TaskbarWindow extends JFrame {
 
     public void setTaskbarLabel(String text) {
         timeLabel.setText(text);
+    }
+
+    private static class AntiAliasingLabel extends JLabel {
+        private final Font customFont;
+        private final Color textColor;
+
+        public AntiAliasingLabel(String text, Font font, Color color) {
+            super(text);
+            this.customFont = font;
+            this.textColor = color;
+            setFont(customFont);
+            setForeground(textColor);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            g2d.setFont(getFont());
+            g2d.setColor(getForeground());
+            g2d.drawString(getText(), 0, getHeight() / 2 + 5);
+        }
     }
 }

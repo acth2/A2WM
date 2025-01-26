@@ -122,7 +122,7 @@ public class BackgroundWindow extends JFrame {
     }
 
     private void showCustomContextMenu(int x, int y) {
-        new ContextMenu().showContext(x, y);
+        new ContextMenu(x, y).showContext(x, y);
     }
 
     private void updateBackgroundImage(String imagePath) {

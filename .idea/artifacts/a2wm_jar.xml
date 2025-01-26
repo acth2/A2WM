@@ -9,6 +9,7 @@
       <element id="directory" name="fonts">
         <element id="dir-copy" path="$PROJECT_DIR$/fonts" />
       </element>
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/flatlaf-2.4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

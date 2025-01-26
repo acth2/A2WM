@@ -1,6 +1,7 @@
 package fr.acth2.a2wm;
 
 import fr.acth2.a2wm.backend.background.BackgroundWindow;
+import fr.acth2.a2wm.backend.taskbar.TaskbarWindow;
 
 import javax.swing.*;
 
@@ -15,8 +16,8 @@ public class Main {
         }
 
         SwingUtilities.invokeLater(() -> {
-            BackgroundWindow window = new BackgroundWindow();
-            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            BackgroundWindow backgroundWindow = new BackgroundWindow();
+            TaskbarWindow    taskbarWindow    = new TaskbarWindow();
         });
     }
 }

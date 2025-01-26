@@ -12,9 +12,14 @@ import java.io.File;
 
 public class BackgroundWindow extends JFrame {
 
+    private String currentImagePath = "";
+    private JLabel backgroundLabel;
+    private int currentWidth;
+    private int currentHeight;
+
+
     public BackgroundWindow() {
         setUndecorated(true);
-
         setAlwaysOnTop(true);
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -31,8 +36,7 @@ public class BackgroundWindow extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-            }
+            public void windowClosing(WindowEvent e) { }
         });
 
         addKeyListener(new KeyAdapter() {
@@ -46,6 +50,8 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(true);
         requestFocusInWindow();
+        initSettingsMonitor();
+        initResolutionMonitor();
     }
 
     private void initComponents() {
@@ -53,16 +59,64 @@ public class BackgroundWindow extends JFrame {
 
         SettingsManager settings = SettingsManager.getInstance();
         String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
+        currentImagePath = imagePath;
 
+        backgroundLabel = new JLabel();
+        backgroundLabel.setHorizontalAlignment(JLabel.CENTER);
+        backgroundLabel.setVerticalAlignment(JLabel.CENTER);
+
+        updateBackgroundImage(imagePath);
+
+        add(backgroundLabel, BorderLayout.CENTER);
+    }
+
+    private void initResolutionMonitor() {
+        int delay = 2000;
+
+        Timer timer = new Timer(delay, e -> {
+            Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
+            if (newSize.width != currentWidth || newSize.height != currentHeight) {
+                System.out.println("Detected screen resolution change to: " + newSize.width + "x" + newSize.height);
+                currentWidth = newSize.width;
+                currentHeight = newSize.height;
+                updateBackgroundImage(currentImagePath);
+            }
+        });
+        timer.start();
+    }
+
+    private void initSettingsMonitor() {
+        int delay = 2000;
+
+        Timer timer = new Timer(delay, e -> {
+            SettingsManager settings = SettingsManager.getInstance();
+            String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
+
+            if (!imagePath.equals(currentImagePath)) {
+                File imageFile = new File(imagePath);
+                if (imageFile.exists() && imageFile.isFile()) {
+                    System.out.println("Detected new image path: " + imagePath);
+                    updateBackgroundImage(imagePath);
+                    currentImagePath = imagePath;
+                } else {
+                    System.err.println("New image file does not exist at: " + imagePath);
+                }
+            }
+        });
+
+        timer.start();
+    }
+
+    private void updateBackgroundImage(String imagePath) {
         File imageFile = new File(imagePath);
         if (!imageFile.exists()) {
             System.err.println("Image file does not exist at: " + imagePath);
             getContentPane().setBackground(Color.BLACK);
+            backgroundLabel.setIcon(null);
             return;
         }
 
         ImageIcon backgroundImage = new ImageIcon(imagePath);
-
         Image scaledImage = backgroundImage.getImage().getScaledInstance(
                 Toolkit.getDefaultToolkit().getScreenSize().width,
                 Toolkit.getDefaultToolkit().getScreenSize().height,
@@ -70,10 +124,10 @@ public class BackgroundWindow extends JFrame {
         );
         backgroundImage = new ImageIcon(scaledImage);
 
-        JLabel backgroundLabel = new JLabel(backgroundImage);
-        backgroundLabel.setHorizontalAlignment(JLabel.CENTER);
-        backgroundLabel.setVerticalAlignment(JLabel.CENTER);
+        backgroundLabel.setIcon(backgroundImage);
+        backgroundLabel.revalidate();
+        backgroundLabel.repaint();
 
-        add(backgroundLabel, BorderLayout.CENTER);
+        System.out.println("Background image updated to: " + imagePath);
     }
 }

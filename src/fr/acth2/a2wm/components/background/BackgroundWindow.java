@@ -47,9 +47,16 @@ public class BackgroundWindow extends JFrame {
 
         addMouseListener(new MouseAdapter() {
             @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showCustomContextMenu(e.getX(), e.getY());
+                }
+            }
+
+            @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    showCustomContextMenu(e.getXOnScreen(), e.getYOnScreen());
+                    showCustomContextMenu(e.getX(), e.getY());
                 }
             }
         });

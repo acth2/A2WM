@@ -10,5 +10,7 @@
     <orderEntry type="library" name="json_simple" level="project" />
     <orderEntry type="library" name="gson-2.11.0" level="project" />
     <orderEntry type="library" name="json-simple-1.1.1" level="project" />
+    <orderEntry type="library" name="AbsoluteLayout-RELEASE240" level="project" />
+    <orderEntry type="library" name="flatlaf-2.4" level="project" />
   </component>
 </module>

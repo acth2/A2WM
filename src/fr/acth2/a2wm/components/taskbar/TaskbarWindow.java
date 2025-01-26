@@ -1,4 +1,4 @@
-package fr.acth2.a2wm.backend.taskbar;
+package fr.acth2.a2wm.components.taskbar;
 
 import fr.acth2.a2wm.utils.fonts.FontManager;
 import fr.acth2.a2wm.utils.labels.AntiAliasingLabel;

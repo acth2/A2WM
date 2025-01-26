@@ -1,22 +1,19 @@
-package fr.acth2.a2wm.backend.background;
+package fr.acth2.a2wm.components.background;
 
+import fr.acth2.a2wm.components.background.context.ContextMenu;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 
+import javax.naming.Context;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 
 public class BackgroundWindow extends JFrame {
-
     private String currentImagePath = "";
     private JLabel backgroundLabel;
     private int currentWidth;
     private int currentHeight;
-
 
     public BackgroundWindow() {
         setUndecorated(true);
@@ -47,6 +44,16 @@ public class BackgroundWindow extends JFrame {
                 }
             }
         });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showCustomContextMenu(e.getXOnScreen(), e.getYOnScreen());
+                }
+            }
+        });
+
 
         setFocusable(true);
         requestFocusInWindow();
@@ -105,6 +112,12 @@ public class BackgroundWindow extends JFrame {
         });
 
         timer.start();
+    }
+
+    private void showCustomContextMenu(int x, int y) {
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setLocation(x, y);
+        contextMenu.setVisible(true);
     }
 
     private void updateBackgroundImage(String imagePath) {

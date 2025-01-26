@@ -115,9 +115,7 @@ public class BackgroundWindow extends JFrame {
     }
 
     private void showCustomContextMenu(int x, int y) {
-        ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setLocation(x, y);
-        contextMenu.setVisible(true);
+        new ContextMenu().showContext(x, y);
     }
 
     private void updateBackgroundImage(String imagePath) {

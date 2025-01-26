@@ -7,15 +7,15 @@
     </constraints>
     <properties>
       <enabled value="false"/>
-      <minimumSize width="150" height="159"/>
-      <preferredSize width="255" height="350"/>
+      <minimumSize width="150" height="160"/>
+      <preferredSize width="255" height="355"/>
       <requestFocusEnabled value="false"/>
     </properties>
     <border type="none"/>
     <children>
       <component id="9ef" class="javax.swing.JButton" binding="settingsButton">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <horizontalAlignment value="0"/>
@@ -24,7 +24,7 @@
       </component>
       <component id="13c35" class="javax.swing.JButton" binding="terminalButton">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
             <preferred-size width="1" height="-1"/>
           </grid>
         </constraints>
@@ -35,19 +35,19 @@
           <verticalTextPosition value="0"/>
         </properties>
       </component>
-      <component id="a98a8" class="javax.swing.JSeparator">
+      <component id="6ee6" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Context Menu"/>
+        </properties>
+      </component>
+      <component id="d56a7" class="javax.swing.JSeparator">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-      </component>
-      <component id="e6f48" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="hé"/>
-        </properties>
       </component>
     </children>
   </grid>

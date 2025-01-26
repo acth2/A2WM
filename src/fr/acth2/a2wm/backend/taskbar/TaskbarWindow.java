@@ -58,7 +58,7 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.add(Box.createVerticalGlue());
 
         timeDatePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
-        rootPanel.add(timeDatePanel, BorderLayout.EAST);
+        rootPanel.add(timeDatePanel, BorderLayout.CENTER);
 
         setContentPane(rootPanel);
     }

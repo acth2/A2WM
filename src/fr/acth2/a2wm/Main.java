@@ -17,7 +17,10 @@ public class Main {
 
         SwingUtilities.invokeLater(() -> {
             BackgroundWindow backgroundWindow = new BackgroundWindow();
-            TaskbarWindow    taskbarWindow    = new TaskbarWindow();
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            TaskbarWindow backgroundWindow = new TaskbarWindow();
         });
     }
 }

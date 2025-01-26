@@ -17,7 +17,7 @@ public class BackgroundWindow extends JFrame {
 
     public BackgroundWindow() {
         setUndecorated(true);
-        setAlwaysOnTop(true);
+        setAlwaysOnTop(false);
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();

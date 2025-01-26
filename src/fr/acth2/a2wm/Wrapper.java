@@ -2,6 +2,7 @@ package fr.acth2.a2wm;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import fr.acth2.a2wm.components.background.BackgroundWindow;
+import fr.acth2.a2wm.components.background.context.ContextMenu;
 import fr.acth2.a2wm.components.taskbar.TaskbarWindow;
 
 import javax.swing.*;

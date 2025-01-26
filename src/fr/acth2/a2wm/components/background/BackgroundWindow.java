@@ -18,6 +18,8 @@ public class BackgroundWindow extends JFrame {
     public BackgroundWindow() {
         setUndecorated(true);
         setAlwaysOnTop(false);
+        setFocusable(false);
+        setFocusableWindowState(false);
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -62,8 +64,7 @@ public class BackgroundWindow extends JFrame {
         });
 
 
-        setFocusable(true);
-        requestFocusInWindow();
+        setFocusable(false);
         initSettingsMonitor();
         initResolutionMonitor();
     }

@@ -3,7 +3,9 @@
     <output-path>$PROJECT_DIR$/out/artifacts/a2wm_jar</output-path>
     <root id="archive" name="a2wm.jar">
       <element id="module-output" name="a2wm" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/json_simple.jar" path-in-jar="/" />
+      <element id="library" level="project" name="gson-2.11.0" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/json-simple-1.1.1.jar" path-in-jar="/" />
+      <element id="library" level="project" name="json_simple" />
     </root>
   </artifact>
 </component>

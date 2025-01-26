@@ -1,8 +1,10 @@
 package fr.acth2.a2wm.utils.settings;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 import java.io.*;
 
@@ -10,8 +12,7 @@ public class SettingsManager {
     private static final String SETTINGS_DIR = System.getProperty("user.home") + "/.a2wm";
     private static final String SETTINGS_FILE = SETTINGS_DIR + "/settings.json";
     private static SettingsManager instance;
-    private JsonObject settings;
-    private final Gson gson = new Gson();
+    private JSONObject settings;
 
     private SettingsManager() {
         File dir = new File(SETTINGS_DIR);
@@ -20,36 +21,38 @@ public class SettingsManager {
         if (!dir.exists()) {
             boolean dirCreated = dir.mkdirs();
             if (dirCreated) {
-                System.out.println("Created settings directory at: " + SETTINGS_DIR);
+                log("Created settings directory at: " + SETTINGS_DIR);
             } else {
-                System.err.println("Failed to create settings directory at: " + SETTINGS_DIR);
+                err("Failed to create settings directory at: " + SETTINGS_DIR);
             }
         } else {
-            System.out.println("Settings directory already exists at: " + SETTINGS_DIR);
+            log("Settings directory already exists at: " + SETTINGS_DIR);
         }
 
         if (!file.exists()) {
-            try (FileWriter writer = new FileWriter(file)) {
-                settings = new JsonObject();
-                settings.addProperty("imagePath", SETTINGS_DIR + "/base.png");
-                String jsonString = gson.toJson(settings);
-                writer.write(jsonString);
-                writer.flush();
-                System.out.println("Created default settings.json at: " + SETTINGS_FILE);
-                System.out.println("Settings content: " + jsonString);
+            try {
+                if (file.createNewFile()) {
+                    log("Settings file created successfully");
+                }
             } catch (IOException e) {
-                System.err.println("Error creating settings.json.");
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         } else {
+            JSONParser parser = new JSONParser();
             try (FileReader reader = new FileReader(file)) {
-                settings = JsonParser.parseReader(reader).getAsJsonObject();
-                System.out.println("Loaded settings from: " + SETTINGS_FILE);
-                System.out.println("Settings content: " + gson.toJson(settings));
-            } catch (IOException | IllegalStateException e) {
+                Object obj = parser.parse(reader);
+                if (obj instanceof JSONObject) {
+                    settings = (JSONObject) obj;
+                    System.out.println("Loaded settings from: " + SETTINGS_FILE);
+                    System.out.println("Settings content: " + settings.toJSONString());
+                } else {
+                    System.err.println("settings.json does not contain a valid JSON object. Initializing with empty settings.");
+                    settings = new JSONObject();
+                }
+            } catch (IOException | ParseException e) {
                 System.err.println("Error reading settings.json. Initializing with empty settings.");
                 e.printStackTrace();
-                settings = new JsonObject();
+                settings = new JSONObject();
             }
         }
     }
@@ -62,13 +65,14 @@ public class SettingsManager {
     }
 
     public String get(String key, String defaultValue) {
-        String result = settings.has(key) ? settings.get(key).getAsString() : defaultValue;
+        Object value = settings.get(key);
+        String result = value != null ? value.toString() : defaultValue;
         System.out.println("Get key: '" + key + "' with value: '" + result + "'");
         return result;
     }
 
     public void set(String key, String value) {
-        settings.addProperty(key, value);
+        settings.put(key, value);
         System.out.println("Set key: '" + key + "' with value: '" + value + "'");
         saveSettings();
     }
@@ -81,7 +85,7 @@ public class SettingsManager {
 
     private void saveSettings() {
         try (FileWriter writer = new FileWriter(SETTINGS_FILE)) {
-            String jsonString = gson.toJson(settings);
+            String jsonString = settings.toJSONString();
             writer.write(jsonString);
             writer.flush();
             System.out.println("Settings saved to: " + SETTINGS_FILE);
@@ -90,5 +94,13 @@ public class SettingsManager {
             System.err.println("Error saving settings.json.");
             e.printStackTrace();
         }
+    }
+
+    // that was for the test
+    public static void main(String[] args) {
+        SettingsManager sm = SettingsManager.getInstance();
+        sm.set("testKey", "testValue");
+        sm.get("testKey", "defaultVal");
+        sm.saveSettings();
     }
 }

@@ -1,6 +1,6 @@
 package fr.acth2.a2wm.components.background.context;
 
-import fr.acth2.a2wm.utils.process.ProcessManager;
+
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 
 import javax.swing.*;
@@ -33,7 +33,11 @@ public class ContextMenu extends JFrame {
         terminalButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ProcessManager.startApplication(SettingsManager.getInstance().get("terminal", "xterm"));
+                try {
+                    Runtime.getRuntime().exec(SettingsManager.getInstance().get("terminal", "xterm"));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 dispose();
             }
         });

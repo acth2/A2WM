@@ -21,23 +21,16 @@ public class BackgroundWindow extends JFrame {
         setFocusable(false);
         setFocusableWindowState(false);
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        toBack();
+        setType(Type.UTILITY);
 
-        if (gd.isFullScreenSupported()) {
-            gd.setFullScreenWindow(this);
-        } else {
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-            setVisible(true);
-        }
+
+        Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(newSize.width, newSize.height);
+        setVisible(true);
 
         initComponents();
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) { }
-        });
-
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -63,6 +56,20 @@ public class BackgroundWindow extends JFrame {
             }
         });
 
+        addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                toBack();
+            }
+
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                toBack();
+            }
+        });
+
+        toBack();
+
 
         setFocusable(false);
         initSettingsMonitor();
@@ -86,7 +93,7 @@ public class BackgroundWindow extends JFrame {
     }
 
     private void initResolutionMonitor() {
-        int delay = 2000;
+        int delay = 200;
 
         Timer timer = new Timer(delay, e -> {
             Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -95,6 +102,7 @@ public class BackgroundWindow extends JFrame {
                 currentWidth = newSize.width;
                 currentHeight = newSize.height;
                 updateBackgroundImage(currentImagePath);
+                toBack();
             }
         });
         timer.start();
@@ -148,5 +156,14 @@ public class BackgroundWindow extends JFrame {
         backgroundLabel.repaint();
 
         System.out.println("Background image updated to: " + imagePath);
+    }
+
+    @Override
+    public void toFront() {
+    }
+
+    @Override
+    protected boolean requestFocus(boolean temporary) {
+        return false;
     }
 }

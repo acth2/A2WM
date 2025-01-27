@@ -23,6 +23,7 @@ public class BackgroundWindow extends JFrame {
 
         toBack();
         setType(Type.UTILITY);
+        setResizable(false);
 
 
         Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -63,13 +64,11 @@ public class BackgroundWindow extends JFrame {
             }
 
             @Override
-            public void windowLostFocus(WindowEvent e) {
-                toBack();
-            }
+            public void windowLostFocus(WindowEvent e) {}
         });
 
         toBack();
-
+        SwingUtilities.invokeLater(this::toBack);
 
         setFocusable(false);
         initSettingsMonitor();

@@ -14,6 +14,8 @@ public class BackgroundWindow extends JFrame {
     private int currentWidth;
     private int currentHeight;
 
+    private final int yAxisReducer = - 32;
+
     public BackgroundWindow() {
         setUndecorated(true);
         setAlwaysOnTop(false);
@@ -25,7 +27,7 @@ public class BackgroundWindow extends JFrame {
         setResizable(false);
 
         Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(0, -32, newSize.width, newSize.height + 32);
+        setBounds(0, yAxisReducer, newSize.width, newSize.height);
         setVisible(true);
 
         initComponents();
@@ -35,7 +37,7 @@ public class BackgroundWindow extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    showCustomContextMenu(e.getX(), e.getY());
+                    showCustomContextMenu(e.getX(), e.getY() + yAxisReducer);
                     toBack();
                 }
             }
@@ -43,7 +45,7 @@ public class BackgroundWindow extends JFrame {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    showCustomContextMenu(e.getX(), e.getY());
+                    showCustomContextMenu(e.getX(), e.getY() + yAxisReducer);
                     toBack();
                 }
             }

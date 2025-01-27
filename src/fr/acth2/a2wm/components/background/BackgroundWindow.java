@@ -25,7 +25,7 @@ public class BackgroundWindow extends JFrame {
         setResizable(false);
 
         Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(newSize.width, newSize.height);
+        setBounds(0, -32, newSize.width, newSize.height + 32);
         setVisible(true);
 
         initComponents();

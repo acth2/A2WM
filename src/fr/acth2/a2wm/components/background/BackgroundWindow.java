@@ -46,6 +46,7 @@ public class BackgroundWindow extends JFrame {
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showCustomContextMenu(e.getX(), e.getY());
+                    toBack();
                 }
             }
 
@@ -53,6 +54,7 @@ public class BackgroundWindow extends JFrame {
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showCustomContextMenu(e.getX(), e.getY());
+                    toBack();
                 }
             }
         });
@@ -73,6 +75,7 @@ public class BackgroundWindow extends JFrame {
         setFocusable(false);
         initSettingsMonitor();
         initResolutionMonitor();
+        initBacker();
     }
 
     private void initComponents() {
@@ -89,6 +92,15 @@ public class BackgroundWindow extends JFrame {
         updateBackgroundImage(imagePath);
 
         add(backgroundLabel, BorderLayout.CENTER);
+    }
+
+    private void initBacker() {
+        int delay = 1;
+
+        Timer timer = new Timer(delay, e -> {
+            toBack();
+        });
+        timer.start();
     }
 
     private void initResolutionMonitor() {
@@ -159,6 +171,8 @@ public class BackgroundWindow extends JFrame {
 
     @Override
     public void toFront() {
+        toBack();
+        toBack();
     }
 
     @Override

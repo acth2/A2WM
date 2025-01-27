@@ -32,14 +32,6 @@ public class BackgroundWindow extends JFrame {
 
         initComponents();
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q) {
-                    System.exit(0);
-                }
-            }
-        });
 
         addMouseListener(new MouseAdapter() {
             @Override

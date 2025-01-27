@@ -13,8 +13,6 @@ import java.util.TimeZone;
 public class TaskbarWindow extends JFrame {
     private JLabel timeLabel;
     private JLabel dateLabel;
-    private JPanel timeDatePanel;
-    private Timer timer;
 
     public TaskbarWindow() {
         super("Taskbar");
@@ -39,7 +37,7 @@ public class TaskbarWindow extends JFrame {
         JPanel rootPanel = new JPanel(new BorderLayout());
         rootPanel.setBackground(Color.DARK_GRAY);
 
-        timeDatePanel = new JPanel();
+        JPanel timeDatePanel = new JPanel();
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
@@ -73,7 +71,7 @@ public class TaskbarWindow extends JFrame {
         updateTime(timeFormat, dateFormat);
         updateWindow();
 
-        timer = new Timer(1000, e -> updateTime(timeFormat, dateFormat));
+        Timer timer = new Timer(1000, e -> updateTime(timeFormat, dateFormat));
         timer.start();
     }
 

@@ -3,7 +3,6 @@ package fr.acth2.a2wm.components.background;
 import fr.acth2.a2wm.components.background.context.ContextMenu;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 
-import javax.naming.Context;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,7 +23,6 @@ public class BackgroundWindow extends JFrame {
         toBack();
         setType(Type.UTILITY);
         setResizable(false);
-
 
         Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(newSize.width, newSize.height);
@@ -66,6 +64,8 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(false);
         mainLoop();
+
+
     }
 
     private void initComponents() {
@@ -114,7 +114,6 @@ public class BackgroundWindow extends JFrame {
 
             toBack();
         });
-
         timer.start();
     }
 

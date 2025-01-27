@@ -73,9 +73,7 @@ public class BackgroundWindow extends JFrame {
         SwingUtilities.invokeLater(this::toBack);
 
         setFocusable(false);
-        initSettingsMonitor();
-        initResolutionMonitor();
-        initBacker();
+        mainLoop();
     }
 
     private void initComponents() {
@@ -94,33 +92,9 @@ public class BackgroundWindow extends JFrame {
         add(backgroundLabel, BorderLayout.CENTER);
     }
 
-    private void initBacker() {
-        int delay = 1;
 
-        Timer timer = new Timer(delay, e -> {
-            toBack();
-        });
-        timer.start();
-    }
-
-    private void initResolutionMonitor() {
-        int delay = 200;
-
-        Timer timer = new Timer(delay, e -> {
-            Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
-            if (newSize.width != currentWidth || newSize.height != currentHeight) {
-                System.out.println("Detected screen resolution change to: " + newSize.width + "x" + newSize.height);
-                currentWidth = newSize.width;
-                currentHeight = newSize.height;
-                updateBackgroundImage(currentImagePath);
-                toBack();
-            }
-        });
-        timer.start();
-    }
-
-    private void initSettingsMonitor() {
-        int delay = 2000;
+    private void mainLoop() {
+        int delay = 100;
 
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
@@ -136,6 +110,17 @@ public class BackgroundWindow extends JFrame {
                     System.err.println("New image file does not exist at: " + imagePath);
                 }
             }
+
+            Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
+            if (newSize.width != currentWidth || newSize.height != currentHeight) {
+                System.out.println("Detected screen resolution change to: " + newSize.width + "x" + newSize.height);
+                currentWidth = newSize.width;
+                currentHeight = newSize.height;
+                updateBackgroundImage(currentImagePath);
+                toBack();
+            }
+
+            toBack();
         });
 
         timer.start();

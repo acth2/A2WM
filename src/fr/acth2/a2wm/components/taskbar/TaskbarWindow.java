@@ -5,6 +5,7 @@ import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -41,6 +42,10 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
+        JButton startButton = new JButton("Hi");
+        startButton.setVisible(true);
+        startButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
         Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.PLAIN, 12);
 
@@ -57,6 +62,7 @@ public class TaskbarWindow extends JFrame {
 
         timeDatePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         rootPanel.add(timeDatePanel, BorderLayout.CENTER);
+        rootPanel.add(startButton, BorderLayout.WEST);
 
         setContentPane(rootPanel);
     }

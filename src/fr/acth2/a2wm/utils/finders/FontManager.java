@@ -1,4 +1,4 @@
-package fr.acth2.a2wm.utils.fonts;
+package fr.acth2.a2wm.utils.finders;
 
 import java.awt.*;
 

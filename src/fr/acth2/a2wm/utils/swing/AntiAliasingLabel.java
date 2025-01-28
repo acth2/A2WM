@@ -23,9 +23,8 @@ public class AntiAliasingLabel extends JLabel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-        // Now let the default text rendering occur with anti-aliasing
         g2d.setFont(getFont());
         g2d.setColor(getForeground());
-        g2d.drawString(getText(), 0, getHeight() / 2 + 5);  // Adjust vertical position if necessary
+        g2d.drawString(getText(), 0, getHeight() / 2 + 5);
     }
 }

@@ -1,11 +1,12 @@
 package fr.acth2.a2wm.components.taskbar;
 
-import fr.acth2.a2wm.utils.fonts.FontManager;
+import fr.acth2.a2wm.utils.finders.FontManager;
+import fr.acth2.a2wm.utils.finders.ImageManager;
+import fr.acth2.a2wm.utils.settings.SettingsManager;
 import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -42,7 +43,13 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
-        JButton startButton = new JButton("Hi");
+        ImageIcon favicon = ImageManager.loadImage(new SettingsManager().get("fav-path", System.getProperty("user.home") + "/.a2wm/favicon-dark.png"), 24, 24);
+        JButton startButton = new JButton(favicon);
+        startButton.setBorderPainted(false);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setOpaque(false);
+
         startButton.setVisible(true);
         startButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 

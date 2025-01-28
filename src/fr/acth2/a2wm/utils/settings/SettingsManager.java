@@ -14,7 +14,7 @@ public class SettingsManager {
     private static SettingsManager instance;
     private JSONObject settings;
 
-    private SettingsManager() {
+    public SettingsManager() {
         File dir = new File(SETTINGS_DIR);
         File file = new File(SETTINGS_FILE);
 

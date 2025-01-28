@@ -7,6 +7,9 @@ import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -55,6 +58,17 @@ public class TaskbarWindow extends JFrame {
         startButton.setVisible(true);
         startButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        startButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                updateStartJBState(true, startButton);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                updateStartJBState(false, startButton);
+            }
+        });
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
         Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.PLAIN, 12);
 
@@ -75,6 +89,35 @@ public class TaskbarWindow extends JFrame {
 
         setContentPane(rootPanel);
     }
+
+    private void updateStartJBState(boolean isHovered, JButton instance) {
+        String key = "";
+        String defaultPath = "";
+
+        if (isHovered) {
+            key = settingsInstance.isDarkmode() ? "fav-hovered-dark-path" : "fav-hovered-white-path";
+            defaultPath = settingsInstance.isDarkmode()
+                    ? System.getProperty("user.home") + "/.a2wm/fav-hovered-dark-path.png"
+                    : System.getProperty("user.home") + "/.a2wm/fav-hovered-white-path.png";
+        } else {
+            key = settingsInstance.isDarkmode() ? "fav-dark-path" : "fav-white-path";
+            defaultPath = settingsInstance.isDarkmode()
+                    ? System.getProperty("user.home") + "/.a2wm/favicon-dark.png"
+                    : System.getProperty("user.home") + "/.a2wm/favicon-white.png";
+        }
+
+        String imagePath = settingsInstance.get(key, defaultPath);
+        System.out.println("Loading image from: " + imagePath);
+
+        ImageIcon favicon = ImageManager.loadImage(imagePath, 32, 28);
+
+        if (favicon != null) {
+            instance.setIcon(favicon);
+        } else {
+            System.err.println("Failed to load image: " + imagePath);
+        }
+    }
+
 
     private void initTimer() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());

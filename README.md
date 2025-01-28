@@ -10,17 +10,17 @@
 <p>✅ Terminal</p>
 <p>✅ Adapt to any screen sizes</p>
 <p>✅ Graphical applications detection</p>
-<p>✅ TaskBar Menu</p>
-<p>✅ TaskBar Minimized Applications</p>
+<p>✅ Themes manager</p>
+<p>✅ Settings logic</p>
+<p>🟠 Full customisation</p>
 <p>🟠 Desktop Icons</p>
-<p>🟠 Themes manager</p>
-<p>❌ Full customisation</p>
-<p>❌ Settings application</p>
+<p>❌ TaskBar Menu</p>
+<p>❌ TaskBar Minimized Applications</p>
 
 <h2>Dependencies:</h2>
 
-<p>Qt 5 (with x11extras)</p>
-<p>KWin</p>
+<p>Java 8</p>
+<p>OpenBox (recommended)</p>
 <p>X11</p>
 
 <h2>Optionals:</h2>

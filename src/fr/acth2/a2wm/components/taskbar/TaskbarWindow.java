@@ -16,6 +16,8 @@ public class TaskbarWindow extends JFrame {
     private JLabel timeLabel;
     private JLabel dateLabel;
 
+    public SettingsManager settingsInstance = new SettingsManager();
+
     public TaskbarWindow() {
         super("Taskbar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,7 +45,7 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
-        ImageIcon favicon = ImageManager.loadImage(new SettingsManager().get("fav-path", System.getProperty("user.home") + "/.a2wm/favicon-dark.png"), 24, 24);
+        ImageIcon favicon = ImageManager.loadImage(settingsInstance.isDarkmode() ? settingsInstance.get("fav-dark-path", System.getProperty("user.home") + "/.a2wm/favicon-dark.png") : settingsInstance.get("fav-white-path", System.getProperty("user.home") + "/.a2wm/favicon-white.png"), 32, 28);
         JButton startButton = new JButton(favicon);
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);

@@ -7,6 +7,7 @@ import org.json.simple.parser.ParseException;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 import java.io.*;
+import java.util.Objects;
 
 public class SettingsManager {
     private static final String SETTINGS_DIR = System.getProperty("user.home") + "/.a2wm";
@@ -62,6 +63,10 @@ public class SettingsManager {
             instance = new SettingsManager();
         }
         return instance;
+    }
+
+    public boolean isDarkmode() {
+        return Objects.equals(this.get("darkmode", "false"), "true");
     }
 
     public String get(String key, String defaultValue) {

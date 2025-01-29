@@ -1,5 +1,7 @@
 package fr.acth2.a2wm.components.taskbar;
 
+import fr.acth2.a2wm.components.background.BackgroundWindow;
+import fr.acth2.a2wm.components.taskbar.menu.StartMenu;
 import fr.acth2.a2wm.utils.finders.FontManager;
 import fr.acth2.a2wm.utils.finders.ImageManager;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
@@ -7,9 +9,7 @@ import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -18,11 +18,14 @@ import java.util.TimeZone;
 public class TaskbarWindow extends JFrame {
     private JLabel timeLabel;
     private JLabel dateLabel;
+    private StartMenu startMenu;
 
     public SettingsManager settingsInstance = new SettingsManager();
 
+    public static boolean isStartMenuActive = false;
+
     public TaskbarWindow() {
-        super("Taskbar");
+        super("A2WM-TASKBAR");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setUndecorated(true);
@@ -67,6 +70,11 @@ public class TaskbarWindow extends JFrame {
             @Override
             public void mouseExited(MouseEvent e) {
                 updateStartJBState(false, startButton);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                StartMenu.getInstance().toggleVisibility();
             }
         });
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
@@ -117,7 +125,6 @@ public class TaskbarWindow extends JFrame {
             System.err.println("Failed to load image: " + imagePath);
         }
     }
-
 
     private void initTimer() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());

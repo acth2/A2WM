@@ -14,9 +14,10 @@ public class BackgroundWindow extends JFrame {
     private int currentWidth;
     private int currentHeight;
 
-    private final int yAxisReducer = - 32;
+    public static final int yAxisReducer = -32;
 
     public BackgroundWindow() {
+        super("A2WM-BACKGROUND");
         setUndecorated(true);
         setAlwaysOnTop(false);
         setFocusable(false);
@@ -66,8 +67,6 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(false);
         mainLoop();
-
-
     }
 
     private void initComponents() {
@@ -82,7 +81,6 @@ public class BackgroundWindow extends JFrame {
         backgroundLabel.setVerticalAlignment(JLabel.CENTER);
 
         updateBackgroundImage(imagePath);
-
         add(backgroundLabel, BorderLayout.CENTER);
     }
 

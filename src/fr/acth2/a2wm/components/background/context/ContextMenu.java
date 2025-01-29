@@ -15,6 +15,7 @@ public class ContextMenu extends JFrame {
     private static ContextMenu currentInstance;
 
     public ContextMenu(int posX, int posY) {
+        super("A2WM-CONTEXTMENU");
         SettingsManager settings = SettingsManager.getInstance();
 
         setContentPane(panel1);

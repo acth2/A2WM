@@ -39,7 +39,7 @@ public class TaskbarWindow extends JFrame {
     private void initializeWindow() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screenSize.width;
-        int height = 32;
+        int height = Integer.parseInt(settingsInstance.get("taskBar-height", "32"));
 
         setSize(width, height);
         setLocation(0, screenSize.height - height);
@@ -74,7 +74,7 @@ public class TaskbarWindow extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                StartMenu.getInstance().toggleVisibility();
+                StartMenu.getInstance().toggleVisibility(!StartMenu.getInstance().isVisible());
             }
         });
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);

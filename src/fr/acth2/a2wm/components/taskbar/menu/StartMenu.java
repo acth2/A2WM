@@ -15,16 +15,16 @@ public class StartMenu extends JFrame {
 
     private StartMenu() {
         super("A2WM-STARTMENU");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setResizable(false);
         setUndecorated(true);
         setAlwaysOnTop(true);
 
         log("Initializing StartMenu...");
         initializeWindow();
-        setVisible(true);
         log("StartMenu is now visible.");
     }
+
 
     public static StartMenu getInstance() {
         if (instance == null) {
@@ -54,31 +54,19 @@ public class StartMenu extends JFrame {
         log("BackgroundWindow.yAxisReducer: " + BackgroundWindow.yAxisReducer);
 
         int posX = 0;
-        int posY = screenSize.height - BackgroundWindow.yAxisReducer - height;
+        int posY = screenSize.height - height - Integer.parseInt(new SettingsManager().get("taskBar-height", "32"));
         log("Calculated StartMenu Position: (" + posX + ", " + posY + ")");
 
         setSize(width, height);
         setLocation(posX, posY);
-
-        JPanel rootPanel = new JPanel(new BorderLayout());
-        rootPanel.setBackground(Color.DARK_GRAY);
-
-        JLabel label = new JLabel("Start Menu Content Here", SwingConstants.CENTER);
-        label.setForeground(Color.WHITE);
-        rootPanel.add(label, BorderLayout.CENTER);
-
-        setContentPane(rootPanel);
+        setVisible(false);
     }
 
-    public void toggleVisibility() {
-        setVisible(!isVisible());
-        log("StartMenu visibility toggled. Now visible: " + isVisible());
+    public void toggleVisibility(boolean vis) {
+        setVisible(vis);
+        log("StartMenu visibility toggled. Now visible: " + vis);
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
-        instance = null;
-        log("StartMenu disposed and instance reset.");
-    }
+    public void dispose() { }
 }

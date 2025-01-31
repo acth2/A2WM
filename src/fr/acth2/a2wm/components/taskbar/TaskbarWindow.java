@@ -1,11 +1,12 @@
 package fr.acth2.a2wm.components.taskbar;
 
-import fr.acth2.a2wm.components.background.BackgroundWindow;
 import fr.acth2.a2wm.components.taskbar.menu.StartMenu;
 import fr.acth2.a2wm.utils.finders.FontManager;
 import fr.acth2.a2wm.utils.finders.ImageManager;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
+import fr.acth2.a2wm.utils.x11.MinimizedWindow;
+import fr.acth2.a2wm.utils.x11.MinimizedWindowsChecker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class TaskbarWindow extends JFrame {
     private JLabel timeLabel;
@@ -32,7 +35,7 @@ public class TaskbarWindow extends JFrame {
         setAlwaysOnTop(true);
 
         initializeWindow();
-        initTimer();
+        loopManager();
         setVisible(true);
     }
 
@@ -122,30 +125,37 @@ public class TaskbarWindow extends JFrame {
         if (favicon != null) {
             instance.setIcon(favicon);
         } else {
-            System.err.println("Failed to load image: " + imagePath);
+            err("Failed to load image: " + imagePath);
         }
     }
 
-    private void initTimer() {
+    private void loopManager() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         timeFormat.setTimeZone(TimeZone.getDefault());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getDefault());
 
-        updateTime(timeFormat, dateFormat);
+        mainLoop(timeFormat, dateFormat);
         updateWindow();
 
-        Timer timer = new Timer(1000, e -> updateTime(timeFormat, dateFormat));
+        Timer timer = new Timer(1000, e -> mainLoop(timeFormat, dateFormat));
         timer.start();
     }
 
-    private void updateTime(SimpleDateFormat timeFormat, SimpleDateFormat dateFormat) {
+    private void mainLoop(SimpleDateFormat timeFormat, SimpleDateFormat dateFormat) {
         String currentTime = timeFormat.format(new Date());
         String currentDate = dateFormat.format(new Date());
 
         timeLabel.setText(currentTime);
         dateLabel.setText(currentDate);
+
+        java.util.List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
+        log("Currently minimized (Iconic) windows:");
+        for (MinimizedWindow w : minimized) {
+            // All works !
+            System.exit(0);
+        }
     }
 
     public void updateWindow() {
@@ -158,7 +168,7 @@ public class TaskbarWindow extends JFrame {
         revalidate();
         repaint();
 
-        System.out.println("Taskbar window updated to: " + width + "x" + height);
+        log("Taskbar window updated to: " + width + "x" + height);
     }
 
     public void setTaskbarLabel(String text) {

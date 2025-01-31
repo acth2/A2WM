@@ -10,6 +10,8 @@
         <element id="dir-copy" path="$PROJECT_DIR$/fonts" />
       </element>
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/flatlaf-2.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jna-platform-5.9.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jna-5.9.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

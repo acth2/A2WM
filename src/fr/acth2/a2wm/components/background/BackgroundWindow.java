@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
+import static fr.acth2.a2wm.utils.logger.Logger.*;
+
 public class BackgroundWindow extends JFrame {
     private String currentImagePath = "";
     private JLabel backgroundLabel;
@@ -95,17 +97,17 @@ public class BackgroundWindow extends JFrame {
             if (!imagePath.equals(currentImagePath)) {
                 File imageFile = new File(imagePath);
                 if (imageFile.exists() && imageFile.isFile()) {
-                    System.out.println("Detected new image path: " + imagePath);
+                    log("Detected new image path: " + imagePath);
                     updateBackgroundImage(imagePath);
                     currentImagePath = imagePath;
                 } else {
-                    System.err.println("New image file does not exist at: " + imagePath);
+                    err("New image file does not exist at: " + imagePath);
                 }
             }
 
             Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
             if (newSize.width != currentWidth || newSize.height != currentHeight) {
-                System.out.println("Detected screen resolution change to: " + newSize.width + "x" + newSize.height);
+                log("Detected screen resolution change to: " + newSize.width + "x" + newSize.height);
                 currentWidth = newSize.width;
                 currentHeight = newSize.height;
                 updateBackgroundImage(currentImagePath);
@@ -124,7 +126,7 @@ public class BackgroundWindow extends JFrame {
     private void updateBackgroundImage(String imagePath) {
         File imageFile = new File(imagePath);
         if (!imageFile.exists()) {
-            System.err.println("Image file does not exist at: " + imagePath);
+            err("Image file does not exist at: " + imagePath);
             getContentPane().setBackground(Color.BLACK);
             backgroundLabel.setIcon(null);
             return;
@@ -142,7 +144,7 @@ public class BackgroundWindow extends JFrame {
         backgroundLabel.revalidate();
         backgroundLabel.repaint();
 
-        System.out.println("Background image updated to: " + imagePath);
+        log("Background image updated to: " + imagePath);
     }
 
     @Override

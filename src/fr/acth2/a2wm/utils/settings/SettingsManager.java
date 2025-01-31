@@ -44,14 +44,14 @@ public class SettingsManager {
                 Object obj = parser.parse(reader);
                 if (obj instanceof JSONObject) {
                     settings = (JSONObject) obj;
-                    System.out.println("Loaded settings from: " + SETTINGS_FILE);
-                    System.out.println("Settings content: " + settings.toJSONString());
+                    log("Loaded settings from: " + SETTINGS_FILE);
+                    log("Settings content: " + settings.toJSONString());
                 } else {
-                    System.err.println("settings.json does not contain a valid JSON object. Initializing with empty settings.");
+                    err("settings.json does not contain a valid JSON object. Initializing with empty settings.");
                     settings = new JSONObject();
                 }
             } catch (IOException | ParseException e) {
-                System.err.println("Error reading settings.json. Initializing with empty settings.");
+                err("Error reading settings.json. Initializing with empty settings.");
                 e.printStackTrace();
                 settings = new JSONObject();
             }
@@ -72,19 +72,19 @@ public class SettingsManager {
     public String get(String key, String defaultValue) {
         Object value = settings.get(key);
         String result = value != null ? value.toString() : defaultValue;
-        System.out.println("Get key: '" + key + "' with value: '" + result + "'");
+        log("Get key: '" + key + "' with value: '" + result + "'");
         return result;
     }
 
     public void set(String key, String value) {
         settings.put(key, value);
-        System.out.println("Set key: '" + key + "' with value: '" + value + "'");
+        log("Set key: '" + key + "' with value: '" + value + "'");
         saveSettings();
     }
 
     public void remove(String key) {
         settings.remove(key);
-        System.out.println("Removed key: '" + key + "'");
+        log("Removed key: '" + key + "'");
         saveSettings();
     }
 
@@ -93,19 +93,11 @@ public class SettingsManager {
             String jsonString = settings.toJSONString();
             writer.write(jsonString);
             writer.flush();
-            System.out.println("Settings saved to: " + SETTINGS_FILE);
-            System.out.println("Settings content: " + jsonString);
+            log("Settings saved to: " + SETTINGS_FILE);
+            log("Settings content: " + jsonString);
         } catch (IOException e) {
-            System.err.println("Error saving settings.json.");
+            err("Error saving settings.json.");
             e.printStackTrace();
         }
-    }
-
-    // that was for the test
-    public static void main(String[] args) {
-        SettingsManager sm = SettingsManager.getInstance();
-        sm.set("testKey", "testValue");
-        sm.get("testKey", "defaultVal");
-        sm.saveSettings();
     }
 }

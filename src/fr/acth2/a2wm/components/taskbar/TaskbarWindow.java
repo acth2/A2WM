@@ -118,7 +118,7 @@ public class TaskbarWindow extends JFrame {
         }
 
         String imagePath = settingsInstance.get(key, defaultPath);
-        System.out.println("Loading image from: " + imagePath);
+        log("Loading image from: " + imagePath);
 
         ImageIcon favicon = ImageManager.loadImage(imagePath, 32, 28);
 

@@ -18,6 +18,24 @@ public class Wrapper {
             System.exit(0);
         }
 
+        String displayEnv = System.getenv("DISPLAY");
+        if (displayEnv != null && !displayEnv.isEmpty()) {
+            startWM();
+        } else {
+            String sessionType = System.getenv("XDG_SESSION_TYPE");
+            if ("x11".equalsIgnoreCase(sessionType)) {
+                startWM();
+            } else if ("wayland".equalsIgnoreCase(sessionType)) {
+                log("A2WM is not likely to work on wayland.\nPlease use X11, however you can still trick the wm and start it anyway by defining the variable DISPLAY");
+                System.exit(0);
+            } else {
+                err("ERR: None DISPLAY + None x11 or wayland in $XDG_SESSION_TYPE.\nIf you get this error please create an issue in the github repository of A2WM: https://github.com/acth2/A2WM");
+                System.exit(1);
+            }
+        }
+    }
+
+    private static void startWM() {
         log("STARTING " + NAME);
         log("VERSION  " + VERSION);
 

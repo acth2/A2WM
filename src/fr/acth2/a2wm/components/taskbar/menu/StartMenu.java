@@ -22,7 +22,6 @@ public class StartMenu extends JFrame {
 
         log("Initializing StartMenu...");
         initializeWindow();
-        log("StartMenu is now visible.");
     }
 
 

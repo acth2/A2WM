@@ -6,6 +6,8 @@ import java.util.Objects;
 public class References {
     public static final String NAME = "A2WM";
     public static final int VERSION = 1;
+    public static final String GITHUB_LINK = "https://github.com/acth2/A2WM";
+    public static final String GITHUB_ISSUE = GITHUB_LINK + "/issues";
 
     private static String OS = null;
 

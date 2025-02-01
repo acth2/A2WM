@@ -1,8 +1,8 @@
 package fr.acth2.a2wm.components.taskbar;
 
 import fr.acth2.a2wm.components.taskbar.menu.StartMenu;
-import fr.acth2.a2wm.utils.finders.FontManager;
-import fr.acth2.a2wm.utils.finders.ImageManager;
+import fr.acth2.a2wm.utils.manager.FontManager;
+import fr.acth2.a2wm.utils.manager.ImageManager;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 import fr.acth2.a2wm.utils.swing.AntiAliasingLabel;
 import fr.acth2.a2wm.utils.x11.MinimizedWindow;

@@ -1,4 +1,4 @@
-package fr.acth2.a2wm.utils.finders;
+package fr.acth2.a2wm.utils.manager;
 
 import java.awt.*;
 

@@ -43,6 +43,10 @@ public class MinimizedWindowsChecker {
         return minimizedList;
     }
 
+    public static void restoreMinimized(MinimizedWindow window) {
+        runCommand("wmctrl", "-i", "-R", window.getWindowId());
+    }
+
     private static List<String> runCommand(String... command) {
         List<String> lines = new ArrayList<>();
         ProcessBuilder builder = new ProcessBuilder(command);

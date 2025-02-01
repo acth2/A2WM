@@ -9,18 +9,17 @@ import fr.acth2.a2wm.utils.x11.MinimizedWindow;
 import fr.acth2.a2wm.utils.x11.MinimizedWindowsChecker;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.List;
 
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class TaskbarWindow extends JFrame {
-    private static java.util.List<String> minimizedIdList = new ArrayList<>();
+    private Map<String, JButton> minimizedButtons = new HashMap<>();
     private static JPanel buttonsPane = new JPanel();
     private JLabel timeLabel;
     private JLabel dateLabel;
@@ -154,14 +153,39 @@ public class TaskbarWindow extends JFrame {
         timeLabel.setText(currentTime);
         dateLabel.setText(currentDate);
 
-        java.util.List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
-        log("Currently minimized (Iconic) windows:");
+        List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
+        Set<String> currentWindowIds = new HashSet<>();
+
         for (MinimizedWindow w : minimized) {
-            if (!minimizedIdList.contains(w.getWindowId())) {
-                buttonsPane.add(new JButton(w.getTitle()));
-                minimizedIdList.add(w.getWindowId());
+            currentWindowIds.add(w.getWindowId());
+            if (!minimizedButtons.containsKey(w.getWindowId())) {
+                JButton button = new JButton(w.getTitle());
+
+                final MinimizedWindow window = w;
+
+                button.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        restoreWindow(window);
+                    }
+                });
+
+                buttonsPane.add(button);
+                minimizedButtons.put(w.getWindowId(), button);
             }
         }
+
+        Iterator<Map.Entry<String, JButton>> iterator = minimizedButtons.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, JButton> entry = iterator.next();
+            if (!currentWindowIds.contains(entry.getKey())) {
+                buttonsPane.remove(entry.getValue());
+                iterator.remove();
+            }
+        }
+
+        buttonsPane.revalidate();
+        buttonsPane.repaint();
     }
 
     public void updateWindow() {
@@ -175,6 +199,10 @@ public class TaskbarWindow extends JFrame {
         repaint();
 
         log("Taskbar window updated to: " + width + "x" + height);
+    }
+
+    private void restoreWindow(MinimizedWindow window) {
+        MinimizedWindowsChecker.restoreMinimized(window);
     }
 
     public void setTaskbarLabel(String text) {

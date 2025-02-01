@@ -10,8 +10,8 @@ public class References {
     public static final String GITHUB_LINK = "https://github.com/acth2/A2WM";
     public static final String GITHUB_ISSUE = GITHUB_LINK + "/issues";
 
-    public static final String RESET = "\u001B[0m";
-    public static final String YELLOW = "\u001B[33m";
+    public static final String RESET = "\033[0m";
+    public static final String YELLOW = "\033[33m";
 
     private static String OS = null;
 

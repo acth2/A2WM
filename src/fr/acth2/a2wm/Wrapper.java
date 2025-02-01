@@ -36,18 +36,25 @@ public class Wrapper {
     }
 
     private static void startWM() {
-        log("STARTING " + NAME);
-        log("VERSION  " + VERSION);
+        if (isAppAvailable("wmctrl")) {
+            log("STARTING " + NAME);
+            log("VERSION  " + VERSION);
 
-        try {
-            UIManager.setLookAndFeel(new FlatDarkLaf());
-            SwingUtilities.invokeLater(() -> {
-                BackgroundWindow backgroundWindow = new BackgroundWindow();
-            });
+            try {
+                UIManager.setLookAndFeel(new FlatDarkLaf());
+                SwingUtilities.invokeLater(() -> {
+                    BackgroundWindow backgroundWindow = new BackgroundWindow();
+                });
 
-            SwingUtilities.invokeLater(() -> {
-                TaskbarWindow taskbarWindow = new TaskbarWindow();
-            });
-        } catch (Exception exception) { err(NAME + " CRASHED!\n"); exception.printStackTrace(); }
+                SwingUtilities.invokeLater(() -> {
+                    TaskbarWindow taskbarWindow = new TaskbarWindow();
+                });
+            } catch (Exception exception) {
+                err(NAME + " CRASHED!\n");
+                exception.printStackTrace();
+            }
+        } else {
+            err("The application 'wmctrl' is not found in your PATH.\nPlease install this software and restart the windowmanager");
+        }
     }
 }

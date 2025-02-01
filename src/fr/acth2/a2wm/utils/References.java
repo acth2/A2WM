@@ -1,5 +1,6 @@
 package fr.acth2.a2wm.utils;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -16,6 +17,21 @@ public class References {
             OS = System.getProperty("os.name");
         }
         return OS;
+    }
+
+    public static boolean isAppAvailable(String appName) {
+        String pathEnv = System.getenv("PATH");
+        if (pathEnv == null) {
+            return false;
+        }
+        String[] paths = pathEnv.split(":");
+        for (String path : paths) {
+            File file = new File(path, appName);
+            if (file.exists() && file.canExecute()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isLinux() {

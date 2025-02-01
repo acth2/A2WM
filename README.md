@@ -15,7 +15,7 @@
 <p>🟠 Full customisation</p>
 <p>🟠 Desktop Icons</p>
 <p>🟠 TaskBar Menu</p>
-<p>❌ TaskBar Minimized Applications</p>
+<p>✅ TaskBar Minimized Applications</p>
 
 <h2>Dependencies:</h2>
 

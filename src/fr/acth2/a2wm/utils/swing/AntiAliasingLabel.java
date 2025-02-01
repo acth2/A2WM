@@ -4,15 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AntiAliasingLabel extends JLabel {
-    private final Font customFont;
-    private final Color textColor;
 
     public AntiAliasingLabel(String text, Font font, Color color) {
         super(text);
-        this.customFont = font;
-        this.textColor = color;
-        setFont(customFont);
-        setForeground(textColor);
+        setFont(font);
+        setForeground(color);
     }
 
     @Override

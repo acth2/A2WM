@@ -37,8 +37,8 @@ public class Wrapper {
 
     private static void startWM() {
         if (isAppAvailable("wmctrl")) {
-            log("STARTING " + NAME);
-            log("VERSION  " + VERSION);
+            log(YELLOW + "STARTING " + RESET + NAME);
+            log(YELLOW + "VERSION  " + RESET + VERSION);
 
             try {
                 UIManager.setLookAndFeel(new FlatDarkLaf());

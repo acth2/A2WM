@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -19,6 +20,8 @@ import java.util.TimeZone;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class TaskbarWindow extends JFrame {
+    private static java.util.List<String> minimizedIdList = new ArrayList<>();
+    private static JPanel buttonsPane = new JPanel();
     private JLabel timeLabel;
     private JLabel dateLabel;
     private StartMenu startMenu;
@@ -95,7 +98,8 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.add(Box.createVerticalGlue());
 
         timeDatePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
-        rootPanel.add(timeDatePanel, BorderLayout.CENTER);
+        rootPanel.add(timeDatePanel, BorderLayout.EAST);
+        rootPanel.add(buttonsPane, null);
         rootPanel.add(startButton, BorderLayout.WEST);
 
         setContentPane(rootPanel);
@@ -153,8 +157,10 @@ public class TaskbarWindow extends JFrame {
         java.util.List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
         log("Currently minimized (Iconic) windows:");
         for (MinimizedWindow w : minimized) {
-            // All works !
-            System.exit(0);
+            if (!minimizedIdList.contains(w.getWindowId())) {
+                buttonsPane.add(new JButton(w.getTitle()));
+                minimizedIdList.add(w.getWindowId());
+            }
         }
     }
 

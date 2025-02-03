@@ -31,10 +31,10 @@ public class TaskbarWindow extends JFrame {
 
     public TaskbarWindow() {
         super("A2WM-TASKBAR");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setResizable(false);
         setUndecorated(true);
-        setAlwaysOnTop(true);
+        setAlwaysOnTop(false);
 
         initializeWindow();
         loopManager();

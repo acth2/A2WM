@@ -21,6 +21,7 @@ public class BackgroundWindow extends JFrame {
     public BackgroundWindow() {
         super("A2WM-BACKGROUND");
         setUndecorated(true);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setAlwaysOnTop(false);
         setFocusable(false);
         setFocusableWindowState(false);

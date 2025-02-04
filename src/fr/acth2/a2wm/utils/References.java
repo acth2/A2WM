@@ -3,6 +3,7 @@ package fr.acth2.a2wm.utils;
 import java.io.File;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 
 public class References {
     public static final String NAME = "A2WM";
@@ -12,6 +13,7 @@ public class References {
 
     public static final String RESET = "\033[0m";
     public static final String YELLOW = "\033[33m";
+    public static final Random rand = new Random();
 
     private static String OS = null;
 
@@ -20,6 +22,10 @@ public class References {
             OS = System.getProperty("os.name");
         }
         return OS;
+    }
+
+    public static int intFromRange(int min, int max) {
+        return rand.nextInt(max - min + 1) + min;
     }
 
     public static boolean isAppAvailable(String appName) {

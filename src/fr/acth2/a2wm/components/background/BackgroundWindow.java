@@ -7,10 +7,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
 
+import static fr.acth2.a2wm.utils.References.*;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class BackgroundWindow extends JFrame {
+    private final SettingsManager settings = SettingsManager.getInstance();
     private String currentImagePath = "";
     private JLabel backgroundLabel;
     private int currentWidth;
@@ -69,13 +74,12 @@ public class BackgroundWindow extends JFrame {
         SwingUtilities.invokeLater(this::toBack);
 
         setFocusable(false);
+        initGridOverlay();
         mainLoop();
     }
 
     private void initComponents() {
         setLayout(new BorderLayout());
-
-        SettingsManager settings = SettingsManager.getInstance();
         String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
         currentImagePath = imagePath;
 
@@ -89,7 +93,7 @@ public class BackgroundWindow extends JFrame {
 
 
     private void mainLoop() {
-        int delay = 100;
+        int delay = 25;
 
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
@@ -157,5 +161,67 @@ public class BackgroundWindow extends JFrame {
     @Override
     protected boolean requestFocus(boolean temporary) {
         return false;
+    }
+
+    private final int gridRows = Integer.parseInt(settings.get("desktopGridRows", String.valueOf(16)));
+    private final int gridCols = Integer.parseInt(settings.get("desktopGridCols", String.valueOf(16)));;
+    private JPanel[][] gridCells;
+    private JPanel gridOverlayPanel;
+
+    private void initGridOverlay() {
+        gridOverlayPanel = new JPanel(new GridLayout(gridRows, gridCols));
+        gridOverlayPanel.setOpaque(false);
+        gridCells = new JPanel[gridRows][gridCols];
+
+        for (int i = 0; i < gridRows; i++) {
+            for (int j = 0; j < gridCols; j++) {
+                JPanel cell = new JPanel(new BorderLayout());
+                cell.setOpaque(false);
+                cell.setBorder(null);
+                gridCells[i][j] = cell;
+                gridOverlayPanel.add(cell);
+            }
+        }
+
+        gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
+        gridOverlayPanel.addMouseListener(new MouseAdapter() {
+            int buttonCount = 1;
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                log("Grid overlay clicked at: " + e.getPoint());
+                JButton button = new JButton("Button " + buttonCount);
+                button.setOpaque(true);
+                button.setContentAreaFilled(true);
+                button.setBackground(new Color(intFromRange(0, 255), intFromRange(0, 255), intFromRange(0, 255), 255));
+                button.setBorder(null);
+                boolean added = addButtonToRandomFreeCell(button);
+                if (added) {
+                    log("Added " + button.getText());
+                    buttonCount++;
+                } else {
+                    log("No free grid cell available!");
+                }
+            }
+        });
+        getLayeredPane().add(gridOverlayPanel, new Integer(JLayeredPane.PALETTE_LAYER));
+    }
+
+    public boolean addButtonToRandomFreeCell(JButton button) {
+        List<Point> freeCells = new ArrayList<>();
+        for (int i = 0; i < gridRows; i++) {
+            for (int j = 0; j < gridCols; j++) {
+                if (gridCells[i][j].getComponentCount() == 0) {
+                    freeCells.add(new Point(i, j));
+                }
+            }
+        }
+        if (freeCells.isEmpty()) {
+            return false;
+        }
+        Point chosen = freeCells.get(rand.nextInt(freeCells.size()));
+        gridCells[chosen.x][chosen.y].add(button, BorderLayout.CENTER);
+        gridCells[chosen.x][chosen.y].revalidate();
+        gridCells[chosen.x][chosen.y].repaint();
+        return true;
     }
 }

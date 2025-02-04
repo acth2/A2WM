@@ -34,7 +34,7 @@ public class TaskbarWindow extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setResizable(false);
         setUndecorated(true);
-        setAlwaysOnTop(false);
+        setAlwaysOnTop(true);
 
         initializeWindow();
         loopManager();

@@ -43,7 +43,7 @@ public class Wrapper {
                 log("A2WM is not likely to work on wayland.\nPlease use X11, however you can still trick the wm and start it anyway by defining the variable DISPLAY");
                 System.exit(0);
             } else {
-                err("ERR: None DISPLAY + None x11 or wayland in $XDG_SESSION_TYPE.\nDo you have a started X11 session?");
+                err("ERR: None DISPLAY + None x11 or wayland in $XDG_SESSION_TYPE. Do you have a started X11 session?");
                 System.exit(1);
             }
         }

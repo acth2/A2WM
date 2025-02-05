@@ -1,6 +1,7 @@
 package fr.acth2.a2wm;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.sun.org.apache.regexp.internal.RE;
 import fr.acth2.a2wm.components.background.BackgroundWindow;
 import fr.acth2.a2wm.components.taskbar.TaskbarWindow;
 import javax.swing.*;
@@ -14,6 +15,7 @@ public class Wrapper {
             err("The window-manager is not compatible with non-unix os.");
             System.exit(0);
         }
+        verifyFiles();
 
         String displayEnv = System.getenv("DISPLAY");
         if (displayEnv != null && !displayEnv.isEmpty()) {
@@ -28,6 +30,16 @@ public class Wrapper {
             } else {
                 err("ERR: None DISPLAY + None x11 or wayland in $XDG_SESSION_TYPE.\nIf you get this error please create an issue in the github repository of A2WM: " + GITHUB_ISSUE);
                 System.exit(1);
+            }
+        }
+    }
+
+    private static void verifyFiles() {
+        if (!mainDir.exists()) {
+            createDir(desktopDir);
+        }else {
+            if (!desktopDir.exists()) {
+                createDir(desktopDir);
             }
         }
     }

@@ -2,8 +2,10 @@ package fr.acth2.a2wm.utils;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
+
+import static fr.acth2.a2wm.utils.logger.Logger.err;
+import static fr.acth2.a2wm.utils.logger.Logger.log;
 
 public class References {
     public static final String NAME = "A2WM";
@@ -14,7 +16,8 @@ public class References {
     public static final String RESET = "\033[0m";
     public static final String YELLOW = "\033[33m";
     public static final Random rand = new Random();
-    public static final File desktopDir = new File(System.getProperty("user.home") + "/.a2wm/desktop");
+    public static final File mainDir = new File(System.getProperty("user.home") + "/.a2wm");
+    public static final File desktopDir = new File(mainDir.getAbsolutePath() + "/desktop");
 
     private static String OS = null;
 
@@ -23,6 +26,14 @@ public class References {
             OS = System.getProperty("os.name");
         }
         return OS;
+    }
+
+    public static void createDir(File directory) {
+        if (directory.mkdir()) {
+            log(YELLOW + directory.getName() + RESET + " created!");
+        }else {
+            err(directory.getName() + " failed to create!");
+        }
     }
 
     public static int intFromRange(int min, int max) {

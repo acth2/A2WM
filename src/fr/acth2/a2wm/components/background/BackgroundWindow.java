@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 import java.util.List;
 
@@ -118,6 +119,20 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
+            for (File file : Objects.requireNonNull(desktopDir.listFiles())) {
+                JButton button = new JButton(file.isFile() ? "Button file" : "Button directory");
+                button.setOpaque(true);
+                button.setContentAreaFilled(true);
+                button.setBackground(new Color(intFromRange(0, 255), intFromRange(0, 255), intFromRange(0, 255), 255));
+                button.setBorder(null);
+                boolean added = addButtonToRandomFreeCell(button);
+                if (added) {
+                    log("Added " + button.getText());
+                } else {
+                    log("No free grid cell available!");
+                }
+            }
+            getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
 
             toBack();
         });
@@ -184,26 +199,6 @@ public class BackgroundWindow extends JFrame {
         }
 
         gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
-        gridOverlayPanel.addMouseListener(new MouseAdapter() {
-            int buttonCount = 1;
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                log("Grid overlay clicked at: " + e.getPoint());
-                JButton button = new JButton("Button " + buttonCount);
-                button.setOpaque(true);
-                button.setContentAreaFilled(true);
-                button.setBackground(new Color(intFromRange(0, 255), intFromRange(0, 255), intFromRange(0, 255), 255));
-                button.setBorder(null);
-                boolean added = addButtonToRandomFreeCell(button);
-                if (added) {
-                    log("Added " + button.getText());
-                    buttonCount++;
-                } else {
-                    log("No free grid cell available!");
-                }
-            }
-        });
-        getLayeredPane().add(gridOverlayPanel, new Integer(JLayeredPane.PALETTE_LAYER));
     }
 
     public boolean addButtonToRandomFreeCell(JButton button) {

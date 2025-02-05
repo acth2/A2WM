@@ -14,6 +14,7 @@ public class References {
     public static final String RESET = "\033[0m";
     public static final String YELLOW = "\033[33m";
     public static final Random rand = new Random();
+    public static final File desktopDir = new File(System.getProperty("user.home") + "/.a2wm/desktop");
 
     private static String OS = null;
 

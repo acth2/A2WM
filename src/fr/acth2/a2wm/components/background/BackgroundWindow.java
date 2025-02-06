@@ -76,6 +76,7 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(false);
         initGridOverlay();
+        getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
         mainLoop();
     }
 
@@ -119,7 +120,8 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
-            for (File file : Objects.requireNonNull(desktopDir.listFiles())) {
+
+            for (File file : desktopDir.listFiles()) {
                 JButton button = new JButton(file.isFile() ? "Button file" : "Button directory");
                 button.setOpaque(true);
                 button.setContentAreaFilled(true);
@@ -132,8 +134,6 @@ public class BackgroundWindow extends JFrame {
                     log("No free grid cell available!");
                 }
             }
-            getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
-
             toBack();
         });
         timer.start();

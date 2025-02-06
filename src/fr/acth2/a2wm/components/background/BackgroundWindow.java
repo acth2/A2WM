@@ -4,12 +4,11 @@ import fr.acth2.a2wm.components.background.context.ContextMenu;
 import fr.acth2.a2wm.utils.settings.SettingsManager;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.List;
 
 import static fr.acth2.a2wm.utils.References.*;
@@ -17,6 +16,7 @@ import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class BackgroundWindow extends JFrame {
     private final SettingsManager settings = SettingsManager.getInstance();
+    private final Set<String> addedFilePaths = new HashSet<>();
     private String currentImagePath = "";
     private JLabel backgroundLabel;
     private int currentWidth;
@@ -120,19 +120,24 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
+            Color fileColor = new Color(0, 0, 255, 255);
+            Color dirColor = new Color(0, 255, 0, 255);
 
             for (File file : desktopDir.listFiles()) {
-                JButton button = new JButton(file.isFile() ? "Button file" : "Button directory");
-                button.setOpaque(true);
-                button.setContentAreaFilled(true);
-                button.setBackground(new Color(intFromRange(0, 255), intFromRange(0, 255), intFromRange(0, 255), 255));
-                button.setBorder(null);
-                boolean added = addButtonToRandomFreeCell(button);
-                if (added) {
-                    log("Added " + button.getText());
-                } else {
-                    log("No free grid cell available!");
+                if (!addedFilePaths.contains(file.getName())) {
+                    JButton button = new JButton(file.getName());
+                    button.setOpaque(true);
+                    button.setContentAreaFilled(true);
+                    button.setBackground(file.isFile() ? fileColor : dirColor);
+                    button.setBorder(null);
+                    boolean added = addButtonToRandomFreeCell(button);
+                    if (added) {
+                        log("Added " + button.getText());
+                    } else {
+                        log("No free grid cell available!");
+                    }
                 }
+                addedFilePaths.add(file.getName());
             }
             toBack();
         });

@@ -133,7 +133,7 @@ public class BackgroundWindow extends JFrame {
                     button.setBackground(file.isFile() ? fileColor : dirColor);
                     button.setBorder(null);
 
-                    button.setBounds(100, 100, 120, 40);
+                    button.setBounds(intFromRange(0, getToolkit().getScreenSize().width), intFromRange(0, getToolkit().getScreenSize().height), 120, 40);
                     Point offset = new Point();
                     button.addMouseListener(new MouseAdapter() {
                         @Override
@@ -171,6 +171,7 @@ public class BackgroundWindow extends JFrame {
                         parent.revalidate();
                         parent.repaint();
                     }
+                    addedFilePaths.remove(path);
                     iterator.remove();
                 }
             }

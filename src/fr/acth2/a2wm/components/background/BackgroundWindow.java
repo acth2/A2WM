@@ -17,6 +17,7 @@ import static fr.acth2.a2wm.utils.logger.Logger.*;
 public class BackgroundWindow extends JFrame {
     private final SettingsManager settings = SettingsManager.getInstance();
     private final Set<String> addedFilePaths = new HashSet<>();
+    private final Map<String, JButton> pathToButtonMap = new HashMap<>();
     private String currentImagePath = "";
     private JLabel backgroundLabel;
     private int currentWidth;
@@ -120,24 +121,45 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
-            Color fileColor = new Color(0, 0, 255, 255);
-            Color dirColor = new Color(0, 255, 0, 255);
+            Color fileColor = new Color(3, 30, 82, 255);
+            Color dirColor = new Color(14, 128, 110, 255);
 
             for (File file : desktopDir.listFiles()) {
-                if (!addedFilePaths.contains(file.getName())) {
-                    JButton button = new JButton(file.getName());
+                String absolutePath = file.getAbsolutePath();
+
+                if (!addedFilePaths.contains(absolutePath)) {
+                    JButton button = new JButton(file.isDirectory() ? file.getName() + "/" : file.getName());
                     button.setOpaque(true);
                     button.setContentAreaFilled(true);
                     button.setBackground(file.isFile() ? fileColor : dirColor);
                     button.setBorder(null);
-                    boolean added = addButtonToRandomFreeCell(button);
+
+                    boolean added = addButtonToRandomFreeCell(button, false);
                     if (added) {
                         log("Added " + button.getText());
+                        addedFilePaths.add(absolutePath);
+                        pathToButtonMap.put(absolutePath, button);
                     } else {
                         log("No free grid cell available!");
                     }
                 }
-                addedFilePaths.add(file.getName());
+            }
+
+            Iterator<String> iterator = addedFilePaths.iterator();
+            while (iterator.hasNext()) {
+                String path = iterator.next();
+                File file = new File(path);
+
+                if (!file.exists()) {
+                    JButton button = pathToButtonMap.get(path);
+                    Container parent = button.getParent();
+                    if (parent != null) {
+                        parent.remove(button);
+                        parent.revalidate();
+                        parent.repaint();
+                    }
+                    iterator.remove();
+                }
             }
             toBack();
         });
@@ -206,7 +228,7 @@ public class BackgroundWindow extends JFrame {
         gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
     }
 
-    public boolean addButtonToRandomFreeCell(JButton button) {
+    public boolean addButtonToRandomFreeCell(JButton button, boolean doRemove) {
         List<Point> freeCells = new ArrayList<>();
         for (int i = 0; i < gridRows; i++) {
             for (int j = 0; j < gridCols; j++) {
@@ -219,7 +241,11 @@ public class BackgroundWindow extends JFrame {
             return false;
         }
         Point chosen = freeCells.get(rand.nextInt(freeCells.size()));
-        gridCells[chosen.x][chosen.y].add(button, BorderLayout.CENTER);
+        if (doRemove) {
+            gridCells[chosen.x][chosen.y].remove(button);
+        } else {
+            gridCells[chosen.x][chosen.y].add(button, BorderLayout.CENTER);
+        }
         gridCells[chosen.x][chosen.y].revalidate();
         gridCells[chosen.x][chosen.y].repaint();
         return true;

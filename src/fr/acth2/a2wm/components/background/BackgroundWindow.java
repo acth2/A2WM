@@ -77,7 +77,6 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(false);
         initGridOverlay();
-        getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
         mainLoop();
     }
 
@@ -128,20 +127,34 @@ public class BackgroundWindow extends JFrame {
                 String absolutePath = file.getAbsolutePath();
 
                 if (!addedFilePaths.contains(absolutePath)) {
-                    JButton button = new JButton(file.isDirectory() ? file.getName() + "/" : file.getName());
+                    JButton button = new JButton(file.getName());
                     button.setOpaque(true);
                     button.setContentAreaFilled(true);
                     button.setBackground(file.isFile() ? fileColor : dirColor);
                     button.setBorder(null);
 
-                    boolean added = addButtonToRandomFreeCell(button, false);
-                    if (added) {
-                        log("Added " + button.getText());
-                        addedFilePaths.add(absolutePath);
-                        pathToButtonMap.put(absolutePath, button);
-                    } else {
-                        log("No free grid cell available!");
-                    }
+                    button.setBounds(100, 100, 120, 40);
+                    Point offset = new Point();
+                    button.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            offset.x = e.getX();
+                            offset.y = e.getY();
+                        }
+                    });
+                    button.addMouseMotionListener(new MouseMotionAdapter() {
+                        @Override
+                        public void mouseDragged(MouseEvent e) {
+                            int newX = button.getX() + e.getX() - offset.x;
+                            int newY = button.getY() + e.getY() - offset.y;
+                            button.setLocation(newX, newY);
+                        }
+                    });
+                    gridOverlayPanel.add(button);
+
+                    addedFilePaths.add(absolutePath);
+                    pathToButtonMap.put(absolutePath, button);
+
                 }
             }
 
@@ -211,8 +224,11 @@ public class BackgroundWindow extends JFrame {
     private JPanel gridOverlayPanel;
 
     private void initGridOverlay() {
-        gridOverlayPanel = new JPanel(new GridLayout(gridRows, gridCols));
+        gridOverlayPanel = new JPanel(null);
         gridOverlayPanel.setOpaque(false);
+        gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
+        getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
+
         gridCells = new JPanel[gridRows][gridCols];
 
         for (int i = 0; i < gridRows; i++) {
@@ -224,8 +240,6 @@ public class BackgroundWindow extends JFrame {
                 gridOverlayPanel.add(cell);
             }
         }
-
-        gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
     }
 
     public boolean addButtonToRandomFreeCell(JButton button, boolean doRemove) {

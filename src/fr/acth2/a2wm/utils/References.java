@@ -1,6 +1,11 @@
 package fr.acth2.a2wm.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -34,6 +39,25 @@ public class References {
         }else {
             err(directory.getName() + " failed to create!");
         }
+    }
+
+    public static List<String> runCommand(String... command) {
+        List<String> lines = new ArrayList<>();
+        ProcessBuilder builder = new ProcessBuilder(command);
+        try {
+            Process process = builder.start();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lines.add(line);
+                }
+            }
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return lines;
     }
 
     public static int intFromRange(int min, int max) {

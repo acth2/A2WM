@@ -1,10 +1,9 @@
 package fr.acth2.a2wm.utils.x11;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import static fr.acth2.a2wm.utils.References.*;
 
 public class MinimizedWindowsChecker {
     public static List<MinimizedWindow> findMinimizedWindowsICCCM() {
@@ -45,24 +44,5 @@ public class MinimizedWindowsChecker {
 
     public static void restoreMinimized(MinimizedWindow window) {
         runCommand("wmctrl", "-i", "-R", window.getWindowId());
-    }
-
-    private static List<String> runCommand(String... command) {
-        List<String> lines = new ArrayList<>();
-        ProcessBuilder builder = new ProcessBuilder(command);
-        try {
-            Process process = builder.start();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    lines.add(line);
-                }
-            }
-            process.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return lines;
     }
 }

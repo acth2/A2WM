@@ -23,6 +23,8 @@ public class BackgroundWindow extends JFrame {
     private int currentWidth;
     private int currentHeight;
 
+    public static final File mainDir = new File(System.getProperty("user.home") + "/.a2wm");
+    public static final File desktopDir = new File(mainDir.getAbsolutePath() + "/desktop");
     public static final int yAxisReducer = -32;
 
     public BackgroundWindow() {
@@ -52,7 +54,6 @@ public class BackgroundWindow extends JFrame {
                     toBack();
                 }
             }
-
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -67,7 +68,6 @@ public class BackgroundWindow extends JFrame {
             public void windowGainedFocus(WindowEvent e) {
                 toBack();
             }
-
             @Override
             public void windowLostFocus(WindowEvent e) {}
         });
@@ -93,10 +93,8 @@ public class BackgroundWindow extends JFrame {
         add(backgroundLabel, BorderLayout.CENTER);
     }
 
-
     private void mainLoop() {
-        int delay = 25;
-
+        int delay = 1000;
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
             String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
@@ -120,41 +118,50 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
+
             Color fileColor = new Color(3, 30, 82, 255);
             Color dirColor = new Color(14, 128, 110, 255);
 
-            for (File file : desktopDir.listFiles()) {
-                String absolutePath = file.getAbsolutePath();
+            File[] files = desktopDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    String absolutePath = file.getAbsolutePath();
+                    if (!addedFilePaths.contains(absolutePath)) {
+                        JButton button = new JButton(file.isFile() ? file.getName() : file.getName() + "/");
+                        button.setOpaque(true);
+                        button.setContentAreaFilled(true);
+                        button.setBackground(file.isFile() ? fileColor : dirColor);
+                        button.setBorder(null);
 
-                if (!addedFilePaths.contains(absolutePath)) {
-                    JButton button = new JButton(file.getName());
-                    button.setOpaque(true);
-                    button.setContentAreaFilled(true);
-                    button.setBackground(file.isFile() ? fileColor : dirColor);
-                    button.setBorder(null);
+                        button.setBounds(
+                                intFromRange(0, getToolkit().getScreenSize().width - 120),
+                                intFromRange(0, getToolkit().getScreenSize().height - 40),
+                                120,
+                                40
+                        );
+                        Point offset = new Point();
+                        button.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mousePressed(MouseEvent e) {
+                                offset.x = e.getX();
+                                offset.y = e.getY();
+                            }
+                        });
+                        button.addMouseMotionListener(new MouseMotionAdapter() {
+                            @Override
+                            public void mouseDragged(MouseEvent e) {
+                                int newX = button.getX() + e.getX() - offset.x;
+                                int newY = button.getY() + e.getY() - offset.y;
+                                button.setLocation(newX, newY);
+                            }
+                        });
+                        gridOverlayPanel.add(button);
+                        gridOverlayPanel.revalidate();
+                        gridOverlayPanel.repaint();
 
-                    button.setBounds(intFromRange(0, getToolkit().getScreenSize().width), intFromRange(0, getToolkit().getScreenSize().height), 120, 40);
-                    Point offset = new Point();
-                    button.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mousePressed(MouseEvent e) {
-                            offset.x = e.getX();
-                            offset.y = e.getY();
-                        }
-                    });
-                    button.addMouseMotionListener(new MouseMotionAdapter() {
-                        @Override
-                        public void mouseDragged(MouseEvent e) {
-                            int newX = button.getX() + e.getX() - offset.x;
-                            int newY = button.getY() + e.getY() - offset.y;
-                            button.setLocation(newX, newY);
-                        }
-                    });
-                    gridOverlayPanel.add(button);
-
-                    addedFilePaths.add(absolutePath);
-                    pathToButtonMap.put(absolutePath, button);
-
+                        addedFilePaths.add(absolutePath);
+                        pathToButtonMap.put(absolutePath, button);
+                    }
                 }
             }
 
@@ -162,16 +169,16 @@ public class BackgroundWindow extends JFrame {
             while (iterator.hasNext()) {
                 String path = iterator.next();
                 File file = new File(path);
+                JButton button = pathToButtonMap.get(path);
+                if (button == null) continue;
 
                 if (!file.exists()) {
-                    JButton button = pathToButtonMap.get(path);
-                    Container parent = button.getParent();
-                    if (parent != null) {
-                        parent.remove(button);
-                        parent.revalidate();
-                        parent.repaint();
+                    if (button.getParent() != null) {
+                        button.getParent().remove(button);
+                        button.getParent().revalidate();
+                        button.getParent().repaint();
                     }
-                    addedFilePaths.remove(path);
+                    pathToButtonMap.remove(path);
                     iterator.remove();
                 }
             }
@@ -219,9 +226,8 @@ public class BackgroundWindow extends JFrame {
         return false;
     }
 
-    private final int gridRows = Integer.parseInt(settings.get("desktopGridRows", String.valueOf(16)));
-    private final int gridCols = Integer.parseInt(settings.get("desktopGridCols", String.valueOf(16)));;
-    private JPanel[][] gridCells;
+    private final int gridRows = Integer.parseInt(settings.get("desktopGridRows", "16"));
+    private final int gridCols = Integer.parseInt(settings.get("desktopGridCols", "16"));
     private JPanel gridOverlayPanel;
 
     private void initGridOverlay() {
@@ -230,39 +236,13 @@ public class BackgroundWindow extends JFrame {
         gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
         getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
 
-        gridCells = new JPanel[gridRows][gridCols];
-
         for (int i = 0; i < gridRows; i++) {
             for (int j = 0; j < gridCols; j++) {
                 JPanel cell = new JPanel(new BorderLayout());
                 cell.setOpaque(false);
                 cell.setBorder(null);
-                gridCells[i][j] = cell;
                 gridOverlayPanel.add(cell);
             }
         }
-    }
-
-    public boolean addButtonToRandomFreeCell(JButton button, boolean doRemove) {
-        List<Point> freeCells = new ArrayList<>();
-        for (int i = 0; i < gridRows; i++) {
-            for (int j = 0; j < gridCols; j++) {
-                if (gridCells[i][j].getComponentCount() == 0) {
-                    freeCells.add(new Point(i, j));
-                }
-            }
-        }
-        if (freeCells.isEmpty()) {
-            return false;
-        }
-        Point chosen = freeCells.get(rand.nextInt(freeCells.size()));
-        if (doRemove) {
-            gridCells[chosen.x][chosen.y].remove(button);
-        } else {
-            gridCells[chosen.x][chosen.y].add(button, BorderLayout.CENTER);
-        }
-        gridCells[chosen.x][chosen.y].revalidate();
-        gridCells[chosen.x][chosen.y].repaint();
-        return true;
     }
 }

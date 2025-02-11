@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
+import static fr.acth2.a2wm.utils.References.mainDir;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class TaskbarWindow extends JFrame {
@@ -56,7 +57,7 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
-        ImageIcon favicon = ImageManager.loadImage(settingsInstance.isDarkmode() ? settingsInstance.get("fav-dark-path", System.getProperty("user.home") + "/.a2wm/favicon-dark.png") : settingsInstance.get("fav-white-path", System.getProperty("user.home") + "/.a2wm/favicon-white.png"), 32, 28);
+        ImageIcon favicon = ImageManager.loadImage(settingsInstance.isDarkmode() ? settingsInstance.get("fav-dark-path", mainDir.getPath() + "/.a2wm/favicon-dark.png") : settingsInstance.get("fav-white-path", mainDir.getPath() + "/.a2wm/favicon-white.png"), 32, 28);
         JButton startButton = new JButton(favicon);
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);
@@ -111,13 +112,13 @@ public class TaskbarWindow extends JFrame {
         if (isHovered) {
             key = settingsInstance.isDarkmode() ? "fav-hovered-dark-path" : "fav-hovered-white-path";
             defaultPath = settingsInstance.isDarkmode()
-                    ? System.getProperty("user.home") + "/.a2wm/fav-hovered-dark-path.png"
-                    : System.getProperty("user.home") + "/.a2wm/fav-hovered-white-path.png";
+                    ? mainDir.getPath() + "/.a2wm/fav-hovered-dark-path.png"
+                    : mainDir.getPath() + "/.a2wm/fav-hovered-white-path.png";
         } else {
             key = settingsInstance.isDarkmode() ? "fav-dark-path" : "fav-white-path";
             defaultPath = settingsInstance.isDarkmode()
-                    ? System.getProperty("user.home") + "/.a2wm/favicon-dark.png"
-                    : System.getProperty("user.home") + "/.a2wm/favicon-white.png";
+                    ? mainDir.getPath() + "/.a2wm/favicon-dark.png"
+                    : mainDir.getPath() + "/.a2wm/favicon-white.png";
         }
 
         String imagePath = settingsInstance.get(key, defaultPath);

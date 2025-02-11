@@ -22,9 +22,6 @@ public class BackgroundWindow extends JFrame {
     private JLabel backgroundLabel;
     private int currentWidth;
     private int currentHeight;
-
-    public static final File mainDir = new File(System.getProperty("user.home") + "/.a2wm");
-    public static final File desktopDir = new File(mainDir.getAbsolutePath() + "/desktop");
     public static final int yAxisReducer = -32;
 
     public BackgroundWindow() {
@@ -82,7 +79,7 @@ public class BackgroundWindow extends JFrame {
 
     private void initComponents() {
         setLayout(new BorderLayout());
-        String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
+        String imagePath = settings.get("imagePath", mainDir.getPath() + "/.a2wm/base.png");
         currentImagePath = imagePath;
 
         backgroundLabel = new JLabel();
@@ -97,7 +94,7 @@ public class BackgroundWindow extends JFrame {
         int delay = 1000;
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
-            String imagePath = settings.get("imagePath", System.getProperty("user.home") + "/.a2wm/base.png");
+            String imagePath = settings.get("imagePath", mainDir.getPath() + "/.a2wm/base.png");
 
             if (!imagePath.equals(currentImagePath)) {
                 File imageFile = new File(imagePath);

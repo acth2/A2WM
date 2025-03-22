@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import static fr.acth2.a2wm.utils.logger.Logger.err;
 import static fr.acth2.a2wm.utils.logger.Logger.log;
 
 public class References {
+
+    public static final Logger logger = Logger.getLogger("A2WM");
+
     public static final String NAME = "A2WM";
     public static final int VERSION = 1;
     public static final String GITHUB_LINK = "https://github.com/acth2/A2WM";

@@ -79,7 +79,7 @@ public class Wrapper {
                     exception.printStackTrace();
                 }
             } else {
-                err("The application 'wmctrl' is not found in your PATH.\nPlease install this software and restart the windowmanager");
+                err("The application 'wmctrl' is not found in your PATH.\nPlease install this software and restart the window-manager");
             }
         }
     }

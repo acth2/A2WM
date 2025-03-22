@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.*;
-import java.util.List;
 
 import static fr.acth2.a2wm.utils.References.*;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
@@ -91,7 +90,7 @@ public class BackgroundWindow extends JFrame {
     }
 
     private void mainLoop() {
-        int delay = 1000;
+        int delay = 250;
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
             String imagePath = settings.get("imagePath", mainDir.getPath() + "/.a2wm/base.png");
@@ -114,6 +113,35 @@ public class BackgroundWindow extends JFrame {
                 currentHeight = newSize.height;
                 updateBackgroundImage(currentImagePath);
                 toBack();
+            }
+
+            for (Map.Entry<String, JButton> entry : pathToButtonMap.entrySet()) {
+                JButton button = entry.getValue();
+                String filePath = entry.getKey();
+                Rectangle buttonBounds = button.getBounds();
+
+                for (Map.Entry<String, JButton> otherEntry : pathToButtonMap.entrySet()) {
+                    JButton otherButton = otherEntry.getValue();
+                    if (button == otherButton) {
+                        continue;
+                    }
+
+                    Rectangle otherButtonBounds = otherButton.getBounds();
+                    if (buttonBounds.intersects(otherButtonBounds)) {
+                        log("Collision detected between " + entry.getKey() + " and " + otherEntry.getKey());
+
+                        if (otherButton.getText().endsWith("/")) {
+                            File sourceFile = new File(filePath);
+                            File targetFolder = new File(otherEntry.getKey());
+
+                            if (moveFileToFolder(sourceFile, targetFolder, button)) {
+                                log("File moved and UI updated for: " + filePath);
+                            } else {
+                                err("Failed to move file: " + filePath);
+                            }
+                        }
+                    }
+                }
             }
 
             updateDesktopIcons();
@@ -199,22 +227,23 @@ public class BackgroundWindow extends JFrame {
         return desktopDir.getAbsolutePath() + button.getText();
     }
 
-    private void moveFileToFolder(File sourceFile, File targetFolder) {
+    private boolean moveFileToFolder(File sourceFile, File targetFolder, JButton fileButton) {
         System.out.println("Attempting to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
 
         File newFile = new File(targetFolder, sourceFile.getName());
         if (sourceFile.renameTo(newFile)) {
             log("Moved file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
+            fileButton.setBounds(0, Integer.MAX_VALUE, 1, 1);
             addedFilePaths.remove(sourceFile.getAbsolutePath());
             pathToButtonMap.remove(sourceFile.getAbsolutePath());
             gridOverlayPanel.remove(pathToButtonMap.get(sourceFile.getAbsolutePath()));
             gridOverlayPanel.revalidate();
             gridOverlayPanel.repaint();
+            return true;
         } else {
             err("Failed to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
+            return false;
         }
-
-        System.exit(0);
     }
 
     private void showCustomContextMenu(int x, int y) {

@@ -116,72 +116,105 @@ public class BackgroundWindow extends JFrame {
                 toBack();
             }
 
-            Color fileColor = new Color(3, 30, 82, 255);
-            Color dirColor = new Color(14, 128, 110, 255);
-
-            File[] files = desktopDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    String absolutePath = file.getAbsolutePath();
-                    if (!addedFilePaths.contains(absolutePath)) {
-                        JButton button = new JButton(file.isFile() ? file.getName() : file.getName() + "/");
-                        button.setOpaque(true);
-                        button.setContentAreaFilled(true);
-                        button.setBackground(file.isFile() ? fileColor : dirColor);
-                        button.setBorder(null);
-
-                        button.setBounds(
-                                intFromRange(0, getToolkit().getScreenSize().width - 120),
-                                intFromRange(0, getToolkit().getScreenSize().height - 40),
-                                120,
-                                40
-                        );
-                        Point offset = new Point();
-                        button.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mousePressed(MouseEvent e) {
-                                offset.x = e.getX();
-                                offset.y = e.getY();
-                            }
-                        });
-                        button.addMouseMotionListener(new MouseMotionAdapter() {
-                            @Override
-                            public void mouseDragged(MouseEvent e) {
-                                int newX = button.getX() + e.getX() - offset.x;
-                                int newY = button.getY() + e.getY() - offset.y;
-                                button.setLocation(newX, newY);
-                            }
-                        });
-                        gridOverlayPanel.add(button);
-                        gridOverlayPanel.revalidate();
-                        gridOverlayPanel.repaint();
-
-                        addedFilePaths.add(absolutePath);
-                        pathToButtonMap.put(absolutePath, button);
-                    }
-                }
-            }
-
-            Iterator<String> iterator = addedFilePaths.iterator();
-            while (iterator.hasNext()) {
-                String path = iterator.next();
-                File file = new File(path);
-                JButton button = pathToButtonMap.get(path);
-                if (button == null) continue;
-
-                if (!file.exists()) {
-                    if (button.getParent() != null) {
-                        button.getParent().remove(button);
-                        button.getParent().revalidate();
-                        button.getParent().repaint();
-                    }
-                    pathToButtonMap.remove(path);
-                    iterator.remove();
-                }
-            }
+            updateDesktopIcons();
             toBack();
         });
         timer.start();
+    }
+
+    private void updateDesktopIcons() {
+        Color fileColor = new Color(3, 30, 82, 255);
+        Color dirColor = new Color(14, 128, 110, 255);
+
+        File[] files = desktopDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String absolutePath = file.getAbsolutePath();
+                if (!addedFilePaths.contains(absolutePath)) {
+                    JButton button = createIconButton(file, file.isFile() ? fileColor : dirColor);
+                    gridOverlayPanel.add(button);
+                    gridOverlayPanel.revalidate();
+                    gridOverlayPanel.repaint();
+
+                    addedFilePaths.add(absolutePath);
+                    pathToButtonMap.put(absolutePath, button);
+                }
+            }
+        }
+
+        Iterator<String> iterator = addedFilePaths.iterator();
+        while (iterator.hasNext()) {
+            String path = iterator.next();
+            File file = new File(path);
+            JButton button = pathToButtonMap.get(path);
+            if (button == null) continue;
+
+            if (!file.exists()) {
+                gridOverlayPanel.remove(button);
+                gridOverlayPanel.revalidate();
+                gridOverlayPanel.repaint();
+
+                pathToButtonMap.remove(path);
+                iterator.remove();
+            }
+        }
+    }
+
+    private JButton createIconButton(File file, Color color) {
+        JButton button = new JButton(file.isFile() ? file.getName() : file.getName() + "/");
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBackground(color);
+        button.setBorder(null);
+
+        button.setBounds(
+                intFromRange(0, getToolkit().getScreenSize().width - 120),
+                intFromRange(0, getToolkit().getScreenSize().height - 40),
+                120,
+                40
+        );
+
+        Point offset = new Point();
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                offset.x = e.getX();
+                offset.y = e.getY();
+            }
+        });
+
+        button.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int newX = button.getX() + e.getX() - offset.x;
+                int newY = button.getY() + e.getY() - offset.y;
+                button.setLocation(newX, newY);
+            }
+        });
+
+        return button;
+    }
+
+    private String getFilePathFromButton(JButton button) {
+        return desktopDir.getAbsolutePath() + button.getText();
+    }
+
+    private void moveFileToFolder(File sourceFile, File targetFolder) {
+        System.out.println("Attempting to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
+
+        File newFile = new File(targetFolder, sourceFile.getName());
+        if (sourceFile.renameTo(newFile)) {
+            log("Moved file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
+            addedFilePaths.remove(sourceFile.getAbsolutePath());
+            pathToButtonMap.remove(sourceFile.getAbsolutePath());
+            gridOverlayPanel.remove(pathToButtonMap.get(sourceFile.getAbsolutePath()));
+            gridOverlayPanel.revalidate();
+            gridOverlayPanel.repaint();
+        } else {
+            err("Failed to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
+        }
+
+        System.exit(0);
     }
 
     private void showCustomContextMenu(int x, int y) {

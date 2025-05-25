@@ -77,7 +77,7 @@ public class BackgroundWindow extends JFrame {
 
     private void initComponents() {
         setLayout(new BorderLayout());
-        String imagePath = settings.get("imagePath", mainDir.getPath() + "/.a2wm/base.png");
+        String imagePath = settings.get("imagePath", mainDir.getPath() + "/base.png");
         currentImagePath = imagePath;
 
         backgroundLabel = new JLabel();
@@ -92,7 +92,7 @@ public class BackgroundWindow extends JFrame {
         int delay = 250;
         Timer timer = new Timer(delay, e -> {
             SettingsManager settings = SettingsManager.getInstance();
-            String imagePath = settings.get("imagePath", mainDir.getPath() + "/.a2wm/base.png");
+            String imagePath = settings.get("imagePath", mainDir.getPath() + "/base.png");
 
             if (!imagePath.equals(currentImagePath)) {
                 File imageFile = new File(imagePath);

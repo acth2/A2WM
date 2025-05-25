@@ -112,13 +112,13 @@ public class TaskbarWindow extends JFrame {
         if (isHovered) {
             key = settingsInstance.isDarkmode() ? "fav-hovered-dark-path" : "fav-hovered-white-path";
             defaultPath = settingsInstance.isDarkmode()
-                    ? mainDir.getPath() + "/.a2wm/fav-hovered-dark-path.png"
-                    : mainDir.getPath() + "/.a2wm/fav-hovered-white-path.png";
+                    ? mainDir.getPath() + "/fav-hovered-dark-path.png"
+                    : mainDir.getPath() + "/fav-hovered-white-path.png";
         } else {
             key = settingsInstance.isDarkmode() ? "fav-dark-path" : "fav-white-path";
             defaultPath = settingsInstance.isDarkmode()
-                    ? mainDir.getPath() + "/.a2wm/favicon-dark.png"
-                    : mainDir.getPath() + "/.a2wm/favicon-white.png";
+                    ? mainDir.getPath() + "/favicon-dark.png"
+                    : mainDir.getPath() + "/favicon-white.png";
         }
 
         String imagePath = settingsInstance.get(key, defaultPath);

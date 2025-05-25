@@ -16,8 +16,6 @@ import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class BackgroundWindow extends JFrame {
     private final SettingsManager settings = SettingsManager.getInstance();
-    private final Set<String> addedFilePaths = new HashSet<>();
-    private final Map<String, JButton> pathToButtonMap = new HashMap<>();
     private String currentImagePath = "";
     private JLabel backgroundLabel;
     private int currentWidth;
@@ -74,7 +72,6 @@ public class BackgroundWindow extends JFrame {
 
         setFocusable(false);
         initGridOverlay();
-        startFileSystemWatcher();
         mainLoop();
     }
 
@@ -116,194 +113,13 @@ public class BackgroundWindow extends JFrame {
                 updateBackgroundImage(currentImagePath);
                 toBack();
             }
-
-            for (Map.Entry<String, JButton> entry : pathToButtonMap.entrySet()) {
-                JButton button = entry.getValue();
-                String filePath = entry.getKey();
-                Rectangle buttonBounds = button.getBounds();
-
-                for (Map.Entry<String, JButton> otherEntry : pathToButtonMap.entrySet()) {
-                    JButton otherButton = otherEntry.getValue();
-                    if (button == otherButton) {
-                        continue;
-                    }
-
-                    Rectangle otherButtonBounds = otherButton.getBounds();
-                    if (buttonBounds.intersects(otherButtonBounds)) {
-                        log("Collision detected between " + entry.getKey() + " and " + otherEntry.getKey());
-
-                        if (otherButton.getText().endsWith("/")) {
-                            File sourceFile = new File(filePath);
-                            File targetFolder = new File(otherEntry.getKey());
-
-                            if (moveFileToFolder(sourceFile, targetFolder, button)) {
-                                log("File moved and UI updated for: " + filePath);
-                            } else {
-                                err("Failed to move file: " + filePath);
-                            }
-                        }
-                    }
-                }
-            }
-
-            updateDesktopIcons();
             toBack();
         });
         timer.start();
     }
 
-    private void updateDesktopIcons() {
-        log("Updating desktop icons...");
-        Color fileColor = new Color(3, 30, 82, 255);
-        Color dirColor = new Color(14, 128, 110, 255);
-
-        File[] files = desktopDir.listFiles();
-        if (files == null) {
-            err("Failed to list files in desktop directory: " + desktopDir.getAbsolutePath());
-            return;
-        }
-
-        Set<String> currentFilePaths = new HashSet<>();
-        for (File file : files) {
-            currentFilePaths.add(file.getAbsolutePath());
-        }
-
-        Iterator<String> iterator = addedFilePaths.iterator();
-        while (iterator.hasNext()) {
-            String path = iterator.next();
-            if (!currentFilePaths.contains(path)) {
-                log("Detected deleted or moved file: " + path);
-                JButton button = pathToButtonMap.get(path);
-                if (button != null) {
-                    gridOverlayPanel.remove(button);
-                    pathToButtonMap.remove(path);
-                }
-                iterator.remove();
-            }
-        }
-
-        for (File file : files) {
-            String absolutePath = file.getAbsolutePath();
-            if (!addedFilePaths.contains(absolutePath)) {
-                log("Detected new or renamed file: " + absolutePath);
-                JButton button = createIconButton(file, file.isFile() ? fileColor : dirColor);
-                gridOverlayPanel.add(button);
-                addedFilePaths.add(absolutePath);
-                pathToButtonMap.put(absolutePath, button);
-            }
-        }
-
-        gridOverlayPanel.revalidate();
-        gridOverlayPanel.repaint();
-        log("Updated desktop icons. Total files: " + currentFilePaths.size());
-    }
-
-    private JButton createIconButton(File file, Color color) {
-        JButton button = new JButton(file.isFile() ? file.getName() : file.getName() + "/");
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);
-        button.setBackground(color);
-        button.setBorder(null);
-
-        button.setBounds(
-                intFromRange(0, getToolkit().getScreenSize().width - 120),
-                intFromRange(0, getToolkit().getScreenSize().height - 40),
-                120,
-                40
-        );
-
-        log("Creating button for file: " + file.getName());
-
-        Point offset = new Point();
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                offset.x = e.getX();
-                offset.y = e.getY();
-                log("Mouse pressed on button: " + button.getText());
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                log("Mouse released on button: " + button.getText());
-            }
-        });
-
-        button.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int newX = button.getX() + e.getX() - offset.x;
-                int newY = button.getY() + e.getY() - offset.y;
-                button.setLocation(newX, newY);
-                log("Button dragged: " + button.getText() + " to (" + newX + ", " + newY + ")");
-            }
-        });
-
-        return button;
-    }
-
-    private String getFilePathFromButton(JButton button) {
-        return desktopDir.getAbsolutePath() + button.getText();
-    }
-
-    private boolean moveFileToFolder(File sourceFile, File targetFolder, JButton fileButton) {
-        toBack();
-        System.out.println("Attempting to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
-
-        File newFile = new File(targetFolder, sourceFile.getName());
-        if (sourceFile.renameTo(newFile)) {
-            log("Moved file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
-            gridOverlayPanel.remove(fileButton);
-            addedFilePaths.remove(sourceFile.getAbsolutePath());
-            pathToButtonMap.remove(sourceFile.getAbsolutePath());
-
-            gridOverlayPanel.revalidate();
-            gridOverlayPanel.repaint();
-
-            updateDesktopIcons();
-            return true;
-        } else {
-            err("Failed to move file: " + sourceFile.getName() + " to folder: " + targetFolder.getName());
-            return false;
-        }
-    }
-
     private void showCustomContextMenu(int x, int y) {
         new ContextMenu(x, y).showContext(x, y);
-    }
-
-    private void startFileSystemWatcher() {
-        Thread watcherThread = new Thread(() -> {
-            toBack();
-            try {
-                WatchService watchService = FileSystems.getDefault().newWatchService();
-                Path desktopPath = Paths.get(desktopDir.getAbsolutePath());
-                desktopPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
-
-                while (true) {
-                    WatchKey key = watchService.take();
-                    for (WatchEvent<?> event : key.pollEvents()) {
-                        WatchEvent.Kind<?> kind = event.kind();
-
-                        if (kind == StandardWatchEventKinds.OVERFLOW) {
-                            continue;
-                        }
-
-                        SwingUtilities.invokeLater(this::updateDesktopIcons);
-                    }
-
-                    boolean valid = key.reset();
-                    if (!valid) {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                err("File system watcher error: " + e.getMessage());
-            }
-        });
-
-        watcherThread.setDaemon(true);
-        watcherThread.start();
     }
 
     private void updateBackgroundImage(String imagePath) {

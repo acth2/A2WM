@@ -17,16 +17,24 @@ import java.util.*;
 import java.util.List;
 
 import static fr.acth2.a2wm.utils.References.mainDir;
+import static fr.acth2.a2wm.utils.References.runCommand;
 import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class TaskbarWindow extends JFrame {
     private Map<String, JButton> minimizedButtons = new HashMap<>();
-    private static JPanel buttonsPane = new JPanel();
+    public static SettingsManager settingsInstance = new SettingsManager();
+    private static JPanel buttonsPane = new JPanel() {
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+            d.height = Integer.parseInt(settingsInstance.get("taskBar-height", "32"));
+            return d;
+        }
+    };
+
     private JLabel timeLabel;
     private JLabel dateLabel;
     private StartMenu startMenu;
-
-    public SettingsManager settingsInstance = new SettingsManager();
 
     public static boolean isStartMenuActive = false;
 
@@ -43,6 +51,10 @@ public class TaskbarWindow extends JFrame {
     }
 
     private void initializeWindow() {
+
+        buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.X_AXIS));
+        buttonsPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screenSize.width;
         int height = Integer.parseInt(settingsInstance.get("taskBar-height", "32"));
@@ -57,7 +69,7 @@ public class TaskbarWindow extends JFrame {
         timeDatePanel.setLayout(new BoxLayout(timeDatePanel, BoxLayout.Y_AXIS));
         timeDatePanel.setOpaque(false);
 
-        ImageIcon favicon = ImageManager.loadImage(settingsInstance.isDarkmode() ? settingsInstance.get("fav-dark-path", mainDir.getPath() + "/favicon-dark.png") : settingsInstance.get("fav-white-path", mainDir.getPath() + "/.a2wm/favicon-white.png"), 32, 28);
+        ImageIcon favicon = ImageManager.loadImage(settingsInstance.isDarkmode() ? settingsInstance.get("fav-dark-path", mainDir.getPath() + "/favicon-dark.png") : settingsInstance.get("fav-white-path", mainDir.getPath() + "/favicon-white.png"), 32, 28);
         JButton startButton = new JButton(favicon);
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);
@@ -160,16 +172,30 @@ public class TaskbarWindow extends JFrame {
         for (MinimizedWindow w : minimized) {
             currentWindowIds.add(w.getWindowId());
             if (!minimizedButtons.containsKey(w.getWindowId())) {
-                JButton button = new JButton(w.getTitle());
+                JButton button = new JButton();
+                button.setToolTipText(w.getTitle());
+                button.setBorderPainted(false);
+                button.setContentAreaFilled(false);
+                button.setFocusPainted(false);
+                button.setOpaque(false);
+
+                button.setVerticalAlignment(SwingConstants.TOP);
+                button.setMargin(new Insets(4, 5, 0, 5));
+
+                ImageIcon windowIcon = getWindowIcon(w.getWindowId());
+                if (windowIcon != null) {
+                    button.setIcon(windowIcon);
+                } else {
+                    ImageIcon defaultIcon = ImageManager.loadImage(
+                            mainDir.getPath() + "/icon.png",
+                            28, 28);
+                    if (defaultIcon != null) {
+                        button.setIcon(defaultIcon);
+                    }
+                }
 
                 final MinimizedWindow window = w;
-
-                button.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        restoreWindow(window);
-                    }
-                });
+                button.addActionListener(e -> restoreWindow(window));
 
                 buttonsPane.add(button);
                 minimizedButtons.put(w.getWindowId(), button);
@@ -187,6 +213,16 @@ public class TaskbarWindow extends JFrame {
 
         buttonsPane.revalidate();
         buttonsPane.repaint();
+    }
+
+    private ImageIcon getWindowIcon(String windowId) {
+        try {
+            List<String> xpropOutput = runCommand("xprop", "-id", windowId, "_NET_WM_ICON");
+            return null;
+        } catch (Exception e) {
+            err("Failed to get window icon for window " + windowId + ": " + e.getMessage());
+            return null;
+        }
     }
 
     public void updateWindow() {

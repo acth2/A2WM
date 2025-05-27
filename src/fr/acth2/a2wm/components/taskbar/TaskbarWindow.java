@@ -169,34 +169,15 @@ public class TaskbarWindow extends JFrame {
         List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
         Set<String> currentWindowIds = new HashSet<>();
 
+        log("Found " + minimized.size() + " minimized windows");
+        for (MinimizedWindow w : minimized) {
+            log("Minimized window: " + w.getWindowId() + " - " + w.getTitle());
+        }
+
         for (MinimizedWindow w : minimized) {
             currentWindowIds.add(w.getWindowId());
             if (!minimizedButtons.containsKey(w.getWindowId())) {
-                JButton button = new JButton();
-                button.setToolTipText(w.getTitle());
-                button.setBorderPainted(false);
-                button.setContentAreaFilled(false);
-                button.setFocusPainted(false);
-                button.setOpaque(false);
-
-                button.setVerticalAlignment(SwingConstants.TOP);
-                button.setMargin(new Insets(4, 5, 0, 5));
-
-                ImageIcon windowIcon = getWindowIcon(w.getWindowId());
-                if (windowIcon != null) {
-                    button.setIcon(windowIcon);
-                } else {
-                    ImageIcon defaultIcon = ImageManager.loadImage(
-                            mainDir.getPath() + "/icon.png",
-                            28, 28);
-                    if (defaultIcon != null) {
-                        button.setIcon(defaultIcon);
-                    }
-                }
-
-                final MinimizedWindow window = w;
-                button.addActionListener(e -> restoreWindow(window));
-
+                JButton button = createTaskbarButton(w);
                 buttonsPane.add(button);
                 minimizedButtons.put(w.getWindowId(), button);
             }
@@ -213,6 +194,31 @@ public class TaskbarWindow extends JFrame {
 
         buttonsPane.revalidate();
         buttonsPane.repaint();
+    }
+
+    private JButton createTaskbarButton(MinimizedWindow window) {
+        JButton button = new JButton();
+        button.setToolTipText(window.getTitle());
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        button.setVerticalAlignment(SwingConstants.TOP);
+        button.setMargin(new Insets(2, 5, 0, 5));
+
+        ImageIcon icon = window.getIcon();
+        if (icon != null) {
+            button.setIcon(icon);
+        } else {
+            ImageIcon defaultIcon = ImageManager.loadImage(
+                    mainDir.getPath() + "/icon.png",
+                    24, 24
+            );
+            button.setIcon(defaultIcon);
+        }
+
+        button.addActionListener(e -> restoreWindow(window));
+        return button;
     }
 
     private ImageIcon getWindowIcon(String windowId) {

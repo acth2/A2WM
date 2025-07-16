@@ -29,8 +29,8 @@ public class BackgroundWindow extends JFrame {
         setAlwaysOnTop(false);
         setFocusable(false);
         setFocusableWindowState(false);
+        setAutoRequestFocus(false);
 
-        toBack();
         setType(Type.UTILITY);
         setResizable(false);
 
@@ -39,7 +39,6 @@ public class BackgroundWindow extends JFrame {
         setVisible(true);
 
         initComponents();
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -65,6 +64,24 @@ public class BackgroundWindow extends JFrame {
             }
             @Override
             public void windowLostFocus(WindowEvent e) {}
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                EventQueue.invokeLater(() -> {
+                    setFocusableWindowState(false);
+                    toBack();
+                });
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+                EventQueue.invokeLater(() -> {
+                    setAlwaysOnTop(false);
+                    toBack();
+                });
+            }
         });
 
         toBack();

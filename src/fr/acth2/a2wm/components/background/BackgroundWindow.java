@@ -31,7 +31,7 @@ public class BackgroundWindow extends JFrame {
         setFocusableWindowState(false);
         setAutoRequestFocus(false);
 
-        setType(Type.UTILITY);
+        setType(Type.NORMAL);
         setResizable(false);
 
         Dimension newSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,15 +44,24 @@ public class BackgroundWindow extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
+                    setAlwaysOnTop(true);
                     showCustomContextMenu(e.getX(), e.getY() + yAxisReducer);
-                    toBack();
+                    EventQueue.invokeLater(() -> {
+                        setAlwaysOnTop(false);
+                        toBack();
+                    });
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
+                    setAlwaysOnTop(true);
                     showCustomContextMenu(e.getX(), e.getY() + yAxisReducer);
-                    toBack();
+                    EventQueue.invokeLater(() -> {
+                        setAlwaysOnTop(false);
+                        toBack();
+                    });
                 }
             }
         });

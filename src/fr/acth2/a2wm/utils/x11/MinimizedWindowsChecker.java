@@ -1,13 +1,28 @@
 package fr.acth2.a2wm.utils.x11;
 
+import fr.acth2.a2wm.utils.References;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static fr.acth2.a2wm.utils.References.runCommand;
+import static fr.acth2.a2wm.utils.logger.Logger.*;
 
 public class MinimizedWindowsChecker {
+
+    private static AtomicBoolean atomicNLWarner = new AtomicBoolean(true);
+
     public static List<MinimizedWindow> findMinimizedWindowsICCCM() {
         List<MinimizedWindow> minimizedList = new ArrayList<>();
+
+        if (!References.isLinux()) {
+            if (atomicNLWarner.getAndSet(false)) {
+                err("Your operating system is not a linux based one.");
+                err("The MinimizedWindowsChecker class is then not gonna work, are you using argument --force ?");
+            }
+            return minimizedList;
+        }
 
         List<String> wmctrlLines = runCommand("wmctrl", "-l");
         if (wmctrlLines.isEmpty()) {

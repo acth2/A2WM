@@ -1,5 +1,8 @@
 package fr.acth2.a2wm.utils.logger;
 
+import fr.acth2.a2wm.Wrapper;
+import fr.acth2.a2wm.utils.References;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +29,12 @@ public class Logger {
 
     public static void log(String log) {
         handleLog(log, false);
+    }
+
+    public static void debugLog(String log) {
+        if(Wrapper.atomicDebug.get()) {
+            handleLog(References.YELLOW + "[DEBUG] " + References.RESET + log, false);
+        }
     }
 
     public static void err(String err) {
@@ -63,11 +72,13 @@ public class Logger {
     }
 
     private static void writeToFile(String log) {
+        String cleanedLog = log.replaceAll("\u001B\\[[;\\d]*m", "");
         try (FileWriter writer = new FileWriter(LOG_FILE, true)) {
-            writer.write(log + System.lineSeparator());
+            writer.write(cleanedLog + System.lineSeparator());
             checkLogFileSize();
         } catch (IOException e) {
             System.err.println("Failed to write to log file: " + e.getMessage());
         }
     }
+
 }

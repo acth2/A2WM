@@ -96,7 +96,7 @@ public class TaskbarWindow extends JFrame {
             }
         });
         Font timeFont = FontManager.loadFont("/fonts/Roboto-Light.ttf", Font.PLAIN, 14);
-        Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.PLAIN, 12);
+        Font dateFont = FontManager.loadFont("/fonts/Roboto-Medium.ttf", Font.BOLD, 12);
 
         timeLabel = new AntiAliasingLabel("00:00:00", timeFont, Color.WHITE);
         timeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -169,7 +169,6 @@ public class TaskbarWindow extends JFrame {
         List<MinimizedWindow> minimized = MinimizedWindowsChecker.findMinimizedWindowsICCCM();
         Set<String> currentWindowIds = new HashSet<>();
 
-        log("Found " + minimized.size() + " minimized windows");
         for (MinimizedWindow w : minimized) {
             log("Minimized window: " + w.getWindowId() + " - " + w.getTitle());
         }

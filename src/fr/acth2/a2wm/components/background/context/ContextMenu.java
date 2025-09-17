@@ -43,9 +43,9 @@ public class ContextMenu extends JFrame {
             }
         });
 
-        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        this.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+            public void windowClosed(WindowEvent windowEvent) {
                 if (currentInstance == ContextMenu.this) {
                     currentInstance = null;
                 }

@@ -1,5 +1,7 @@
 package fr.acth2.a2wm.utils.manager;
 
+import fr.acth2.a2wm.Wrapper;
+
 import java.awt.*;
 
 public class FontManager {
@@ -10,7 +12,9 @@ public class FontManager {
             ge.registerFont(font);
             return font;
         } catch (Exception e) {
-            e.printStackTrace();
+            if (Wrapper.atomicDebug.get()) {
+                e.printStackTrace();
+            }
             return new Font("SansSerif", style, (int) size);
         }
     }

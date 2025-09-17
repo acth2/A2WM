@@ -97,7 +97,6 @@ public class BackgroundWindow extends JFrame {
         SwingUtilities.invokeLater(this::toBack);
 
         setFocusable(false);
-        initGridOverlay();
         mainLoop();
     }
 
@@ -145,7 +144,7 @@ public class BackgroundWindow extends JFrame {
     }
 
     private void showCustomContextMenu(int x, int y) {
-        new ContextMenu(x, y).showContext(x, y);
+        ContextMenu.showContext(x, y);
     }
 
     private void updateBackgroundImage(String imagePath) {
@@ -183,25 +182,5 @@ public class BackgroundWindow extends JFrame {
     @Override
     protected boolean requestFocus(boolean temporary) {
         return false;
-    }
-
-    private final int gridRows = Integer.parseInt(settings.get("desktopGridRows", "16"));
-    private final int gridCols = Integer.parseInt(settings.get("desktopGridCols", "16"));
-    private JPanel gridOverlayPanel;
-
-    private void initGridOverlay() {
-        gridOverlayPanel = new JPanel(null);
-        gridOverlayPanel.setOpaque(false);
-        gridOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
-        getLayeredPane().add(gridOverlayPanel, JLayeredPane.PALETTE_LAYER);
-
-        for (int i = 0; i < gridRows; i++) {
-            for (int j = 0; j < gridCols; j++) {
-                JPanel cell = new JPanel(new BorderLayout());
-                cell.setOpaque(false);
-                cell.setBorder(null);
-                gridOverlayPanel.add(cell);
-            }
-        }
     }
 }

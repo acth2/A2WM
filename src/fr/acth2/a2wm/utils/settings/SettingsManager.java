@@ -1,5 +1,6 @@
 package fr.acth2.a2wm.utils.settings;
 
+import fr.acth2.a2wm.Wrapper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -52,7 +53,9 @@ public class SettingsManager {
                 }
             } catch (IOException | ParseException e) {
                 err("Error reading settings.json. Initializing with empty settings.");
-                e.printStackTrace();
+                if (Wrapper.atomicDebug.get()) {
+                    e.printStackTrace();
+                }
                 settings = new JSONObject();
             }
         }

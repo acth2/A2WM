@@ -18,7 +18,8 @@ public class MinimizedWindow {
         this.windowId = windowId;
         this.title = title;
 
-        this.icon = WindowIconExtractor.getWindowIcon(windowId, 24, 24);
+        // to modify later...
+        this.icon = null;
 
         if (this.icon == null || this.icon.getImage() == null) {
             File defaultIconFile = new File(mainDir.getPath() + "/icon.xpm");

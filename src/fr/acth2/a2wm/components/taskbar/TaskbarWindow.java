@@ -51,6 +51,7 @@ public class TaskbarWindow extends JFrame {
     }
 
     private void initializeWindow() {
+        debugLog("Intializing TaskbarWindow.");
 
         buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.X_AXIS));
         buttonsPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));

@@ -170,14 +170,7 @@ public class Wrapper {
                 log(YELLOW + "VERSION " + RESET + VERSION);
 
                 try {
-                    UIManager.setLookAndFeel(new FlatDarkLaf());
-                    SwingUtilities.invokeLater(() -> {
-                        BackgroundWindow backgroundWindow = new BackgroundWindow();
-                    });
-
-                    SwingUtilities.invokeLater(() -> {
-                        TaskbarWindow taskbarWindow = new TaskbarWindow();
-                    });
+                    startUI();
                 } catch (Exception exception) {
                     err(NAME + " CRASHED!\n");
                     exception.printStackTrace();
@@ -187,5 +180,16 @@ public class Wrapper {
                 err("Please install this software and restart the window-manager");
             }
         }
+    }
+
+    private static void startUI() throws UnsupportedLookAndFeelException {
+        UIManager.setLookAndFeel(new FlatDarkLaf());
+        SwingUtilities.invokeLater(() -> {
+            BackgroundWindow backgroundWindow = new BackgroundWindow();
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            TaskbarWindow taskbarWindow = new TaskbarWindow();
+        });
     }
 }

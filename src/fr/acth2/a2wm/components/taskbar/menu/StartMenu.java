@@ -20,10 +20,9 @@ public class StartMenu extends JFrame {
         setUndecorated(true);
         setAlwaysOnTop(true);
 
-        log("Initializing StartMenu...");
+        debugLog("Initializing StartMenu...");
         initializeWindow();
     }
-
 
     public static StartMenu getInstance() {
         if (instance == null) {
@@ -50,11 +49,11 @@ public class StartMenu extends JFrame {
             err("Invalid start-menu-height. Using default: 513");
         }
 
-        log("BackgroundWindow.yAxisReducer: " + BackgroundWindow.yAxisReducer);
+        debugLog("BackgroundWindow.yAxisReducer: " + BackgroundWindow.yAxisReducer);
 
         int posX = 0;
         int posY = screenSize.height - height - Integer.parseInt(new SettingsManager().get("taskBar-height", "32"));
-        log("Calculated StartMenu Position: (" + posX + ", " + posY + ")");
+        debugLog("Calculated StartMenu Position: (" + posX + ", " + posY + ")");
 
         setSize(width, height);
         setLocation(posX, posY);
@@ -63,7 +62,7 @@ public class StartMenu extends JFrame {
 
     public void toggleVisibility(boolean vis) {
         setVisible(vis);
-        log("StartMenu visibility toggled. Now visible: " + vis);
+        debugLog("StartMenu visibility toggled. Now visible: " + vis);
     }
 
     @Override

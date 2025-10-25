@@ -21,10 +21,10 @@ import static fr.acth2.a2wm.utils.logger.Logger.*;
 public class Wrapper {
 
     public static AtomicBoolean atomicDebug = new AtomicBoolean(false);
+    private static AtomicBoolean force = new AtomicBoolean(false);
 
     public static void main(String[] args) {
         AtomicBoolean startgui = new AtomicBoolean(true);
-        AtomicBoolean force = new AtomicBoolean(false);
 
         for (String arg : args) {
             if ("--help".equalsIgnoreCase(arg)) {
@@ -169,20 +169,29 @@ public class Wrapper {
                 log(YELLOW + "STARTING " + RESET + NAME);
                 log(YELLOW + "VERSION " + RESET + VERSION);
 
-                try {
-                    startUI();
-                } catch (Exception exception) {
-                    err(NAME + " CRASHED!\n");
-                    exception.printStackTrace();
-                }
+                startUI();
             } else {
-                err("The application 'wmctrl' is not found in your PATH.");
-                err("Please install this software and restart the window-manager");
+                if (References.isLinux()) {
+                    err("The application 'wmctrl' is not found in your PATH.");
+                    err("Please install this software and restart the window-manager");
+                } else if (force.get()){
+                    log("The minimize implementation using wmctrl will not be possible");
+                    startUI();
+                }
             }
         }
     }
 
-    private static void startUI() throws UnsupportedLookAndFeelException {
+    private static void startUI() {
+        try {
+            startComponents();
+        } catch (Exception exception) {
+            err(NAME + " CRASHED!\n");
+            exception.printStackTrace();
+        }
+    }
+
+    private static void startComponents() throws UnsupportedLookAndFeelException {
         UIManager.setLookAndFeel(new FlatDarkLaf());
         SwingUtilities.invokeLater(() -> {
             BackgroundWindow backgroundWindow = new BackgroundWindow();

@@ -18,8 +18,8 @@ public class MinimizedWindowsChecker {
 
         if (!References.isLinux()) {
             if (atomicNLWarner.getAndSet(false)) {
-                err("Your operating system is not a linux based one.");
-                err("The MinimizedWindowsChecker class is then not gonna work, are you using argument --force ?");
+                log("Your operating system is not a linux based one.");
+                log("The MinimizedWindowsChecker class is then not going to work.");
             }
             return minimizedList;
         }

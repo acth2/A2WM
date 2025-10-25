@@ -138,9 +138,9 @@ public class Wrapper {
                 if (dbusCheck.exitValue() == 0) {
                     return true;
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
 
+            // idk if that part is needed because i already check for XDG_CURRENT_DESKTOP.
             Set<String> deProcesses = new HashSet<>(Arrays.asList(
                     "gnome-shell", "plasmashell", "xfce4-panel", "cinnamon", "mate-panel", "lxqt-panel", "budgie-panel"
             ));
